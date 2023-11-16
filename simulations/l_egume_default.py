@@ -11,7 +11,7 @@ import datetime
 def simulation(in_folder, out_folder):
     environment = Environment(external_soil=False)
 
-    legume = L_egume_facade(in_folder=in_folder, out_folder=out_folder, environment=environment)
+    legume = L_egume_facade(in_folder=in_folder, out_folder=out_folder)
 
     plants_positions = Planter(plantmodels=[legume])
 

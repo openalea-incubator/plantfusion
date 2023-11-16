@@ -41,7 +41,8 @@ class Wheat_facade(object):
         out_folder="",
         plant_density={1: 250},
         nb_plants=50,
-        environment=Environment,
+        environment=Environment(),
+        planter=None,
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -74,8 +75,13 @@ class Wheat_facade(object):
         ELEMENTS_POSTPROCESSING_FILENAME="elements_postprocessing.csv",
         SOILS_POSTPROCESSING_FILENAME="soils_postprocessing.csv",
     ) -> None:
-        self.plant_density = plant_density
-        self.nb_plants = nb_plants
+        if planter is not None:
+            self.plant_density = planter.plant_density
+            self.nb_plants = planter.wheat_nbplants
+            self.generation_type = planter.generation_type
+        else:
+            self.plant_density = plant_density
+            self.nb_plants = nb_plants
 
         self.N_fertilizations = environment.N_fertilizations
         self.tillers_replications = environment.tillers_replications
@@ -98,6 +104,7 @@ class Wheat_facade(object):
         self.SOILS_OUTPUTS_FILENAME = SOILS_OUTPUTS_FILENAME
 
         self.out_folder = os.path.join(os.path.normpath(out_folder), "wheat")
+        in_folder = os.path.normpath(in_folder)
 
         self.AXES_POSTPROCESSING_FILENAME = AXES_POSTPROCESSING_FILENAME
         self.ORGANS_POSTPROCESSING_FILENAME = ORGANS_POSTPROCESSING_FILENAME
@@ -523,8 +530,17 @@ class Wheat_facade(object):
         # update geometry
         self.adel_wheat.update_geometry(self.g)
 
-    def light_inputs(self, position):
-        scene_wheat = position.create_heterogeneous_canopy(self.adel_wheat, mtg=self.g)
+    def light_inputs(self, planter):
+        if self.generation_type == "default":
+            scene_wheat = planter.create_heterogeneous_canopy(self.adel_wheat, mtg=self.g)
+
+        elif self.generation_type == "random":
+           scene_wheat = planter.generate_random_wheat(self.adel_wheat, mtg=self.g)
+
+        else:
+            print("can't recognize positions generation type, choose between default, random and row")
+            raise
+
         return [scene_wheat]
 
     def light_results(self, energy, lighting):
@@ -542,7 +558,7 @@ class Wheat_facade(object):
 
                 if lightmodel == "caribu":
                     para_dic[s] = d["par Eabs"].values[0] * energy
-                    erel_dic[s] = d["par Eabs"].values[0] # lighting ran with energy = 1.
+                    erel_dic[s] = d["par Eabs"].values[0]  # lighting ran with energy = 1.
 
                 elif lightmodel == "ratp":
                     para_dic[s] = d["PARa"].values[0] * energy
@@ -556,7 +572,7 @@ class Wheat_facade(object):
 
                     if lightmodel == "caribu":
                         para_dic[s] = d["par Eabs"].values[0] * energy
-                        erel_dic[s] = d["par Eabs"].values[0] # lighting ran with energy = 1.
+                        erel_dic[s] = d["par Eabs"].values[0]  # lighting ran with energy = 1.
 
                     elif lightmodel == "ratp":
                         para_dic[s] = d["PARa"].values[0] * energy
@@ -970,21 +986,22 @@ class Wheat_facade(object):
                         break
                 mtg_roots_properties = self.g.get_vertex_property(mtg_axis_vid)["roots"]
                 mtg_roots_properties.update(nitrates_uptake_data_to_use)
-    
+
     def energy(self, t):
         return self.meteo.loc[t, ["PARi"]].iloc[0]
-    
+
     def doy(self, t):
         return self.meteo.loc[t, ["DOY"]].iloc[0]
-    
+
     def hour(self, t):
         return self.meteo.loc[t, ["hour"]].iloc[0]
 
     def PARi_next_hours(self, t):
         return self.meteo.loc[range(t, t + self.LIGHT_TIMESTEP), ["PARi"]].sum().values[0]
-    
+
     def next_day_next_hour(self, t):
         return self.meteo.loc[t + self.SENESCWHEAT_TIMESTEP, ["DOY"]].iloc[0]
+
 
 def passive_lighting(data, t, DOY, scene, lighting_facade):
     lighting_facade.run(scenes_wheat=scene, day=DOY, parunit="micromol.m-2.s-1")
@@ -992,8 +1009,7 @@ def passive_lighting(data, t, DOY, scene, lighting_facade):
     results = lighting_facade.results_organs()
 
     para = results["Organ"] * results["Area"]
-    para *= 1/results["Area"].sum()
+    para *= 1 / results["Area"].sum()
 
     data["PARa"].append(para)
     data["t"].append(t)
-

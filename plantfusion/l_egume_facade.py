@@ -34,12 +34,10 @@ class L_egume_facade(object):
         self,
         in_folder="",
         out_folder="",
-        environment: Environment = Environment(),
         nameconfigfile="liste_usms_exemple.xls",
         ongletconfigfile="exemple",
+        planter=None,
     ) -> None:
-
-
         try:
             os.mkdir(os.path.normpath(out_folder))
             print("Directory ", out_folder, " Created ")
@@ -66,14 +64,24 @@ class L_egume_facade(object):
         self.lsystems = {}
         self.idsimu = []
         for i in range(len(ls_usms["ID_usm"])):
-            if int(ls_usms["torun"][i]) == 1:  # si 1 dans la colonne 'torun' l'ajoute a la liste
-                mylsys = runl.lsystemInputOutput_usm(
-                    nameconfigfile,
-                    foldin=in_folder,
-                    ongletBatch=ongletconfigfile,
-                    i=i,
-                    path_OUT=os.path.join(self.out_folder, "brut"),
-                )
+            if int(ls_usms["torun"][i]) == 1:
+                if planter is not None:
+                    mylsys = lsystemInputOutput_usm_with_planter(
+                                nameconfigfile,
+                                foldin=in_folder,
+                                ongletBatch=ongletconfigfile,
+                                i=i,
+                                path_OUT=os.path.join(self.out_folder, "brut"),
+                                planter=planter
+                            )
+                else:
+                    mylsys = runl.lsystemInputOutput_usm(
+                        nameconfigfile,
+                        foldin=in_folder,
+                        ongletBatch=ongletconfigfile,
+                        i=i,
+                        path_OUT=os.path.join(self.out_folder, "brut"),
+                    )
                 name = list(mylsys)[0]
                 self.idsimu.append(name)
                 self.lsystems[name] = mylsys[name]
@@ -93,7 +101,7 @@ class L_egume_facade(object):
 
         self.number_of_species_per_usm = [len(self.lsystems[n].tag_loop_inputs[17]) for n in self.idsimu]
 
-        if sum(self.number_of_species_per_usm) > len(self.idsimu) :
+        if sum(self.number_of_species_per_usm) > len(self.idsimu):
             print("--> Please use one plant specy per usm.")
             raise
 
@@ -752,13 +760,10 @@ class L_egume_facade(object):
             # all non empty plant must have a minimum intercepted energy
             # if len(self.invar[k]["parip"]) == len(self.lsystems[self.idsimu[k]].tag_loop_inputs[14]["surf"]):
             plants_surface = self.lsystems[self.idsimu[k]].tag_loop_inputs[14]["surf"]
-            if plants_surface != [] :
-                if sum(plants_surface) > 0. :
+            if plants_surface != []:
+                if sum(plants_surface) > 0.0:
                     for p in range(len(self.invar[k]["parip"])):
-                        if (
-                            self.invar[k]["parip"][p] == 0.0
-                            and plants_surface[p] > 0.0
-                        ):
+                        if self.invar[k]["parip"][p] == 0.0 and plants_surface[p] > 0.0:
                             self.invar[k]["parip"][p] = epsilon
 
             # conversion
@@ -780,24 +785,25 @@ class L_egume_facade(object):
                         res_trans[((m_lais.shape[1] - 1)) - iz][iy][ix] = a
                         ID_capt += 1
 
-        # surface d'une face d'un voxel 
+        # surface d'une face d'un voxel
         dS = self.lsystems[self.idsimu[0]].tag_loop_inputs[15]
         # gives maximum transmitted energy
         res_trans = res_trans * energy * dS
 
         return res_trans
-    
+
     def energy(self):
         meteo_j = self.lsystems[self.idsimu[0]].tag_loop_inputs[6]
         energy = 0.48 * meteo_j["RG"] * 10000 / (3600 * 24)
         return energy
-    
+
     def doy(self):
         DOY = self.lsystems[self.idsimu[0]].tag_loop_inputs[8]
         return DOY
-    
+
     def set_domain(self, domain):
         self.domain = domain
+
 
 def passive_lighting(data, energy, DOY, scene, legume_facade, lighting_facade):
     invar_saved = deepcopy(legume_facade.invar)
@@ -810,3 +816,190 @@ def passive_lighting(data, energy, DOY, scene, legume_facade, lighting_facade):
         data[i]["epsi"].extend(legume_facade.epsi[i])
         data[i]["parip"].extend(legume_facade.invar[i]["parip"])
         data[i]["t"].extend([DOY] * len(legume_facade.epsi[i]))
+
+def lsystemInputOutput_usm_with_planter(fxls_usm, foldin = 'input', ongletBatch = 'exemple', i=0, path_OUT='output', planter=None):
+    """" cree et update l-system en fonction du fichier usm """
+    import legume
+    import openalea.lpy as lpy
+
+    # lecture de la liste des usm
+    usm_path = os.path.join(foldin, fxls_usm)
+    usms = IOxls.xlrd.open_workbook(usm_path)
+    ls_usms = IOtable.conv_dataframe(IOxls.get_xls_col(usms.sheet_by_name(ongletBatch)))
+
+    # force l'arrangement via le planter
+    if planter is not None:
+        ls_usms["typearrangement"][i] = planter.legume_typearrangement
+        ls_usms['cote'][i] = planter.legume_cote
+        ls_usms['nbcote'][i] = planter.legume_nbcote
+        ls_usms['optdamier'][i] = planter.legume_optdamier
+
+    fscenar = 'liste_scenarios.xls'
+    fsd = 'exemple_sd.xls'
+    fsdx = 'exemple_corr_matrix.xls'
+    fopt = 'mod_susm.xls'
+    fsta = 'stations_exemple.xls'
+    ongletSta = 'Lusignan'
+
+    path_opt = os.path.join(foldin, fopt)
+    dic_opt = IOxls.read_plant_param(path_opt, "options")
+
+    testsim = {}
+    name = str(int(ls_usms['ID_usm'][i])) + '_' + str(ls_usms['l_system'][i])[0:-4]
+    seednb = int(ls_usms['seed'][i])
+
+    path_ = os.path.dirname(os.path.abspath(legume.__file__))
+    path_lsys = os.path.join(path_, str(ls_usms['l_system'][i]))
+    testsim[name] = lpy.Lsystem(path_lsys)
+
+    meteo_path_ = os.path.join(foldin, str(ls_usms['meteo'][i]))
+    ongletM_ = str(ls_usms['ongletM'][i])
+    testsim[name].meteo = IOxls.read_met_file(meteo_path_, ongletM_)
+
+    mn_path_ = os.path.join(foldin, str(ls_usms['mng'][i]))
+    ongletMn_ = str(ls_usms['ongletMn'][i])
+    testsim[name].mng = IOxls.read_met_file(mn_path_, ongletMn_)
+
+    ini_path_ = os.path.join(foldin, str(ls_usms['inis'][i]))
+    ongletIni_ = str(ls_usms['ongletIn'][i])
+    testsim[name].inis = IOxls.read_plant_param(ini_path_, ongletIni_)
+
+    path_plante = os.path.join(foldin, str(ls_usms['plante'][i]))
+    testsim[name].path_plante = path_plante
+    path_lsplt = os.path.join(foldin, str(ls_usms['lsplt'][i]))
+    mixID = str(ls_usms['mixID'][i])
+    tabSpe = pandas.read_excel(path_lsplt, sheet_name=mixID)
+    ls_Spe = tabSpe["ongletP"].tolist()
+    ongletP = ls_Spe[0]
+    ongletPvois = ls_Spe[1]
+
+
+    path_scenar = os.path.join(foldin, fscenar)
+    testsim[name].mn_sc = path_scenar
+
+    path_variance_geno = os.path.join(foldin, fsd)
+    testsim[name].path_variance_geno = path_variance_geno
+
+    path_variance_matrix = os.path.join(foldin, fsdx)
+    testsim[name].path_variance_matrix = path_variance_matrix
+
+    idscenar1 = int(ls_usms['scenario1'][i])
+    idscenar2 = int(ls_usms['scenario2'][i])
+    idscenar3 = int(ls_usms['scenario3'][i])
+    idscenar4 = int(ls_usms['scenario4'][i])
+    idscenar5 = int(ls_usms['scenario5'][i])
+    idscenar6 = int(ls_usms['scenario6'][i])
+
+    idscenar1_sd = int(ls_usms['scenario1_sd'][i])
+    idscenar2_sd = int(ls_usms['scenario2_sd'][i])
+    idscenar3_sd = int(ls_usms['scenario3_sd'][i])
+    idscenar4_sd = int(ls_usms['scenario4_sd'][i])
+    idscenar5_sd = int(ls_usms['scenario5_sd'][i])
+    idscenar6_sd = int(ls_usms['scenario6_sd'][i])
+
+    # sol
+    path_sol = os.path.join(foldin, str(ls_usms['sol'][i]))
+    ongletS = str(ls_usms['ongletS'][i])
+    par_SN, par_sol = IOxls.read_sol_param(path_sol, ongletS)
+    par_SN['concrr'] = 0.
+    testsim[name].par_SN = par_SN
+    testsim[name].par_sol = par_sol
+
+    path_station = os.path.join(foldin, fsta)
+    testsim[name].path_station = path_station
+    testsim[name].ongletSta = ongletSta
+
+    optdamier = int(ls_usms['optdamier'][i])
+    nbcote = int(ls_usms['nbcote'][i])
+
+    if str(ls_usms['typearrangement'][i]) == 'damier8':
+        arrang = 'damier' + str(optdamier)
+    if str(ls_usms['typearrangement'][i]) == 'damier16':
+        arrang = 'damidouble' + str(optdamier)
+    elif str(ls_usms['typearrangement'][i]) == 'row4':
+        arrang = 'row' + str(optdamier)
+    else:
+        arrang = str(ls_usms['typearrangement'][i]) + str(optdamier)
+
+    nommix = '_' + ongletP + '-' + ongletPvois + '_' + arrang + '_scenario' + str(idscenar2) + '-' + str(idscenar1)
+
+    testsim[name].ls_Spe = ls_Spe
+    testsim[name].nbcote = nbcote
+    testsim[name].opt_sd = int(ls_usms['opt_sd'][i])
+    testsim[name].opt_scenar = int(ls_usms['opt_scenar'][i])
+    testsim[name].cote = float(ls_usms['cote'][i])
+    testsim[name].deltalevmoy = float(ls_usms['deltalevmoy'][i])
+    testsim[name].deltalevsd = float(ls_usms['deltalevsd'][i])
+    testsim[name].typearrangement = str(ls_usms['typearrangement'][i])
+    testsim[name].optdamier = optdamier
+    testsim[name].ls_idscenar = [idscenar1, idscenar2, idscenar3, idscenar4, idscenar5, idscenar6]
+    testsim[name].ls_idscenar_sd = [idscenar1_sd, idscenar2_sd, idscenar3_sd, idscenar4_sd, idscenar5_sd, idscenar6_sd]
+    testsim[name].idscenar1_sd = idscenar1_sd
+    testsim[name].idscenar2_sd = idscenar2_sd
+    testsim[name].Rseed = seednb
+    testsim[name].DOYdeb = int(ls_usms['DOYdeb'][i])
+    testsim[name].DOYend = int(ls_usms['DOYend'][i])
+
+
+    #mise a jour des options de simulation
+    testsim[name].opt_residu = int(dic_opt['opt_residu'])  # si 0, pas activation de mineralisation
+    testsim[name].opt_sd = int(dic_opt['opt_sd'])  # 1 #genere distribution des valeurs de parametres
+    testsim[name].opt_covar = int(dic_opt['opt_covar'])  #definie matrice de cavariance a lire dans path_variance_matrix (0 opt_sd generere tirages independants)
+    testsim[name].opt_shuffle = int(dic_opt['opt_shuffle']) # 1: for random order of plant species in ParamP ; 0: reular order
+    testsim[name].opt_stressN = int(dic_opt['opt_stressN'])  # Active stress N; 1 = stress NNI actif (0= calcule, mais pas applique)
+    testsim[name].opt_stressW = int(dic_opt['opt_stressW'])  # Active stressW; 1 = stress FTSW actif (0= calcule, mais pas applique)
+    testsim[name].opt_ReadstressN = int(dic_opt['opt_ReadstressN'])  # Force stress N to read input values - for debugging/calibration
+    testsim[name].opt_ReadstressW = int(dic_opt['opt_ReadstressW'])  # Force stress FTSW to read input values - for debugging/calibration
+    testsim[name].opt_photomorph = int(dic_opt['opt_photomorph'])  # 1 #Activate photomorphogenetic effects on organ growth; 1 Actif (0= calcule, mais pas applique)
+    testsim[name].opt_optT = int(dic_opt['opt_optT']) # option de calcul du cumul de temperature (0=betaD; 1=betaH; 2=lineaireD)
+    testsim[name].opt_stressGel = int(dic_opt['opt_stressGel']) #Active gel stress option below Tgel
+    testsim[name].opt_PP = int(dic_opt['opt_PP']) # Active photoperiodic effects (1 active; 0 inactive)
+    testsim[name].opt_Nuptake = int(dic_opt['opt_Nuptake']) #options for calculating plant N uptake - 0:'STICS'  #1:'LocalTransporter'  #2:'old'
+    testsim[name].opt_Mng = int(dic_opt['opt_Mng'])  # type of management file to be read: 0: default observed file ; 1: automatic management file #must be consistent with the management file!
+    testsim[name].opt_ReadPP = int(dic_opt['opt_ReadPP'])  # Force photoperiod to read input values in management - for indoor experiment
+    testsim[name].visu_root = int(dic_opt['visu_root'])  # 1# pour visualisation/interpretation root
+    testsim[name].visu_shoot = int(dic_opt['visu_shoot'])  # 1# pour visualisation/interpretation shoot
+    testsim[name].visu_leaf = int(dic_opt['visu_leaf'])  # 1# pour visualisation/interpretation feuilles slmt
+    testsim[name].visu_sol = int(dic_opt['visu_sol'])  # 1# pour visualisation/interpretation sol
+    testsim[name].visu_solsurf = int(dic_opt['visu_solsurf'])  # 0 pour visualisation du pattern
+    testsim[name].frDisplay = int(dic_opt['frDisplay'])  # 1 #sauvegarde de la derniere vue
+    testsim[name].movDisplay = int(dic_opt['movDisplay'])  # #sauvegarde toutes les vues pour faire un film
+    testsim[name].opt_zip = int(dic_opt['opt_zip'])  # if 1, zip and delete the output csv files
+    testsim[name].opt_verbose = int(dic_opt['opt_verbose'])  # 0, remove print in the console
+
+
+    testsim[name].derivationLength = int(ls_usms['DOYend'][i]) - int(ls_usms['DOYdeb'][i])  # derivationLength variable predefinie dans L-py
+    arr = str(ls_usms['typearrangement'][i])
+    if arr == 'row4':
+        nbplantes = nbcote * 4
+    elif arr == 'damier8' or arr == 'damier16' or arr == 'homogeneous' or arr == 'random8' or arr == 'damier9' or arr == 'damier10' or arr == 'damier8_4':  # carre homogene
+        nbplantes = nbcote * nbcote
+    elif arr == 'damier8_sp1' or arr == 'damier8_sp2' or arr == 'damier16_sp1' or arr == 'damier16_sp2':
+        nbplantes = int(nbcote * nbcote / 2)
+    else:
+        print('unknown arrangement and nbplant')
+
+    a = lpy.AxialTree()
+    a.append(testsim[name].attente(1))
+    for j in range(0, nbplantes):
+        a.append(testsim[name].Sd(j))
+
+    testsim[name].axiom = a
+
+    if int(ls_usms['opt_sd'][i]) == 1 or int(ls_usms['opt_sd'][i]) == 2:
+        sdname = '_SD' + str(idscenar2_sd) + '-' + str(idscenar1_sd)
+    else:
+        sdname = '_-'
+
+    # path fichiers de sortie
+    testsim[name].path_out = path_OUT #os.path.join(path_, str(ls_usms['folder_out'][i]))
+    testsim[name].outvarfile = 'toto_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + sdname + '_' + '.csv'
+    testsim[name].lsorgfile = 'lsAxes_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + sdname + '_' + '.csv'
+    testsim[name].outHRfile = 'outHR_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + sdname + '_' + '.csv'
+    testsim[name].resrootfile = 'resroot_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + sdname + '_' + '.csv'
+    testsim[name].outBilanNfile = 'BilanN_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + sdname + '_' + '.csv'
+    testsim[name].outimagefile = 'scene_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + sdname + '_' + '.bmp'  # 'scene.bmp'
+    testsim[name].outsdfile = 'paramSD_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + '_' + sdname + '_' + '.csv'
+    testsim[name].outMngfile = 'MngAuto_' + name + nommix + '_' + str(ls_usms['ongletMn'][i]) + '_' + str(seednb) + '_' + str(ls_usms['ongletM'][i]) + '_' + sdname + '_' + '.csv'
+
+    return testsim

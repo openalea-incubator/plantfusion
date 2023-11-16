@@ -9,7 +9,9 @@ import time
 import datetime
 
 
-def simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length, run_postprocessing=False, writegeo=False):
+def simulation(
+    in_folder_legume, in_folder_wheat, out_folder, simulation_length, run_postprocessing=False, writegeo=False
+):
     N_fertilizations = {2016: 357143, 2520: 1000000}
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     plant_density = {1: 250}
@@ -38,12 +40,20 @@ def simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length,
         LIGHT_TIMESTEP=light_timestep,
     )
 
-    legume = L_egume_facade(in_folder=in_folder_legume, out_folder=out_folder, environment=environment)
+    legume = L_egume_facade(in_folder=in_folder_legume, out_folder=out_folder)
 
     translate = (-0.21, -0.21)
-    plants_positions = Planter(plantmodels=[wheat, legume], inter_rows=0.15, plant_density=plant_density, xy_translate=translate)
+    plants_positions = Planter(
+        plantmodels=[wheat, legume], inter_rows=0.15, plant_density=plant_density, xy_translate=translate
+    )
 
-    soil = Soil_facade(in_folder=in_folder_legume, out_folder=out_folder, legume_facade=legume, position=plants_positions, legume_pattern=True)
+    soil = Soil_facade(
+        in_folder=in_folder_legume,
+        out_folder=out_folder,
+        legume_facade=legume,
+        position=plants_positions,
+        legume_pattern=True,
+    )
 
     lighting = Light(
         out_folder=out_folder,
@@ -54,13 +64,12 @@ def simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length,
         legume_facade=legume,
         writegeo=writegeo,
     )
-  
+
     try:
         # start simulation
         t_legume = 0
         current_time_of_the_system = time.time()
         for t_wheat in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
-
             activate_legume = wheat.doy(t_wheat) != wheat.next_day_next_hour(t_wheat)
             daylight = (t_wheat % light_timestep == 0) and (wheat.PARi_next_hours(t_wheat) > 0)
 

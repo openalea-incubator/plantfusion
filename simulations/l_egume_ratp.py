@@ -17,9 +17,7 @@ def simulation(in_folder, out_folder):
 
     # version par défaut
     environment = Environment(external_soil=False)
-    legume_default = L_egume_facade(
-        in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), environment=environment
-    )
+    legume_default = L_egume_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"))
     plants_positions = Planter(plantmodels=[legume_default])
     lighting_default = Light(
         lightmodel="riri5",
@@ -28,13 +26,16 @@ def simulation(in_folder, out_folder):
         writegeo=False,
         legume_facade=legume_default,
     )
-    soil_default = Soil_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), legume_facade=legume_default, position=plants_positions)
+    soil_default = Soil_facade(
+        in_folder=in_folder,
+        out_folder=os.path.join(out_folder, "passive"),
+        legume_facade=legume_default,
+        position=plants_positions,
+    )
 
     # lumiere avec RATP
     environment = Environment(sky="inputs_soil_legume/sky_5.data", external_soil=False)
-    legume_ratp = L_egume_facade(
-        in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), environment=environment
-    )
+    legume_ratp = L_egume_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"))
     plants_positions = Planter(plantmodels=[legume_ratp])
     lighting_ratp = Light(
         lightmodel="ratp",
@@ -44,7 +45,12 @@ def simulation(in_folder, out_folder):
         writegeo=False,
         legume_facade=legume_ratp,
     )
-    soil_ratp = Soil_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), legume_facade=legume_ratp, position=plants_positions)
+    soil_ratp = Soil_facade(
+        in_folder=in_folder,
+        out_folder=os.path.join(out_folder, "active"),
+        legume_facade=legume_ratp,
+        position=plants_positions,
+    )
 
     nb_steps = max([legume_default.lsystems[n].derivationLength for n in legume_default.idsimu])
 
@@ -57,10 +63,14 @@ def simulation(in_folder, out_folder):
             legume_ratp.derive(t)
 
             scene_legume = legume_default.light_inputs(lightmodel="riri5")
-            passive_lighting(light_data, legume_default.energy(), legume_default.doy(), scene_legume, legume_default, lighting_ratp)
+            passive_lighting(
+                light_data, legume_default.energy(), legume_default.doy(), scene_legume, legume_default, lighting_ratp
+            )
 
-            start= time.time()
-            lighting_default.run(scenes_l_egume=scene_legume, energy=legume_default.energy(), day=legume_default.doy(), parunit="RG")
+            start = time.time()
+            lighting_default.run(
+                scenes_l_egume=scene_legume, energy=legume_default.energy(), day=legume_default.doy(), parunit="RG"
+            )
             riri5_time = time.time() - start
             legume_default.light_results(legume_default.energy(), lighting_default)
 
@@ -69,8 +79,10 @@ def simulation(in_folder, out_folder):
             legume_default.soil_results(soil_default.inputs, soil_default.results)
 
             scene_legume = legume_ratp.light_inputs(lightmodel="ratp")
-            start= time.time()
-            lighting_ratp.run(scenes_l_egume=scene_legume, energy=legume_ratp.energy(), day=legume_ratp.doy(), parunit="RG")
+            start = time.time()
+            lighting_ratp.run(
+                scenes_l_egume=scene_legume, energy=legume_ratp.energy(), day=legume_ratp.doy(), parunit="RG"
+            )
             ratp_time = time.time() - start
             legume_ratp.light_results(legume_ratp.energy(), lighting_ratp)
 
@@ -81,7 +93,7 @@ def simulation(in_folder, out_folder):
             legume_default.run()
             legume_ratp.run()
 
-            print("Lighting running time | RiRi5: ",riri5_time,"RATP: ",ratp_time)
+            print("Lighting running time | RiRi5: ", riri5_time, "RATP: ", ratp_time)
 
         execution_time = int(time.time() - current_time_of_the_system)
         print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
@@ -91,7 +103,7 @@ def simulation(in_folder, out_folder):
         legume_ratp.end()
 
         # write lighting passive RATP results
-        for i,n in enumerate(legume_default.idsimu):
+        for i, n in enumerate(legume_default.idsimu):
             filename = "lighting_results" + "_" + n + ".csv"
             filepath = os.path.join(os.path.normpath(out_folder), "passive", "legume", "brut", filename)
             pandas.DataFrame(light_data[i]).to_csv(filepath)

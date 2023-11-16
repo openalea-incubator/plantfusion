@@ -17,9 +17,7 @@ def simulation(in_folder, out_folder):
 
     # version par défaut
     environment = Environment(external_soil=False)
-    legume_default = L_egume_facade(
-        in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), environment=environment
-    )
+    legume_default = L_egume_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"))
     plants_positions = Planter(plantmodels=[legume_default])
     lighting_default = Light(
         lightmodel="riri5",
@@ -29,14 +27,15 @@ def simulation(in_folder, out_folder):
         legume_facade=legume_default,
     )
     soil_default = Soil_facade(
-        in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), legume_facade=legume_default, position=plants_positions
+        in_folder=in_folder,
+        out_folder=os.path.join(out_folder, "passive"),
+        legume_facade=legume_default,
+        position=plants_positions,
     )
 
     # lumiere avec caribu
     environment = Environment(sky="inputs_soil_legume/sky_5.data", external_soil=False)
-    legume_caribu = L_egume_facade(
-        in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), environment=environment
-    )
+    legume_caribu = L_egume_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"))
     plants_positions = Planter(plantmodels=[legume_caribu])
     lighting_caribu = Light(
         lightmodel="caribu",
@@ -47,7 +46,10 @@ def simulation(in_folder, out_folder):
         legume_facade=legume_caribu,
     )
     soil_caribu = Soil_facade(
-        in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), legume_facade=legume_caribu, position=plants_positions
+        in_folder=in_folder,
+        out_folder=os.path.join(out_folder, "active"),
+        legume_facade=legume_caribu,
+        position=plants_positions,
     )
 
     nb_steps = max([legume_default.lsystems[n].derivationLength for n in legume_default.idsimu])
@@ -61,11 +63,15 @@ def simulation(in_folder, out_folder):
             legume_caribu.derive(t)
 
             scene_legume = legume_default.light_inputs(lightmodel="caribu")
-            passive_lighting(light_data, legume_default.energy(), legume_default.doy(), scene_legume, legume_default, lighting_caribu)
+            passive_lighting(
+                light_data, legume_default.energy(), legume_default.doy(), scene_legume, legume_default, lighting_caribu
+            )
 
             scene_legume = legume_default.light_inputs(lightmodel="riri5")
-            start= time.time()
-            lighting_default.run(scenes_l_egume=scene_legume, energy=legume_default.energy(), day=legume_default.doy(), parunit="RG")
+            start = time.time()
+            lighting_default.run(
+                scenes_l_egume=scene_legume, energy=legume_default.energy(), day=legume_default.doy(), parunit="RG"
+            )
             riri5_time = time.time() - start
             legume_default.light_results(legume_default.energy(), lighting_default)
 
@@ -74,7 +80,7 @@ def simulation(in_folder, out_folder):
             legume_default.soil_results(soil_default.inputs, soil_default.results)
 
             scene_legume = legume_caribu.light_inputs(lightmodel="caribu")
-            start= time.time()
+            start = time.time()
             lighting_caribu.run(scenes_l_egume=scene_legume, day=legume_caribu.doy(), parunit="RG")
             caribu_time = time.time() - start
             legume_caribu.light_results(legume_caribu.energy(), lighting_caribu)
@@ -86,7 +92,7 @@ def simulation(in_folder, out_folder):
             legume_default.run()
             legume_caribu.run()
 
-            print("Lighting running time | RiRi5: ",riri5_time,"CARIBU: ",caribu_time)
+            print("Lighting running time | RiRi5: ", riri5_time, "CARIBU: ", caribu_time)
 
         execution_time = int(time.time() - current_time_of_the_system)
         print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
