@@ -116,3 +116,7 @@ In your conda environment run one the simulation scripts in `simulations`:
 ```python
 python simulations/simulation_name.py
 ```
+## Licence
+
+This project is licensed under the CeCILL-C License - see file [LICENSE](LICENSE) for details
+
