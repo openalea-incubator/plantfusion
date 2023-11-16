@@ -2,8 +2,8 @@ import os
 
 from lightvegemanager.tool import LightVegeManager
 from lightvegemanager.stems import extract_stems_from_MTG
-from wheatfusion.utils import create_child_folder
-from wheatfusion.planter import Planter
+from plantfusion.utils import create_child_folder
+from plantfusion.planter import Planter
 
 class Light(object):
     def __init__(
@@ -23,11 +23,11 @@ class Light(object):
     ):
         self.transformations = position.transformations
         self.wheat_facade = wheat_facade
-        create_child_folder(out_folder, "light")
-        self.out_folder = os.path.join(out_folder, "light")
         self.writegeo = writegeo
         self.compute_sensors = False
         if writegeo:
+            create_child_folder(out_folder, "light")
+            self.out_folder = os.path.join(out_folder, "light")
             create_child_folder(self.out_folder, "vtk")
             create_child_folder(self.out_folder, "plantgl")
 

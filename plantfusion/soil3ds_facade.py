@@ -5,7 +5,7 @@ from soil3ds import soil_moduleN as solN
 import soil3ds.IOxls as IOxls
 import soil3ds.IOtable as IOtable
 import legume.initialisation as initial
-from wheatfusion.utils import create_child_folder
+from plantfusion.utils import create_child_folder
 
 
 class Soil_facade(object):

@@ -22,9 +22,9 @@ from cnwheat import (
 
 from soil3ds.IOxls import read_plant_param
 
-from wheatfusion.utils import create_child_folder, save_df_to_csv
-from wheatfusion.environment_tool import Environment
-from wheatfusion.planter import Planter
+from plantfusion.utils import create_child_folder, save_df_to_csv
+from plantfusion.environment_tool import Environment
+from plantfusion.planter import Planter
 
 
 class Wheat_facade(object):

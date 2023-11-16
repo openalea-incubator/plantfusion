@@ -6,10 +6,10 @@ if sys.version_info < (3, 0):
     sys.exit(1)
 
 setup(
-    name="CN-Wheat_and_l-egume",
+    name="PlantFusion",
     version="1.0.0",
-    description="",
-    url="",
+    description="API for mixed crop modelling",
+    url="https://github.com/mwoussen/plantfusion",
 
-    packages=find_packages('wheatfusion'),
+    packages=find_packages('plantfusion'),
 )

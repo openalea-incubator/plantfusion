@@ -1,8 +1,8 @@
-from wheatfusion.wheat_facade import Wheat_facade, passive_lighting
-from wheatfusion.environment_tool import Environment
-from wheatfusion.light_facade import Light
-from wheatfusion.planter import Planter
-from wheatfusion.utils import create_child_folder
+from plantfusion.wheat_facade import Wheat_facade, passive_lighting
+from plantfusion.environment_tool import Environment
+from plantfusion.light_facade import Light
+from plantfusion.planter import Planter
+from plantfusion.utils import create_child_folder
 
 import time
 import datetime

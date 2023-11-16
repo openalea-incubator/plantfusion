@@ -16,9 +16,9 @@ from legume.initialisation import init_plant_residues_fromParamP
 
 import riri5.RIRI5 as riri
 
-from wheatfusion.utils import create_child_folder
-from wheatfusion.light_facade import Light
-from wheatfusion.environment_tool import Environment
+from plantfusion.utils import create_child_folder
+from plantfusion.light_facade import Light
+from plantfusion.environment_tool import Environment
 
 
 class L_egume_facade(object):

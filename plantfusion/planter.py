@@ -2,7 +2,6 @@ import numpy
 import pandas
 
 
-
 class Planter:
     def __init__(
         self,
@@ -12,8 +11,8 @@ class Planter:
         xy_plane=None,
         xy_translate=None
     ) -> None:
-        from wheatfusion.l_egume_facade import L_egume_facade
-        from wheatfusion.wheat_facade import Wheat_facade
+        from plantfusion.l_egume_facade import L_egume_facade
+        from plantfusion.wheat_facade import Wheat_facade
         
         self.plant_density = plant_density
         self.inter_rows = inter_rows

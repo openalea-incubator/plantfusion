@@ -28,18 +28,3 @@ class Environment(object):
 
         self.light = lighting_environment
 
-    # @property
-    # def external_soil(self):
-    #     return self.external_soil
-
-    # @property
-    # def light(self):
-    #     return self.light
-
-    # @property
-    # def N_fertilization(self):
-    #     return self.N_fertilization
-
-    # @property
-    # def tillers_replication(self):
-    #     return self.tillers_replication
