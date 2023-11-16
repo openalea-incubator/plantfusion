@@ -64,19 +64,20 @@ For all the following steps, run the commands inside the downloaded folders (com
     b) Convert the namespace package to PEP 420: 
 
         i) Delete the `__init__.py` in alinea folder
+
             ```bash
             del src/alinea/__init__.py
             ```
             
         ii) Replace the `setup.py` with `setup_adel.py` in `plantfusion/installation_ressources`. Rename it `setup.py`.
 
-    c) installation : `python setup.py develop`
+    c) Installation : `python setup.py develop`
 
 4) Installation of PyRATP. For this step, you need to have `gcc`, `gfortran` and `make` installed
 
-    a) download the package: `git clone -b update_mobidiv https://github.com/mwoussen/PyRATP`
+    a) Download the package: `git clone -b update_mobidiv https://github.com/mwoussen/PyRATP`
 
-    b) installation: 
+    b) Installation: 
 
         ```bash
         make mode=develop
@@ -95,27 +96,27 @@ For all the following steps, run the commands inside the downloaded folders (com
 
 6) Installation of l-egume
 
-    a) download the package: `git clone -b Develop https://github.com/glouarn/l-egume`
+    a) Download the package: `git clone -b Develop https://github.com/glouarn/l-egume`
 
-    b) install: `python setup.py develop`
+    b) Install: `python setup.py develop`
 
 7) Installation of LightVegeManager
 
-    a) download the package: `git clone https://github.com/mwoussen/lightvegemanager`
+    a) Download the package: `git clone https://github.com/mwoussen/lightvegemanager`
 
-    b) install: `python setup.py develop`
+    b) Install: `python setup.py develop`
 
 8) Installation of soil3ds
 
-    a) download the package: `git clone https://github.com/glouarn/soil3ds`
+    a) Download the package: `git clone https://github.com/glouarn/soil3ds`
 
-    b) install: `python setup.py develop`
+    b) Install: `python setup.py develop`
 
 9) Installation of riri5
 
-    a) download the package: `git clone https://github.com/glouarn/riri5`
+    a) Download the package: `git clone https://github.com/glouarn/riri5`
     
-    b) install: `python setup.py develop`
+    b) Install: `python setup.py develop`
 
 
 ## Simulation Examples
