@@ -537,6 +537,9 @@ class Wheat_facade(object):
         elif self.generation_type == "random":
            scene_wheat = planter.generate_random_wheat(self.adel_wheat, mtg=self.g)
 
+        elif self.generation_type == "row":
+           scene_wheat = planter.generate_row_wheat(self.adel_wheat, self.g)
+
         else:
             print("can't recognize positions generation type, choose between default, random and row")
             raise
