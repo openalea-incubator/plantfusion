@@ -530,7 +530,7 @@ class Wheat_facade(object):
         # update geometry
         self.adel_wheat.update_geometry(self.g)
 
-    def light_inputs(self, planter):
+    def light_inputs(self, planter, planter_index=0):
         if self.generation_type == "default":
             scene_wheat = planter.create_heterogeneous_canopy(self.adel_wheat, mtg=self.g)
 
@@ -538,7 +538,7 @@ class Wheat_facade(object):
            scene_wheat = planter.generate_random_wheat(self.adel_wheat, mtg=self.g)
 
         elif self.generation_type == "row":
-           scene_wheat = planter.generate_row_wheat(self.adel_wheat, self.g)
+           scene_wheat = planter.generate_row_wheat(self.adel_wheat, self.g, planter_index)
 
         else:
             print("can't recognize positions generation type, choose between default, random and row")

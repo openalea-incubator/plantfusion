@@ -36,7 +36,9 @@ class L_egume_facade(object):
         out_folder="",
         nameconfigfile="liste_usms_exemple.xls",
         ongletconfigfile="exemple",
+        IDusm=None,
         planter=None,
+        planter_index=0
     ) -> None:
         try:
             os.mkdir(os.path.normpath(out_folder))
@@ -63,28 +65,52 @@ class L_egume_facade(object):
         # create list of lsystems from config file
         self.lsystems = {}
         self.idsimu = []
-        for i in range(len(ls_usms["ID_usm"])):
-            if int(ls_usms["torun"][i]) == 1:
-                if planter is not None:
-                    mylsys = lsystemInputOutput_usm_with_planter(
+        if IDusm is None:
+            for i in range(len(ls_usms["ID_usm"])):
+                    if int(ls_usms["torun"][i]) == 1:
+                        if planter is not None:
+                            mylsys = lsystemInputOutput_usm_with_planter(
+                                        nameconfigfile,
+                                        foldin=in_folder,
+                                        ongletBatch=ongletconfigfile,
+                                        i=i,
+                                        path_OUT=os.path.join(self.out_folder, "brut"),
+                                        planter=planter,
+                                        planter_index=planter_index
+                                    )
+                        else:
+                            mylsys = runl.lsystemInputOutput_usm(
                                 nameconfigfile,
                                 foldin=in_folder,
                                 ongletBatch=ongletconfigfile,
                                 i=i,
                                 path_OUT=os.path.join(self.out_folder, "brut"),
-                                planter=planter
                             )
-                else:
-                    mylsys = runl.lsystemInputOutput_usm(
-                        nameconfigfile,
-                        foldin=in_folder,
-                        ongletBatch=ongletconfigfile,
-                        i=i,
-                        path_OUT=os.path.join(self.out_folder, "brut"),
-                    )
-                name = list(mylsys)[0]
-                self.idsimu.append(name)
-                self.lsystems[name] = mylsys[name]
+                        name = list(mylsys)[0]
+                        self.idsimu.append(name)
+                        self.lsystems[name] = mylsys[name]
+        else:
+            if planter is not None:
+                mylsys = lsystemInputOutput_usm_with_planter(
+                            nameconfigfile,
+                            foldin=in_folder,
+                            ongletBatch=ongletconfigfile,
+                            i=ls_usms["ID_usm"].index(IDusm),
+                            path_OUT=os.path.join(self.out_folder, "brut"),
+                            planter=planter,
+                            planter_index=planter_index
+                        )
+            else:
+                mylsys = runl.lsystemInputOutput_usm(
+                    nameconfigfile,
+                    foldin=in_folder,
+                    ongletBatch=ongletconfigfile,
+                    i=ls_usms["ID_usm"].index(IDusm),
+                    path_OUT=os.path.join(self.out_folder, "brut"),
+                )
+            name = list(mylsys)[0]
+            self.idsimu.append(name)
+            self.lsystems[name] = mylsys[name]
 
         option_externalcoupling = 1
         option_Nuptake = 0
@@ -817,7 +843,7 @@ def passive_lighting(data, energy, DOY, scene, legume_facade, lighting_facade):
         data[i]["parip"].extend(legume_facade.invar[i]["parip"])
         data[i]["t"].extend([DOY] * len(legume_facade.epsi[i]))
 
-def lsystemInputOutput_usm_with_planter(fxls_usm, foldin = 'input', ongletBatch = 'exemple', i=0, path_OUT='output', planter=None):
+def lsystemInputOutput_usm_with_planter(fxls_usm, foldin = 'input', ongletBatch = 'exemple', i=0, path_OUT='output', planter=None, planter_index=0):
     """" cree et update l-system en fonction du fichier usm """
     import legume
     import openalea.lpy as lpy
@@ -831,7 +857,7 @@ def lsystemInputOutput_usm_with_planter(fxls_usm, foldin = 'input', ongletBatch 
     if planter is not None:
         ls_usms["typearrangement"][i] = planter.legume_typearrangement
         ls_usms['cote'][i] = planter.legume_cote
-        ls_usms['nbcote'][i] = planter.legume_nbcote
+        ls_usms['nbcote'][i] = planter.legume_nbcote[planter_index]
         ls_usms['optdamier'][i] = planter.legume_optdamier
 
     fscenar = 'liste_scenarios.xls'

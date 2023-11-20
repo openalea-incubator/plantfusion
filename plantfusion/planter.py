@@ -30,12 +30,12 @@ class Planter:
             self.__default_preconfigured(plantmodels, inter_rows, plant_density, xy_plane, xy_translate)
 
         elif generation_type == "random":
-            self.__random(plant_density, xy_square_length)
+            self.__random(plantmodels, plant_density, xy_square_length)
 
         elif generation_type == "row":
-            self.__row(plant_density, inter_rows)
+            self.__row(plantmodels, plant_density, inter_rows)
 
-    def __random(self, plant_density, xy_square_length):
+    def __random(self, plantmodels, plant_density, xy_square_length):
         # fait un carré à partir de (0,0)
         # xy_plane = longueur d'un cote du carré du sol
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
@@ -43,17 +43,18 @@ class Planter:
         if "legume" in plant_density:
             # on réajuste le domaine pour avoir 64 plantes
             if isinstance(plant_density["legume"], list):
-                legume_density = plant_density["legume"][0]
+                 self.legume_nbcote = plant_density["legume"][0]
+                 self.legume_nbcote = [8] * len(plant_density["legume"])
             else:
-                legume_density = plant_density["legume"]
-            xy_square_length = math.sqrt(64/legume_density)
-            self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
+                 self.legume_nbcote = plant_density["legume"]
+                 self.legume_nbcote = [8]
+            # xy_square_length = math.sqrt(64/legume_density)
+            # self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
             
             self.legume_typearrangement = "random8"
             # conversion m en cm
             self.legume_cote = xy_square_length * 100
-            self.legume_nbcote = 8
-
+            
             self.legume_optdamier = 8
 
         if "wheat" in plant_density:
@@ -63,28 +64,80 @@ class Planter:
                 self.wheat_nbplants = [ int(xy_square_length * xy_square_length * plant_density["wheat"]) ]
             self.wheat_positions = []
 
-    def __row(self, plant_density, inter_rows):
-        
-        self.n_rows = 2 * ( len(plant_density["legume"]) + len(plant_density["wheat"]) )
-        xy_square_length = inter_rows * self.n_rows
+        # les lsystem l-egume sont par défaut en cm et wheat en m
+        self.index = {"wheat": [], "l-egume": []}
+        self.transformations = {"scenes unit": {}}
+        id_specy = 0
+        for facade in plantmodels:
+            if facade == "wheat":
+                self.index["wheat"].append(id_specy)
+                self.transformations["scenes unit"][id_specy] = "m"
+            if facade == "legume":
+                self.index["l-egume"].append(id_specy)
+                self.transformations["scenes unit"][id_specy] = "cm"
+                id_specy += 1
+            id_specy += 1
+
+    def __row(self, plantmodels, plant_density, inter_rows):
+        if "legume" not in plant_density :
+            plant_density["legume"] = []
+        elif "wheat" not in plant_density :
+            plant_density["wheat"] = []
+
+        self.total_n_rows = 2 * ( len(plant_density["legume"]) + len(plant_density["wheat"]) )
+        xy_square_length = inter_rows * self.total_n_rows
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
         if "legume" in plant_density:
-
-            
             self.legume_typearrangement = "row4_sp1"
             # conversion m en cm
-            self.legume_cote = inter_rows * 4 * 100
-            self.legume_nbcote = int( xy_square_length * xy_square_length * plant_density["legume"][0] / 2 ) 
+            self.legume_cote = inter_rows * self.total_n_rows * 100
+            if isinstance(plant_density["legume"], list):
+                self.legume_nbcote = [int( xy_square_length * xy_square_length * d / 2) for d in plant_density["legume"] ]
+            else:
+                self.legume_nbcote = [int( xy_square_length * xy_square_length * plant_density["legume"] / 2 )]
 
             self.legume_optdamier = 2
 
         if "wheat" in plant_density:
-            self.wheat_nbplants = [ int(xy_square_length * xy_square_length * wheat_density) for wheat_density in plant_density["wheat"] ]
+            if isinstance(plant_density["wheat"], list):
+                self.wheat_nbplants = [ int(xy_square_length * xy_square_length * wheat_density) for wheat_density in plant_density["wheat"] ]
+            else:
+                self.wheat_nbplants = [ int(xy_square_length * xy_square_length * plant_density["wheat"]) ]
             self.inter_rows = inter_rows
             self.wheat_positions = []
 
-        # if len(plant_density["legume"]) + len(plant_density["wheat"]) > 2 :
+        # les lsystem l-egume sont par défaut en cm et wheat en m
+        self.index = {"wheat": [], "l-egume": []}
+        self.transformations = {"scenes unit": {}}
+        id_specy = 0
+        for facade in plantmodels:
+            if facade == "wheat":
+                self.index["wheat"].append(id_specy)
+                self.transformations["scenes unit"][id_specy] = "m"
+            if facade == "legume":
+                self.index["l-egume"].append(id_specy)
+                self.transformations["scenes unit"][id_specy] = "cm"
+                id_specy += 1
+            id_specy += 1
+        
+        self.transformations["translate"] = {}
+        if len(plant_density["legume"]) + len(plant_density["wheat"]) > 2 :
+            for i in range(len(plantmodels)):
+                if plantmodels[i] == "legume" :
+                    self.transformations["translate"][i] = (0., (i) * inter_rows, 0.)
+                elif plantmodels[i] == "wheat" :
+                    self.transformations["translate"][i] = (0., (i-0.5) * inter_rows, 0.)
+        
+        # il y a que deux espèces
+        else:
+            # 2 wheats
+            if plantmodels.count("wheat") > 1 :
+                self.transformations["translate"][0] = (0., - inter_rows, 0.)
+            
+            # 2 legume
+            elif plantmodels.count("legume") > 1 :
+                self.transformations["translate"][1] = (0., inter_rows, 0.)
 
 
     def __default_preconfigured(
@@ -131,7 +184,7 @@ class Planter:
                 if isinstance(facade, L_egume_facade):
                     # il peut y avoir plusieurs lsystem dans un legume
                     for i in range(len(facade.idsimu)):
-                        self.index["l-egume"].append(id_specy)
+                        # self.index["l-egume"].append(id_specy)
                         self.transformations["translate"][id_specy] = (xy_translate[0], xy_translate[1], 0)
                         id_specy += 1
                 id_specy += 1
@@ -231,9 +284,10 @@ class Planter:
 
             inter_plants = 2 * self.domain[1][1] / self.wheat_nbplants[indice_wheat_instance]
             nrows = 2
+            self.total_n_rows
 
             # first row on left 1/2 interrow, then 1 out of 2 row is wheat
-            rows_y = [ self.inter_rows * 1.5, 3.5 * self.inter_rows ]
+            rows_y = [ self.inter_rows * 1.5, ((self.total_n_rows / nrows) + 1.5) * self.inter_rows ]
             for y in rows_y:
                 for ix in range(int(self.wheat_nbplants[indice_wheat_instance] / nrows)):
                     x = inter_plants * (0.5 + ix)
