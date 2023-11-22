@@ -11,7 +11,7 @@ import datetime
 import pandas
 
 
-def simulation(in_folder, out_folder):
+def simulation(in_folder, out_folder, write_geo=False):
     create_child_folder(out_folder, "passive")
     create_child_folder(out_folder, "active")
 
@@ -42,7 +42,7 @@ def simulation(in_folder, out_folder):
         out_folder=out_folder,
         position=plants_positions,
         environment=environment,
-        writegeo=False,
+        writegeo=write_geo,
         legume_facade=legume_caribu,
     )
     soil_caribu = Soil_facade(
@@ -111,5 +111,6 @@ def simulation(in_folder, out_folder):
 if __name__ == "__main__":
     in_folder = "inputs_soil_legume"
     out_folder = "outputs/legume_caribu"
+    write_geo = False
 
-    simulation(in_folder, out_folder)
+    simulation(in_folder, out_folder, write_geo)

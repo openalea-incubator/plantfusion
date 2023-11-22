@@ -38,7 +38,7 @@ class Wheat_facade(object):
     def __init__(
         self,
         in_folder="",
-        out_folder="",
+        out_folder=None,
         plant_density={1: 250},
         nb_plants=50,
         environment=Environment(),
@@ -82,6 +82,7 @@ class Wheat_facade(object):
         else:
             self.plant_density = plant_density
             self.nb_plants = nb_plants
+            self.generation_type = "default"
 
         self.N_fertilizations = environment.N_fertilizations
         self.tillers_replications = environment.tillers_replications
@@ -112,15 +113,16 @@ class Wheat_facade(object):
         self.ELEMENTS_POSTPROCESSING_FILENAME = ELEMENTS_POSTPROCESSING_FILENAME
         self.SOILS_POSTPROCESSING_FILENAME = SOILS_POSTPROCESSING_FILENAME
 
-        try:
-            os.mkdir(os.path.normpath(self.out_folder))
-            print("Directory ", self.out_folder, " Created ")
-        except FileExistsError:
-            pass
+        if out_folder is not None:
+            try:
+                os.mkdir(os.path.normpath(self.out_folder))
+                print("Directory ", self.out_folder, " Created ")
+            except FileExistsError:
+                pass
 
-        create_child_folder(self.out_folder, "brut")
-        create_child_folder(self.out_folder, "postprocessing")
-        create_child_folder(self.out_folder, "graphs")
+            create_child_folder(self.out_folder, "brut")
+            create_child_folder(self.out_folder, "postprocessing")
+            create_child_folder(self.out_folder, "graphs")
 
         if external_soil_model:
             SOILS_INITIAL_STATE_FILENAME = None
@@ -590,7 +592,7 @@ class Wheat_facade(object):
             # update the self.g
             self.g.property(param).update(dico_par[param])
 
-    def soil_inputs(self, soil_dimensions, lighting):
+    def soil_inputs(self, soil_dimensions, lighting, planter=None):
         nb_plants = 50
 
         # ls_N
@@ -598,7 +600,7 @@ class Wheat_facade(object):
         N_content_roots_per_plant = numpy.array([N_content_roots] * self.nb_plants)
 
         # ls_roots
-        roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil_dimensions)
+        roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil_dimensions, planter)
 
         # ls_epsi
         organs_results = lighting.results_organs()
@@ -904,7 +906,7 @@ class Wheat_facade(object):
 
         return N_content_roots.values[0]
 
-    def compute_roots_length(self, soil_dimensions):
+    def compute_roots_length(self, soil_dimensions, planter=None):
         nb_plants = self.nb_plants
         # une seule plante dans cnwheat
         roots_mass = [0]

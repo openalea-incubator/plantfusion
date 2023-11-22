@@ -9,7 +9,7 @@ import datetime
 import os
 
 
-def simulation(in_folder, out_folder, simulation_length, run_postprocessing=False):
+def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_postprocessing=False):
     create_child_folder(out_folder, "passive")
     create_child_folder(out_folder, "active")
 
@@ -72,12 +72,13 @@ def simulation(in_folder, out_folder, simulation_length, run_postprocessing=Fals
 
     lighting_ratp = Light(
         lightmodel="ratp",
+        out_folder=out_folder,
         wheat_facade=wheat_ratp,
         position=plants_positions_ratp,
         environment=environment,
         voxels_size=voxels_size,
         angle_distrib_algo="compute global",
-        writegeo=False,
+        writegeo=write_geo,
     )
 
     light_data = {"PARa": [], "t": []}
@@ -118,6 +119,7 @@ def simulation(in_folder, out_folder, simulation_length, run_postprocessing=Fals
 if __name__ == "__main__":
     in_folder = "inputs_fspmwheat"
     out_folder = "outputs/cnwheat_ratp"
-    simulation_length = 50
+    simulation_length = 2500
+    write_geo = True
 
-    simulation(in_folder, out_folder, simulation_length)
+    simulation(in_folder, out_folder, simulation_length, write_geo)

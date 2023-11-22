@@ -33,30 +33,34 @@ class L_egume_facade(object):
     def __init__(
         self,
         in_folder="",
-        out_folder="",
+        out_folder=None,
         nameconfigfile="liste_usms_exemple.xls",
         ongletconfigfile="exemple",
         IDusm=None,
         planter=None,
         planter_index=0
     ) -> None:
-        try:
-            os.mkdir(os.path.normpath(out_folder))
-            print("Directory ", out_folder, " Created ")
-        except FileExistsError:
-            pass
+        if out_folder is not None:
+            try:
+                os.mkdir(os.path.normpath(out_folder))
+                print("Directory ", out_folder, " Created ")
+            except FileExistsError:
+                pass
 
-        # output folder for l-egume
-        out_folder = os.path.normpath(out_folder)
-        self.out_folder = os.path.join(out_folder, "legume")
-        try:
-            os.mkdir(os.path.normpath(self.out_folder))
-            print("Directory ", self.out_folder, " Created ")
-        except FileExistsError:
-            pass
-        create_child_folder(self.out_folder, "brut")
-        create_child_folder(self.out_folder, "graphs")
+            # output folder for l-egume
+            out_folder = os.path.normpath(out_folder)
+            self.out_folder = os.path.join(out_folder, "legume")
+            try:
+                os.mkdir(os.path.normpath(self.out_folder))
+                print("Directory ", self.out_folder, " Created ")
+            except FileExistsError:
+                pass
+            create_child_folder(self.out_folder, "brut")
+            create_child_folder(self.out_folder, "graphs")
 
+        else:
+            self.out_folder = ""
+        
         # read l-egume configuration files
         mn_path = os.path.join(in_folder, nameconfigfile)
         usms = IOxls.xlrd.open_workbook(mn_path)
@@ -68,49 +72,13 @@ class L_egume_facade(object):
         if IDusm is None:
             for i in range(len(ls_usms["ID_usm"])):
                     if int(ls_usms["torun"][i]) == 1:
-                        if planter is not None:
-                            mylsys = lsystemInputOutput_usm_with_planter(
-                                        nameconfigfile,
-                                        foldin=in_folder,
-                                        ongletBatch=ongletconfigfile,
-                                        i=i,
-                                        path_OUT=os.path.join(self.out_folder, "brut"),
-                                        planter=planter,
-                                        planter_index=planter_index
-                                    )
-                        else:
-                            mylsys = runl.lsystemInputOutput_usm(
-                                nameconfigfile,
-                                foldin=in_folder,
-                                ongletBatch=ongletconfigfile,
-                                i=i,
-                                path_OUT=os.path.join(self.out_folder, "brut"),
-                            )
-                        name = list(mylsys)[0]
-                        self.idsimu.append(name)
-                        self.lsystems[name] = mylsys[name]
+                        self.__load_lsystem(nameconfigfile, in_folder, ongletconfigfile, i, os.path.join(self.out_folder, "brut"), planter, planter_index)
         else:
-            if planter is not None:
-                mylsys = lsystemInputOutput_usm_with_planter(
-                            nameconfigfile,
-                            foldin=in_folder,
-                            ongletBatch=ongletconfigfile,
-                            i=ls_usms["ID_usm"].index(IDusm),
-                            path_OUT=os.path.join(self.out_folder, "brut"),
-                            planter=planter,
-                            planter_index=planter_index
-                        )
+            if isinstance(IDusm, list):
+                for i in IDusm:
+                    self.__load_lsystem(nameconfigfile, in_folder, ongletconfigfile, ls_usms["ID_usm"].index(i), os.path.join(self.out_folder, "brut"), planter, planter_index)
             else:
-                mylsys = runl.lsystemInputOutput_usm(
-                    nameconfigfile,
-                    foldin=in_folder,
-                    ongletBatch=ongletconfigfile,
-                    i=ls_usms["ID_usm"].index(IDusm),
-                    path_OUT=os.path.join(self.out_folder, "brut"),
-                )
-            name = list(mylsys)[0]
-            self.idsimu.append(name)
-            self.lsystems[name] = mylsys[name]
+                self.__load_lsystem(nameconfigfile, in_folder, ongletconfigfile, ls_usms["ID_usm"].index(IDusm), os.path.join(self.out_folder, "brut"), planter, planter_index)
 
         option_externalcoupling = 1
         option_Nuptake = 0
@@ -135,6 +103,29 @@ class L_egume_facade(object):
         self.res_abs_i = None
         self.invar = None
         self.domain = None
+
+    def __load_lsystem(self, nameconfigfile, in_folder, ongletconfigfile, i, path_OUT, planter=None, planter_index=None):
+        if planter is not None:
+            mylsys = lsystemInputOutput_usm_with_planter(
+                        nameconfigfile,
+                        foldin=in_folder,
+                        ongletBatch=ongletconfigfile,
+                        i=i,
+                        path_OUT=path_OUT,
+                        planter=planter,
+                        planter_index=planter_index
+                    )
+        else:
+            mylsys = runl.lsystemInputOutput_usm(
+                nameconfigfile,
+                foldin=in_folder,
+                ongletBatch=ongletconfigfile,
+                i=i,
+                path_OUT=path_OUT,
+            )
+        name = list(mylsys)[0]
+        self.idsimu.append(name)
+        self.lsystems[name] = mylsys[name]
 
     def derive(self, t):
         for i, n in enumerate(self.idsimu):

@@ -8,7 +8,7 @@ import time
 import datetime
 
 
-def simulation(in_folder, out_folder, simulation_length, run_postprocessing=False):
+def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_postprocessing=False):
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     plant_density = {1: 250}
     sky = [4, 5, "soc"]
@@ -38,7 +38,7 @@ def simulation(in_folder, out_folder, simulation_length, run_postprocessing=Fals
     plants_positions = Planter(plantmodels=[wheat], inter_rows=0.15, plant_density=plant_density)
 
     lighting = Light(
-        lightmodel="caribu", position=plants_positions, environment=environment, wheat_facade=wheat, writegeo=False
+        lightmodel="caribu", out_folder=out_folder, position=plants_positions, environment=environment, wheat_facade=wheat, writegeo=write_geo
     )
 
     soil = Soil_facade(in_folder="inputs_soil_legume", out_folder=out_folder, IDusm=1714, position=plants_positions, save_results=True)
@@ -84,6 +84,7 @@ def simulation(in_folder, out_folder, simulation_length, run_postprocessing=Fals
 if __name__ == "__main__":
     in_folder = "inputs_fspmwheat"
     out_folder = "outputs/cnwheat_soil3ds"
-    simulation_length = 50
+    simulation_length = 2500
+    write_geo = True
 
-    simulation(in_folder, out_folder, simulation_length)
+    simulation(in_folder, out_folder, simulation_length, write_geo)

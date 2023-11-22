@@ -31,9 +31,11 @@ class Planter:
 
         elif generation_type == "random":
             self.__random(plantmodels, plant_density, xy_square_length)
+            self.type_domain = "mix"
 
         elif generation_type == "row":
             self.__row(plantmodels, plant_density, inter_rows)
+            self.type_domain = "mix"
 
     def __random(self, plantmodels, plant_density, xy_square_length):
         # fait un carré à partir de (0,0)
@@ -251,8 +253,7 @@ class Planter:
             for i in range(self.wheat_nbplants[indice_wheat_instance]):
                 positions.append((numpy.random.uniform(0.0, self.domain[1][0]), numpy.random.uniform(0.0, self.domain[1][0]), 0.0))
 
-        if self.save_wheat_positions:
-            self.wheat_positions = positions
+        self.wheat_positions = positions
 
         generated_scene =  self.__generate_wheat_from_positions(initial_scene,
                                                                     mtg,
@@ -296,8 +297,8 @@ class Planter:
                             0.)
                     positions.append(p)
         
-        if self.save_wheat_positions:
-            self.wheat_positions = positions
+
+        self.wheat_positions = positions
 
         generated_scene =  self.__generate_wheat_from_positions(initial_scene,
                                                                     mtg,
@@ -342,6 +343,7 @@ class Planter:
             noise=self.noise_plant_positions,
         )
         _, domain, positions, _ = stand.smart_stand(nplants=self.nb_wheat_plants, at=self.inter_rows, convunit=1)
+        self.wheat_positions = positions
 
         random.seed(1234)
 

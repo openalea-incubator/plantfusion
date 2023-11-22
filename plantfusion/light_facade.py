@@ -1,6 +1,6 @@
 import os
 
-from lightvegemanager.tool import LightVegeManager
+from lightvegemanager.LVM import LightVegeManager
 from lightvegemanager.stems import extract_stems_from_MTG
 from plantfusion.utils import create_child_folder
 from plantfusion.planter import Planter
@@ -26,8 +26,8 @@ class Light(object):
         self.writegeo = writegeo
         self.compute_sensors = False
         if writegeo:
-            create_child_folder(out_folder, "light")
-            self.out_folder = os.path.join(out_folder, "light")
+            create_child_folder(os.path.normpath(out_folder), "light")
+            self.out_folder = os.path.join(os.path.normpath(out_folder), "light")
             create_child_folder(self.out_folder, "vtk")
             create_child_folder(self.out_folder, "plantgl")
 
@@ -72,8 +72,8 @@ class Light(object):
             if legume_facade is not None:
                 self.compute_sensors = True
                 orig = [self.domain[0][0], self.domain[0][1], 0.0]
-                path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
                 if writegeo:
+                    path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
                     lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig, path, "vtk"]
                     create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
                 else:
@@ -137,6 +137,13 @@ class Light(object):
 
         if self.writegeo:
             self.light.VTK_light(os.path.join(os.path.normpath(self.out_folder), "vtk", "scene_"), i=self.i_vtk)
+            scene_plantgl = self.light.plantGL_light()
+            scene_plantgl.save(os.path.join(self.out_folder, "plantgl", "scene_light_plantgl_" + str(self.i_vtk)) + ".bgeom")
+
+            if self.compute_sensors:
+                sensors_plantgl = self.light.plantGL_sensors()
+                sensors_plantgl.save(os.path.join(self.out_folder, "plantgl", "sensors_plantgl_" + str(self.i_vtk)) + ".bgeom")
+
             self.i_vtk += 1
 
     def results_organs(self):
