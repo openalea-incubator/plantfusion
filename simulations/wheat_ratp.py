@@ -91,7 +91,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
                 passive_lighting(light_data, t, wheat_default.doy(t), wheat_input, lighting_ratp)
                 
                 start = time.time()
-                lighting_default.run(scenes_wheat=wheat_input, day=wheat_default.doy(t), hour=wheat_default.hour(t), parunit="micromol.m-2.s-1")
+                lighting_default.run(scenes_wheat=[wheat_input], day=wheat_default.doy(t), hour=wheat_default.hour(t), parunit="micromol.m-2.s-1")
                 caribu_time = time.time() - start
 
                 wheat_default.light_results(energy=wheat_default.energy(t), lighting=lighting_default)

@@ -116,7 +116,7 @@ class Light(object):
         self.i_vtk = 0
 
 
-    def run(self, energy=1., scenes_wheat=[], scenes_l_egume=[], day=1, hour=12, parunit="RG", position=None):
+    def run(self, energy=1., scenes_wheat=[], scenes_l_egume=[], day=1, hour=12, parunit="RG"):
         self.wheat_index = list(range(len(scenes_wheat)))
         self.l_egume_index = list(range(len(scenes_wheat), len(scenes_wheat) + len(scenes_l_egume)))
         stems = None

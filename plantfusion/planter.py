@@ -86,7 +86,15 @@ class Planter:
         elif "wheat" not in plant_density :
             plant_density["wheat"] = []
 
-        self.total_n_rows = 2 * ( len(plant_density["legume"]) + len(plant_density["wheat"]) )
+        if isinstance(plant_density["legume"], list) :
+            self.total_n_rows = 2 * len(plant_density["legume"])
+        else:
+             self.total_n_rows = 2
+        if isinstance(plant_density["wheat"], list) :
+            self.total_n_rows += 2 * len(plant_density["wheat"])
+        else:
+             self.total_n_rows += 2
+        
         xy_square_length = inter_rows * self.total_n_rows
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
@@ -124,7 +132,7 @@ class Planter:
             id_specy += 1
         
         self.transformations["translate"] = {}
-        if len(plant_density["legume"]) + len(plant_density["wheat"]) > 2 :
+        if self.total_n_rows > 2 :
             for i in range(len(plantmodels)):
                 if plantmodels[i] == "legume" :
                     self.transformations["translate"][i] = (0., (i) * inter_rows, 0.)

@@ -43,6 +43,7 @@ class Wheat_facade(object):
         nb_plants=50,
         environment=Environment(),
         planter=None,
+        planter_index=0,
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -77,7 +78,7 @@ class Wheat_facade(object):
     ) -> None:
         if planter is not None:
             self.plant_density = planter.plant_density
-            self.nb_plants = planter.wheat_nbplants
+            self.nb_plants = planter.wheat_nbplants[planter_index]
             self.generation_type = planter.generation_type
         else:
             self.plant_density = plant_density
@@ -104,7 +105,6 @@ class Wheat_facade(object):
         self.ELEMENTS_OUTPUTS_FILENAME = ELEMENTS_OUTPUTS_FILENAME
         self.SOILS_OUTPUTS_FILENAME = SOILS_OUTPUTS_FILENAME
 
-        self.out_folder = os.path.join(os.path.normpath(out_folder), "wheat")
         in_folder = os.path.normpath(in_folder)
 
         self.AXES_POSTPROCESSING_FILENAME = AXES_POSTPROCESSING_FILENAME
@@ -114,6 +114,7 @@ class Wheat_facade(object):
         self.SOILS_POSTPROCESSING_FILENAME = SOILS_POSTPROCESSING_FILENAME
 
         if out_folder is not None:
+            self.out_folder = os.path.join(os.path.normpath(out_folder), "wheat")
             try:
                 os.mkdir(os.path.normpath(self.out_folder))
                 print("Directory ", self.out_folder, " Created ")
@@ -532,21 +533,21 @@ class Wheat_facade(object):
         # update geometry
         self.adel_wheat.update_geometry(self.g)
 
-    def light_inputs(self, planter, planter_index=0):
+    def light_inputs(self, planter, indice_wheat_instance=0):
         if self.generation_type == "default":
             scene_wheat = planter.create_heterogeneous_canopy(self.adel_wheat, mtg=self.g)
 
         elif self.generation_type == "random":
-           scene_wheat = planter.generate_random_wheat(self.adel_wheat, mtg=self.g)
+           scene_wheat = planter.generate_random_wheat(self.adel_wheat, mtg=self.g, indice_wheat_instance=indice_wheat_instance)
 
         elif self.generation_type == "row":
-           scene_wheat = planter.generate_row_wheat(self.adel_wheat, self.g, planter_index)
+           scene_wheat = planter.generate_row_wheat(self.adel_wheat, self.g, indice_wheat_instance)
 
         else:
             print("can't recognize positions generation type, choose between default, random and row")
             raise
 
-        return [scene_wheat]
+        return scene_wheat
 
     def light_results(self, energy, lighting):
         results = lighting.results_organs()
@@ -1006,6 +1007,12 @@ class Wheat_facade(object):
 
     def next_day_next_hour(self, t):
         return self.meteo.loc[t + self.SENESCWHEAT_TIMESTEP, ["DOY"]].iloc[0]
+    
+    @staticmethod
+    def fake_scene():
+        epsilon = 1e-14
+        return {19 : [[(0., 0., 0.), (0., epsilon, 0.), (0., epsilon, epsilon)]],
+                34 : [[(0., 0., 0.), (epsilon, 0., 0.), (epsilon, 0., epsilon)]]}
 
 
 def passive_lighting(data, t, DOY, scene, lighting_facade):

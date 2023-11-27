@@ -39,7 +39,12 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     plants_positions = Planter(plantmodels=[wheat], inter_rows=0.15, plant_density=plant_density)
 
     lighting = Light(
-        lightmodel="caribu", out_folder=out_folder, position=plants_positions, environment=environment, wheat_facade=wheat, writegeo=write_geo
+        lightmodel="caribu", 
+        out_folder=out_folder, 
+        position=plants_positions, 
+        environment=environment, 
+        wheat_facade=wheat, 
+        writegeo=write_geo
     )
 
     try:
@@ -47,7 +52,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
         for t in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
             if (t % light_timestep == 0) and (wheat.PARi_next_hours(t) > 0):
                 wheat_input = wheat.light_inputs(plants_positions)
-                lighting.run(scenes_wheat=wheat_input, day=wheat.doy(t), hour=wheat.hour(t), parunit="micromol.m-2.s-1")
+                lighting.run(scenes_wheat=[wheat_input], day=wheat.doy(t), hour=wheat.hour(t), parunit="micromol.m-2.s-1")
                 wheat.light_results(energy=wheat.energy(t), lighting=lighting)
 
             wheat.run(t)

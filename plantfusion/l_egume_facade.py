@@ -301,7 +301,13 @@ class L_egume_facade(object):
         self.epsi = []
         for k in range(len(self.idsimu)):
             ratio_pari_plante = self.invar[k]["parip"] / (pari_canopy + 10e-15)
-            self.epsi.append(pari_soil * ratio_pari_plante)
+            epsi_per_plant = pari_soil * ratio_pari_plante
+            self.epsi.append(epsi_per_plant)
+            # if numpy.sum(epsi_per_plant) > 1e-17 :
+            #     self.epsi.append(epsi_per_plant)
+            # else:
+            #     self.epsi.append(numpy.array([1e-16] * len(self.invar[k]["parip"])))
+
             print(self.idsimu[k], "epsi = ", sum(self.epsi[-1]))
 
     def compute_potential_plant_growth(self):
@@ -775,13 +781,12 @@ class L_egume_facade(object):
                     self.invar[k]["parap"][id_plante] = a + p_s
 
             # all non empty plant must have a minimum intercepted energy
-            # if len(self.invar[k]["parip"]) == len(self.lsystems[self.idsimu[k]].tag_loop_inputs[14]["surf"]):
             plants_surface = self.lsystems[self.idsimu[k]].tag_loop_inputs[14]["surf"]
             if plants_surface != []:
-                if sum(plants_surface) > 0.0:
-                    for p in range(len(self.invar[k]["parip"])):
-                        if self.invar[k]["parip"][p] == 0.0 and plants_surface[p] > 0.0:
-                            self.invar[k]["parip"][p] = epsilon
+                if len(self.invar[k]["parip"]) == len(plants_surface):
+                        for p in range(len(self.invar[k]["parip"])):
+                            if self.invar[k]["parip"][p] == 0.0 and plants_surface[p] > 0.0:
+                                self.invar[k]["parip"][p] = epsilon
 
             # conversion
             c = (3600 * 24) / 1000000
@@ -820,6 +825,11 @@ class L_egume_facade(object):
 
     def set_domain(self, domain):
         self.domain = domain
+
+    @staticmethod
+    def fake_scene():
+        epsilon = 1e-14
+        return {0 : [[(0., 0., 0.), (0., epsilon, 0.), (0., epsilon, epsilon)]]}
 
 
 def passive_lighting(data, energy, DOY, scene, legume_facade, lighting_facade):

@@ -50,7 +50,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
 
             if ((t % light_timestep == 0) and (wheat.PARi_next_hours(t) > 0)) or (wheat.doy(t) != wheat.next_day_next_hour(t)):
                 wheat_input = wheat.light_inputs(plants_positions)
-                lighting.run(scenes_wheat=wheat_input, day=wheat.doy(t), hour=wheat.hour(t), parunit="micromol.m-2.s-1")
+                lighting.run(scenes_wheat=[wheat_input], day=wheat.doy(t), hour=wheat.hour(t), parunit="micromol.m-2.s-1")
                 
                 if ((t % light_timestep == 0) and (wheat.PARi_next_hours(t) > 0)) :
                     wheat.light_results(energy=wheat.energy(t), lighting=lighting)
