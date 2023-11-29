@@ -74,7 +74,7 @@ def simulation(
     planter_legume = Planter(
         generation_type="random",
         plantmodels=["legume"], 
-        plant_density={"legume" : 450},
+        plant_density={"legume" : plant_density["legume"]},
     )
 
     lighting_legume = Light(

@@ -69,16 +69,16 @@ class Planter:
         # les lsystem l-egume sont par défaut en cm et wheat en m
         self.index = {"wheat": [], "l-egume": []}
         self.transformations = {"scenes unit": {}}
-        id_specy = 0
-        for facade in plantmodels:
-            if facade == "wheat":
-                self.index["wheat"].append(id_specy)
-                self.transformations["scenes unit"][id_specy] = "m"
-            if facade == "legume":
-                self.index["l-egume"].append(id_specy)
-                self.transformations["scenes unit"][id_specy] = "cm"
-                id_specy += 1
-            id_specy += 1
+        
+        # light_facade concatene d'abord les scènes wheat puis les scènes legume
+        nb_legume_scenes = plantmodels.count("legume")
+        nb_wheat_scenes = plantmodels.count("wheat")
+        for i in range(nb_wheat_scenes):
+            self.index["wheat"].append(i)
+            self.transformations["scenes unit"][i] = "m"
+        for i in range(nb_legume_scenes):
+            self.index["l-egume"].append(nb_wheat_scenes+i)
+            self.transformations["scenes unit"][nb_wheat_scenes+i] = "cm"
 
     def __row(self, plantmodels, plant_density, inter_rows):
         if "legume" not in plant_density :
@@ -128,7 +128,6 @@ class Planter:
             if facade == "legume":
                 self.index["l-egume"].append(id_specy)
                 self.transformations["scenes unit"][id_specy] = "cm"
-                id_specy += 1
             id_specy += 1
         
         self.transformations["translate"] = {}
