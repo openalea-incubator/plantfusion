@@ -55,7 +55,7 @@ del C:\Users\username\AppData\Local\miniconda3\envs\myenvname\Lib\site-packages\
 del C:\Users\username\AppData\Local\miniconda3\envs\myenvname\Lib\site-packages\alinea.caribu-8.0.10-py3.9-win-amd64.egg\alinea\__init__.py
 ```
 
-For all the following steps, run the commands inside the downloaded folders (commands after `git clone`).
+/!\ For all the following steps, run the commands inside the downloaded folders (commands after `git clone`).
 
 3. Installation of Adel
 
@@ -84,7 +84,7 @@ For all the following steps, run the commands inside the downloaded folders (com
         make clean
         ``` 
 
-    `make` will compile the fortran part, then run the package installation with pip.
+    Note: `make` will compile the fortran part, then run the package installation with pip.
 
 5. Installation of WheatFspm
 
