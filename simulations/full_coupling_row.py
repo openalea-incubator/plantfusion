@@ -107,7 +107,7 @@ def simulation(
         legume.derive(t)
 
         scene_legume = legume.light_inputs(lightmodel="caribu")
-        lighting_legume.run(scenes_l_egume=scene_legume, energy=1., day=legume.doy(), parunit="RG")
+        lighting_legume.run(scenes_l_egume=scene_legume, day=legume.doy(), parunit="RG")
         legume.light_results(legume.energy(), lighting_legume)
 
         soil_legume_inputs = legume.soil_inputs()
@@ -117,61 +117,61 @@ def simulation(
         legume.run()
         t_legume += 1
 
-    try:
-        lighting.i_vtk = lighting_legume.i_vtk
-        for t_wheat in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
-            activate_legume = wheat.doy(t_wheat) != wheat.next_day_next_hour(t_wheat)
-            daylight = (t_wheat % light_timestep == 0) and (wheat.PARi_next_hours(t_wheat) > 0)
 
-            if daylight or activate_legume:
-                if activate_legume:
-                    legume.derive(t_legume)
+    lighting.i_vtk = lighting_legume.i_vtk
+    for t_wheat in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
+        activate_legume = wheat.doy(t_wheat) != wheat.next_day_next_hour(t_wheat)
+        daylight = (t_wheat % light_timestep == 0) and (wheat.PARi_next_hours(t_wheat) > 0)
 
-                wheat_input = wheat.light_inputs(planter)
-                legume_input = legume.light_inputs("caribu")
-                lighting.run(
-                    scenes_wheat=wheat_input,
-                    scenes_l_egume=legume_input,
-                    day=wheat.doy(t_wheat),
-                    hour=wheat.hour(t_wheat),
-                    parunit="RG",
+        if daylight or activate_legume:
+            if activate_legume:
+                legume.derive(t_legume)
+
+            wheat_input = wheat.light_inputs(planter)
+            legume_input = legume.light_inputs("caribu")
+            lighting.run(
+                scenes_wheat=[wheat_input],
+                scenes_l_egume=legume_input,
+                day=wheat.doy(t_wheat),
+                hour=wheat.hour(t_wheat),
+                parunit="RG",
+            )
+            if daylight:
+                wheat.light_results(energy=wheat.energy(t_wheat), lighting=lighting)
+
+            if activate_legume:
+                legume.light_results(legume.energy(), lighting)
+
+                (
+                    N_content_roots_per_plant,
+                    roots_length_per_plant_per_soil_layer,
+                    wheat_soil_parameters,
+                    plants_light_interception,
+                ) = wheat.soil_inputs(soil_dimensions, lighting)
+                soil_legume_inputs = legume.soil_inputs()
+                soil.run(
+                    legume.doy(),
+                    [N_content_roots_per_plant],
+                    [roots_length_per_plant_per_soil_layer],
+                    [wheat_soil_parameters],
+                    [plants_light_interception],
+                    legume_inputs=soil_legume_inputs,
                 )
-                if daylight:
-                    wheat.light_results(energy=wheat.energy(t_wheat), lighting=lighting)
+                wheat.soil_results(soil.results[4])
+                legume.soil_results(soil.inputs, soil.results)
 
-                if activate_legume:
-                    legume.light_results(legume.energy(), lighting)
+                legume.run()
+                t_legume += 1
 
-                    (
-                        N_content_roots_per_plant,
-                        roots_length_per_plant_per_soil_layer,
-                        wheat_soil_parameters,
-                        plants_light_interception,
-                    ) = wheat.soil_inputs(soil_dimensions, lighting)
-                    soil_legume_inputs = legume.soil_inputs()
-                    soil.run(
-                        legume.doy(),
-                        [N_content_roots_per_plant],
-                        [roots_length_per_plant_per_soil_layer],
-                        [wheat_soil_parameters],
-                        [plants_light_interception],
-                        legume_inputs=soil_legume_inputs,
-                    )
-                    wheat.soil_results(soil.results[4])
-                    legume.soil_results(soil.inputs, soil.results)
+        wheat.run(t_wheat)
 
-                    legume.run()
-                    t_legume += 1
+    execution_time = int(time.time() - current_time_of_the_system)
+    print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
 
-            wheat.run(t_wheat)
 
-        execution_time = int(time.time() - current_time_of_the_system)
-        print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
-
-    finally:
-        legume.end()
-        wheat.end(run_postprocessing=run_postprocessing)
-        soil.end()
+    legume.end()
+    wheat.end(run_postprocessing=run_postprocessing)
+    soil.end()
 
 
 if __name__ == "__main__":

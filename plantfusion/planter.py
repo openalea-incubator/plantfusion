@@ -120,23 +120,27 @@ class Planter:
         # les lsystem l-egume sont par défaut en cm et wheat en m
         self.index = {"wheat": [], "l-egume": []}
         self.transformations = {"scenes unit": {}}
-        id_specy = 0
-        for facade in plantmodels:
-            if facade == "wheat":
-                self.index["wheat"].append(id_specy)
-                self.transformations["scenes unit"][id_specy] = "m"
-            if facade == "legume":
-                self.index["l-egume"].append(id_specy)
-                self.transformations["scenes unit"][id_specy] = "cm"
-            id_specy += 1
+        # light_facade concatene d'abord les scènes wheat puis les scènes legume
+        nb_legume_scenes = plantmodels.count("legume")
+        nb_wheat_scenes = plantmodels.count("wheat")
+        for i in range(nb_wheat_scenes):
+            self.index["wheat"].append(i)
+            self.transformations["scenes unit"][i] = "m"
+        for i in range(nb_legume_scenes):
+            self.index["l-egume"].append(nb_wheat_scenes+i)
+            self.transformations["scenes unit"][nb_wheat_scenes+i] = "cm"
         
         self.transformations["translate"] = {}
-        if self.total_n_rows > 2 :
+        if self.total_n_rows > 4 :
+            i_wheat = 0
+            i_legume = nb_wheat_scenes
             for i in range(len(plantmodels)):
                 if plantmodels[i] == "legume" :
-                    self.transformations["translate"][i] = (0., (i) * inter_rows, 0.)
+                    self.transformations["translate"][i_legume] = (0., (i) * inter_rows, 0.)
+                    i_legume += 1
                 elif plantmodels[i] == "wheat" :
-                    self.transformations["translate"][i] = (0., (i-0.5) * inter_rows, 0.)
+                    self.transformations["translate"][i_wheat] = (0., (i-0.5) * inter_rows, 0.)
+                    i_wheat += 1
         
         # il y a que deux espèces
         else:
