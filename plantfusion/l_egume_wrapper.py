@@ -32,13 +32,13 @@ class L_egume_facade(object):
 
     def __init__(
         self,
+        name="legume",
         in_folder="",
         out_folder=None,
         nameconfigfile="liste_usms_exemple.xls",
         ongletconfigfile="exemple",
         IDusm=None,
         planter=None,
-        planter_index=0
     ) -> None:
         if out_folder is not None:
             try:

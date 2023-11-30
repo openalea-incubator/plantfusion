@@ -37,13 +37,12 @@ class Wheat_facade(object):
 
     def __init__(
         self,
+        name="wheat"
         in_folder="",
         out_folder=None,
-        plant_density={1: 250},
-        nb_plants=50,
-        environment=Environment(),
+        N_fertilizations={},
+        tillers_replications={},
         planter=None,
-        planter_index=0,
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -76,17 +75,13 @@ class Wheat_facade(object):
         ELEMENTS_POSTPROCESSING_FILENAME="elements_postprocessing.csv",
         SOILS_POSTPROCESSING_FILENAME="soils_postprocessing.csv",
     ) -> None:
-        if planter is not None:
-            self.plant_density = planter.plant_density
-            self.nb_plants = planter.wheat_nbplants[planter_index]
-            self.generation_type = planter.generation_type
-        else:
-            self.plant_density = plant_density
-            self.nb_plants = nb_plants
-            self.generation_type = "default"
 
-        self.N_fertilizations = environment.N_fertilizations
-        self.tillers_replications = environment.tillers_replications
+        self.plant_density = planter.plant_density
+        self.nb_plants = planter.wheat_nbplants[global_mixed_fspm_index]
+        self.generation_type = planter.generation_type
+
+        self.N_fertilizations = N_fertilizations
+        self.tillers_replications = tillers_replications
 
         self.external_soil_model = external_soil_model
         self.nitrates_uptake_forced = nitrates_uptake_forced

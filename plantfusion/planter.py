@@ -11,7 +11,7 @@ class Planter:
     def __init__(
         self,
         generation_type="default",
-        plantmodels=[],
+        global_order_fspm_wrappers=[],
         inter_rows=0.15,
         plant_density={1: 250},
         xy_plane=None,
@@ -27,14 +27,14 @@ class Planter:
         self.noise_plant_positions = noise_plant_positions
 
         if generation_type == "default":
-            self.__default_preconfigured(plantmodels, inter_rows, plant_density, xy_plane, xy_translate)
+            self.__default_preconfigured(global_order_fspm_wrappers, inter_rows, plant_density, xy_plane, xy_translate)
 
         elif generation_type == "random":
-            self.__random(plantmodels, plant_density, xy_square_length)
+            self.__random(global_order_fspm_wrappers, plant_density, xy_square_length)
             self.type_domain = "mix"
 
         elif generation_type == "row":
-            self.__row(plantmodels, plant_density, inter_rows)
+            self.__row(global_order_fspm_wrappers, plant_density, inter_rows)
             self.type_domain = "mix"
 
     def __random(self, plantmodels, plant_density, xy_square_length):

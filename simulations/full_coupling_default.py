@@ -27,8 +27,6 @@ def simulation(
     senescwheat_timestep = 1
     light_timestep = 4
 
-    environment = Environment(sky=sky, tillers_replications=tillers_replications, external_soil=True)
-
     wheat = Wheat_facade(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
