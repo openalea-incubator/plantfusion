@@ -18,15 +18,17 @@ class Soil_wrapper(object):
         ongletconfigfile="exemple",
         opt_residu=0,
         opt_Nuptake=1,
-        position=None,
+        planter=None,
         legume_pattern=False,
         legume_wrapper=None,
-        save_results=False
+        save_results=False,
     ) -> None:
-        if position.type_domain != "l-egume" and not legume_pattern:  # lecture des parametre sol directement a partir d'un fichier sol
+        if (
+            planter.type_domain != "l-egume" and not legume_pattern
+        ):  # lecture des parametre sol directement a partir d'un fichier sol
             # initialisation taille scene / discretisation (1D - homogene pour ttes les couches)
             # initialisation d'une première scène pour avoir les côtés du domaine simulé
-            pattern8 = [[v * 100 for v in x] for x in position.domain]  # conversion m en cm
+            pattern8 = [[v * 100 for v in x] for x in planter.domain]  # conversion m en cm
             dz_sol = 5.0  # cm
             discret_solXY = [1, 1]  # nombre de voxel selon X et Y
 
@@ -74,19 +76,19 @@ class Soil_wrapper(object):
             self.option_Nuptake = opt_Nuptake
 
             if legume_wrapper is not None:
-                for n in legume_wrapper.idsimu :
+                for n in legume_wrapper.idsimu:
                     legume_wrapper.lsystems[legume_wrapper.idsimu[0]].S = soil
 
         else:
-            self.soil = legume_wrapper.lsystems[legume_wrapper.idsimu[0]].tag_loop_inputs[18]
-            self.option_residu = legume_wrapper.lsystems[legume_wrapper.idsimu[0]].tag_loop_inputs[-2]
-            self.option_Nuptake = legume_wrapper.lsystems[legume_wrapper.idsimu[0]].opt_Nuptake
+            self.soil = legume_wrapper.lsystem.tag_loop_inputs[18]
+            self.option_residu = legume_wrapper.lsystem.tag_loop_inputs[-2]
+            self.option_Nuptake = legume_wrapper.lsystem.opt_Nuptake
 
         self.save_results = save_results
-        if save_results :
+        if save_results:
             create_child_folder(out_folder, "soil")
             self.out_folder = os.path.join(out_folder, "soil")
-            self.data = {
+            self.data: dict = {
                 # clé ajouté
                 "DOY": [],
                 "kgNO3solHa": [],
@@ -131,61 +133,41 @@ class Soil_wrapper(object):
         roots_length_per_plant_per_soil_layer=[],
         soil_plants_parameters=[],
         plants_light_interception=[],
-        legume_inputs=None,
     ):
-        if legume_inputs is None:
-            meteo_j = IOxls.extract_dataframe(
-                self.meteo, ["TmoyDay", "RG", "Et0", "Precip", "Tmin", "Tmax", "Tsol"], "DOY", val=day
-            )
-            mng_j = IOxls.extract_dataframe(
-                self.management, ["Coupe", "Irrig", "FertNO3", "FertNH4", "Hcut"], "DOY", val=day
-            )
-            for k in list(meteo_j.keys()):
-                meteo_j[k] = meteo_j[k][0]
-            for k in list(mng_j.keys()):
-                mng_j[k] = mng_j[k][0]
+        meteo_j = IOxls.extract_dataframe(
+            self.meteo, ["TmoyDay", "RG", "Et0", "Precip", "Tmin", "Tmax", "Tsol"], "DOY", val=day
+        )
+        mng_j = IOxls.extract_dataframe(
+            self.management, ["Coupe", "Irrig", "FertNO3", "FertNH4", "Hcut"], "DOY", val=day
+        )
+        for k in list(meteo_j.keys()):
+            meteo_j[k] = meteo_j[k][0]
+        for k in list(mng_j.keys()):
+            mng_j[k] = mng_j[k][0]
 
-            self.inputs = []
-            self.inputs.append(self.soil)
-            self.inputs.append(self.parameters_SN)
-            self.inputs.append(meteo_j)
-            self.inputs.append(mng_j)
-            v = []
-            for t in soil_plants_parameters:
-                v.extend(t)
-            self.inputs.append(v)
-            v = []
-            for t in plants_light_interception:
-                v.extend(t)
-            self.inputs.append(v)
-            v = []
-            for t in roots_length_per_plant_per_soil_layer:
-                v.extend(t)
-            self.inputs.append(v)
-            v = []
-            for t in N_content_roots_per_plant:
-                v.extend(t.tolist())
-            self.inputs.append(numpy.array(v))
-            self.inputs.append(self.option_residu)
-            self.inputs.append(self.option_Nuptake)
-
-        else:
-            self.inputs = legume_inputs
-            for t in N_content_roots_per_plant:
-                if not isinstance(self.inputs[7], list):
-                    self.inputs[7] = self.inputs[7].tolist() + t.tolist()
-                else:
-                    self.inputs[7] = self.inputs[7] + t.tolist()
-            self.inputs[7] = numpy.array(self.inputs[7])
-            for t in roots_length_per_plant_per_soil_layer:
-                self.inputs[6] = self.inputs[6] + t
-            for t in soil_plants_parameters:
-                self.inputs[4] = self.inputs[4] + t
-            for t in plants_light_interception:
-                if not isinstance(self.inputs[5], list):
-                    self.inputs[5] = self.inputs[5].tolist() + t
-                else:
-                    self.inputs[5] = self.inputs[5] + t
+        self.inputs = []
+        self.inputs.append(self.soil)
+        self.inputs.append(self.parameters_SN)
+        self.inputs.append(meteo_j)
+        self.inputs.append(mng_j)
+        v = []
+        for t in soil_plants_parameters:
+            v.extend(t)
+        self.inputs.append(v)
+        v = []
+        for t in plants_light_interception:
+            v.extend(t)
+        self.inputs.append(v)
+        v = []
+        for t in roots_length_per_plant_per_soil_layer:
+            v.extend(t)
+        self.inputs.append(v)
+        v = []
+        for t in N_content_roots_per_plant:
+            v.extend(t.tolist())
+        self.inputs.append(numpy.array(v))
+        self.inputs.append(self.option_residu)
+        self.inputs.append(self.option_Nuptake)
 
         self.nb_plants = len(self.inputs[4])
         self.results = solN.step_bilanWN_solVGL(*self.inputs)
@@ -242,4 +224,3 @@ class Soil_wrapper(object):
             print("Soil save results not activated")
         finally:
             pass
-            

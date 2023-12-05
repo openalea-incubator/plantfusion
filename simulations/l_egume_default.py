@@ -1,38 +1,50 @@
+from plantfusion.indexer import Indexer
 from plantfusion.l_egume_wrapper import L_egume_wrapper
-from plantfusion.environment_tool import Environment
-from plantfusion.light_wrapper import Light
-from plantfusion.soil3ds_wrapper import Soil_wrapper
+from plantfusion.light_wrapper import Light_wrapper
+from plantfusion.soil_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 
 import time
 import datetime
 
 
-def simulation(in_folder, out_folder):
-    environment = Environment(external_soil=False)
+def simulation(in_folder, out_folder, id_usm):
+    plants_name = "legume"
+    index_log = Indexer(global_order=[plants_name], legume_names=[plants_name])
 
-    legume = L_egume_wrapper(in_folder=in_folder, out_folder=out_folder)
+    legume = L_egume_wrapper(
+        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm
+    )
 
-    plants_positions = Planter(plantmodels=[legume])
+    planter = Planter(indexer=index_log, legume_wrapper=legume)
 
-    lighting = Light(lightmodel="riri5", position=plants_positions, environment=environment, legume_wrapper=legume)
+    lighting = Light_wrapper(lightmodel="riri5", indexer=index_log, planter=planter, legume_wrapper=legume)
 
-    soil = Soil_wrapper(in_folder=in_folder, out_folder=out_folder, legume_wrapper=legume, position=plants_positions)
-
-    nb_steps = max([legume.lsystems[n].derivationLength for n in legume.idsimu])
+    soil = Soil_wrapper(in_folder=in_folder, out_folder=out_folder, legume_wrapper=legume, planter=planter)
 
     try:
         current_time_of_the_system = time.time()
-        for t in range(nb_steps):
+        for t in range(legume.lsystem.derivationLength):
             legume.derive(t)
 
             scene_legume = legume.light_inputs(lightmodel="riri5")
-            lighting.run(scenes_l_egume=scene_legume, energy=legume.energy(), day=legume.doy(), parunit="RG")
+            lighting.run(scenes=[scene_legume], energy=legume.energy(), day=legume.doy(), parunit="RG")
             legume.light_results(legume.energy(), lighting)
 
-            soil_legume_inputs = legume.soil_inputs()
-            soil.run(legume.doy(), legume_inputs=soil_legume_inputs)
-            legume.soil_results(soil.inputs, soil.results)
+            (
+                N_content_roots_per_plant,
+                roots_length_per_plant_per_soil_layer,
+                plants_soil_parameters,
+                plants_light_interception,
+            ) = legume.soil_inputs()
+            soil.run(
+                legume.doy(),
+                [N_content_roots_per_plant],
+                [roots_length_per_plant_per_soil_layer],
+                [plants_soil_parameters],
+                [plants_light_interception],
+            )
+            legume.soil_results(soil.results, planter)
 
             legume.run()
 
@@ -46,5 +58,6 @@ def simulation(in_folder, out_folder):
 if __name__ == "__main__":
     in_folder = "inputs_soil_legume"
     out_folder = "outputs/legume_default"
+    id_usm = 17111
 
-    simulation(in_folder, out_folder)
+    simulation(in_folder, out_folder, id_usm)

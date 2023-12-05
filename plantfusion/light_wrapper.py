@@ -1,17 +1,16 @@
 import os
 
 from lightvegemanager.LVM import LightVegeManager
-from lightvegemanager.stems import extract_stems_from_MTG
 from plantfusion.utils import create_child_folder
 from plantfusion.planter import Planter
-from plantfusion.index_management import IndexManagement
+from plantfusion.indexer import Indexer
 
 
-class Light(object):
+class Light_wrapper(object):
     def __init__(
         self,
         planter=Planter(),
-        index_mngmt=IndexManagement(),
+        indexer=Indexer(),
         lightmodel="",
         sky="turtle46",
         direct=False,
@@ -29,7 +28,7 @@ class Light(object):
         out_folder="",
     ):
         self.transformations = planter.transformations
-        self.index_mngmt = index_mngmt
+        self.indexer = indexer
         self.writegeo = writegeo
         self.compute_sensors = False
         if writegeo:
@@ -53,15 +52,13 @@ class Light(object):
         }
 
         # calcul du nombre d'espèce
-        self.number_of_species = len(index_mngmt.global_order) - len(index_mngmt.legume_names)
+        self.number_of_species = len(indexer.global_order)
 
         # les instances de l-egume doivent suivre la même grille
         dxyz_legume = [0.0] * 3
         nxyz_legume = [0] * 3
         if legume_wrapper is not None:
             if isinstance(legume_wrapper, list):
-                for leg in legume_wrapper:
-                    self.number_of_species += leg.number_of_species()
                 nxyz_legume = [
                     legume_wrapper[0].number_of_voxels()[3],
                     legume_wrapper[0].number_of_voxels()[2],
@@ -69,7 +66,6 @@ class Light(object):
                 ]
                 dxyz_legume = [x * 0.01 for x in legume_wrapper[0].voxels_size()]  # conversion de cm à m
             else:
-                self.number_of_species += legume_wrapper.number_of_species()
                 nxyz_legume = [
                     legume_wrapper.number_of_voxels()[3],
                     legume_wrapper.number_of_voxels()[2],
@@ -91,6 +87,20 @@ class Light(object):
                     create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
                 else:
                     lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig]
+
+                if isinstance(legume_wrapper, list):
+                    for wrapper in legume_wrapper:
+                        wrapper.lsystem.visu_leaf = 1
+                        wrapper.lsystem.visu_roots = 0
+                        wrapper.lsystem.visu_shoots = 0
+                        wrapper.lsystem.visu_sol = 0
+                        wrapper.lsystem.visu_solsurf = 0
+                else:
+                    legume_wrapper.lsystem.visu_leaf = 1
+                    legume_wrapper.lsystem.visu_roots = 0
+                    legume_wrapper.lsystem.visu_shoots = 0
+                    legume_wrapper.lsystem.visu_sol = 0
+                    legume_wrapper.lsystem.visu_solsurf = 0
 
             lightmodel_parameters["debug"] = False
             lightmodel_parameters["soil mesh"] = 1
@@ -128,25 +138,17 @@ class Light(object):
 
         self.i_vtk = 0
 
-    def run(self, energy=1.0, scenes=[], day=1, hour=12, parunit="RG"):
-        self.wheat_index = list(range(len(scenes_wheat)))
-        self.l_egume_index = list(range(len(scenes_wheat), len(scenes_wheat) + len(scenes_l_egume)))
-        stems = None
-        if self.l_egume_index == []:
-            self.l_egume_index = None
-        if self.wheat_index == []:
-            self.wheat_index = None
-        else:
-            for id in self.wheat_index:
-                stems = extract_stems_from_MTG(self.wheat_wrapper.g, id)
-
-        scenes = scenes_wheat + scenes_l_egume
-
+    def run(self, energy=1.0, scenes=[], day=1, hour=12, parunit="RG", stems=None):
         geometry = {"scenes": scenes, "domain": self.domain, "transformations": self.transformations, "stems id": stems}
 
         self.light.build(geometry)
         self.light.run(
-            energy=energy, day=day, hour=hour, truesolartime=True, parunit=parunit, id_sensors=self.l_egume_index
+            energy=energy,
+            day=day,
+            hour=hour,
+            truesolartime=True,
+            parunit=parunit,
+            id_sensors=self.indexer.legume_index,
         )
 
         if self.writegeo:

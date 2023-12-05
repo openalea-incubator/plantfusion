@@ -5,6 +5,8 @@ import pandas
 from alinea.adel.adel_dynamic import AdelDyn
 from alinea.adel.echap_leaf import echap_leaves
 
+from lightvegemanager.stems import extract_stems_from_MTG
+
 from fspmwheat import caribu_wrapper
 from fspmwheat import cnwheat_wrapper
 from fspmwheat import elongwheat_wrapper
@@ -23,8 +25,8 @@ from cnwheat import (
 from soil3ds.IOxls import read_plant_param
 
 from plantfusion.utils import create_child_folder, save_df_to_csv
-from plantfusion.environment_tool import Environment
 from plantfusion.planter import Planter
+from plantfusion.indexer import Indexer
 
 
 class Wheat_wrapper(object):
@@ -37,12 +39,13 @@ class Wheat_wrapper(object):
 
     def __init__(
         self,
-        name="wheat"
+        name="wheat",
         in_folder="",
         out_folder=None,
         N_fertilizations={},
         tillers_replications={},
-        planter=None,
+        planter=Planter(),
+        indexer=Indexer(),
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -75,17 +78,20 @@ class Wheat_wrapper(object):
         ELEMENTS_POSTPROCESSING_FILENAME="elements_postprocessing.csv",
         SOILS_POSTPROCESSING_FILENAME="soils_postprocessing.csv",
     ) -> None:
-
-        self.plant_density = planter.plant_density
-        self.nb_plants = planter.wheat_nbplants[global_mixed_fspm_index]
-        self.generation_type = planter.generation_type
-
         self.N_fertilizations = N_fertilizations
         self.tillers_replications = tillers_replications
 
         self.external_soil_model = external_soil_model
         self.nitrates_uptake_forced = nitrates_uptake_forced
         self.option_static = option_static
+
+        self.name = name
+        self.indexer = indexer
+        self.global_index = indexer.global_order.index(name)
+        self.wheat_index = indexer.wheat_names.index(name)
+        self.nb_plants = planter.number_of_plants[self.global_index]
+        self.plant_density = planter.plant_density
+        self.generation_type = planter.generation_type
 
         self.LIGHT_TIMESTEP = LIGHT_TIMESTEP
         self.SENESCWHEAT_TIMESTEP = SENESCWHEAT_TIMESTEP
@@ -528,56 +534,58 @@ class Wheat_wrapper(object):
         # update geometry
         self.adel_wheat.update_geometry(self.g)
 
-    def light_inputs(self, planter, indice_wheat_instance=0):
+    def light_inputs(self, planter):
         if self.generation_type == "default":
-            scene_wheat = planter.create_heterogeneous_canopy(self.adel_wheat, mtg=self.g)
+            scene_wheat = planter.create_heterogeneous_canopy(
+                self.adel_wheat,
+                mtg=self.g,
+                stem_name="StemElement",
+                leaf_name="LeafElement1",
+                indice_wheat_instance=self.wheat_index,
+            )
 
         elif self.generation_type == "random":
-           scene_wheat = planter.generate_random_wheat(self.adel_wheat, mtg=self.g, indice_wheat_instance=indice_wheat_instance)
+            scene_wheat = planter.generate_random_wheat(
+                self.adel_wheat,
+                mtg=self.g,
+                indice_wheat_instance=self.wheat_index,
+                stem_name="StemElement",
+                leaf_name="LeafElement1",
+            )
 
         elif self.generation_type == "row":
-           scene_wheat = planter.generate_row_wheat(self.adel_wheat, self.g, indice_wheat_instance)
+            scene_wheat = planter.generate_row_wheat(
+                self.adel_wheat, self.g, self.wheat_index, stem_name="StemElement", leaf_name="LeafElement1"
+            )
 
         else:
             print("can't recognize positions generation type, choose between default, random and row")
             raise
 
-        return scene_wheat
+        stems = extract_stems_from_MTG(self.g, self.global_index)
+
+        return scene_wheat, stems
 
     def light_results(self, energy, lighting):
         results = lighting.results_organs()
         lightmodel = lighting.lightmodel
-        id = lighting.wheat_index
 
         # crée un tableau comme dans caribu_wrapper de fspm-wheat
         dico_par = {}
         para_dic = {}
         erel_dic = {}
-        if id is None:
-            for s in results["Organ"]:
-                d = results[results.Organ == s]
 
-                if lightmodel == "caribu":
-                    para_dic[s] = d["par Eabs"].values[0] * energy
-                    erel_dic[s] = d["par Eabs"].values[0]  # lighting ran with energy = 1.
+        df_outputs_esp = results[results.VegetationType == self.global_index]
+        for s in df_outputs_esp["Organ"]:
+            d = df_outputs_esp[df_outputs_esp.Organ == s]
 
-                elif lightmodel == "ratp":
-                    para_dic[s] = d["PARa"].values[0] * energy
-                    erel_dic[s] = d["Intercepted"].values[0]
+            if lightmodel == "caribu":
+                para_dic[s] = d["par Eabs"].values[0] * energy
+                erel_dic[s] = d["par Eabs"].values[0]  # lighting ran with energy = 1.
 
-        elif isinstance(id, list) or isinstance(id, tuple):
-            for esp in id:
-                df_outputs_esp = results[results.VegetationType == esp]
-                for s in df_outputs_esp["Organ"]:
-                    d = df_outputs_esp[df_outputs_esp.Organ == s]
-
-                    if lightmodel == "caribu":
-                        para_dic[s] = d["par Eabs"].values[0] * energy
-                        erel_dic[s] = d["par Eabs"].values[0]  # lighting ran with energy = 1.
-
-                    elif lightmodel == "ratp":
-                        para_dic[s] = d["PARa"].values[0] * energy
-                        erel_dic[s] = d["Intercepted"].values[0]
+            elif lightmodel == "ratp":
+                para_dic[s] = d["PARa"].values[0] * energy
+                erel_dic[s] = d["Intercepted"].values[0]
 
         dico_par["PARa"] = para_dic
         dico_par["Erel"] = erel_dic
@@ -589,8 +597,6 @@ class Wheat_wrapper(object):
             self.g.property(param).update(dico_par[param])
 
     def soil_inputs(self, soil_dimensions, lighting, planter=None):
-        nb_plants = 50
-
         # ls_N
         N_content_roots = self.compute_N_content_roots()
         N_content_roots_per_plant = numpy.array([N_content_roots] * self.nb_plants)
@@ -600,8 +606,8 @@ class Wheat_wrapper(object):
 
         # ls_epsi
         organs_results = lighting.results_organs()
-        filtered_data = organs_results[organs_results.VegetationType.isin(lighting.wheat_index)]
-        plant_leaf_area = numpy.sum(filtered_data["Area"].values) / nb_plants
+        filtered_data = organs_results[organs_results.VegetationType.isin(self.global_index)]
+        plant_leaf_area = numpy.sum(filtered_data["Area"].values) / self.nb_plants
         plants_light_interception = self.compute_plants_light_interception(plant_leaf_area, lighting.soil_energy())
 
         return (
@@ -1002,12 +1008,14 @@ class Wheat_wrapper(object):
 
     def next_day_next_hour(self, t):
         return self.meteo.loc[t + self.SENESCWHEAT_TIMESTEP, ["DOY"]].iloc[0]
-    
+
     @staticmethod
     def fake_scene():
         epsilon = 1e-14
-        return {19 : [[(0., 0., 0.), (0., epsilon, 0.), (0., epsilon, epsilon)]],
-                34 : [[(0., 0., 0.), (epsilon, 0., 0.), (epsilon, 0., epsilon)]]}
+        return {
+            19: [[(0.0, 0.0, 0.0), (0.0, epsilon, 0.0), (0.0, epsilon, epsilon)]],
+            34: [[(0.0, 0.0, 0.0), (epsilon, 0.0, 0.0), (epsilon, 0.0, epsilon)]],
+        }
 
 
 def passive_lighting(data, t, DOY, scene, lighting_wrapper):

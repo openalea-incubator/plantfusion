@@ -1,7 +1,7 @@
 # legume : 1 wrapper = 1 usm = 1 espèce de plante
 
 
-class IndexManagement:
+class Indexer:
     def __init__(self, global_order=[], wheat_names=[], legume_names=[]) -> None:
         self.global_order = global_order
         self.wheat_names = wheat_names
