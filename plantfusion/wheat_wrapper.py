@@ -46,8 +46,6 @@ class Wheat_wrapper(object):
         tillers_replications={},
         planter=Planter(),
         indexer=Indexer(),
-        plant_density=None,
-        nb_plants=0,
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -91,14 +89,9 @@ class Wheat_wrapper(object):
         self.indexer = indexer
         self.global_index = indexer.global_order.index(name)
         self.wheat_index = indexer.wheat_names.index(name)
-        if nb_plants != 0:
-            self.nb_plants = nb_plants
-        else:
-            self.nb_plants = planter.number_of_plants[self.global_index]
-        if plant_density is not None:
-            self.plant_density = plant_density
-        else:    
-            self.plant_density = planter.plant_density
+
+        self.nb_plants = planter.number_of_plants[self.global_index]
+        self.plant_density = planter.plant_density
         self.generation_type = planter.generation_type
 
         self.LIGHT_TIMESTEP = LIGHT_TIMESTEP
@@ -1026,8 +1019,8 @@ class Wheat_wrapper(object):
         }
 
 
-def passive_lighting(data, t, DOY, scene, lighting_wrapper):
-    lighting_wrapper.run(scenes_wheat=scene, day=DOY, parunit="micromol.m-2.s-1")
+def passive_lighting(data, t, DOY, scene, lighting_wrapper, stems=None):
+    lighting_wrapper.run(scenes=[scene], day=DOY, parunit="micromol.m-2.s-1", stems=stems)
 
     results = lighting_wrapper.results_organs()
 

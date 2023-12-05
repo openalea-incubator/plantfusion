@@ -8,7 +8,6 @@ import datetime
 
 
 def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_postprocessing=False):
-        
     plants_name = "wheat"
     index_log = Indexer(global_order=[plants_name], wheat_names=[plants_name])
 
@@ -24,11 +23,12 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     senescwheat_timestep = 1
     light_timestep = 4
 
+    planter = Planter(generation_type="default", indexer=index_log, inter_rows=0.15, plant_density=plant_density)
+    
     wheat = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=out_folder,
-        plant_density=plant_density,
-        nb_plants=50,
+        planter=planter,
         indexer=index_log,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -38,8 +38,6 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
         SENESCWHEAT_TIMESTEP=senescwheat_timestep,
         LIGHT_TIMESTEP=light_timestep,
     )
-
-    planter = Planter(generation_type="default", indexer=index_log, inter_rows=0.15, plant_density=plant_density)
 
     lighting = Light_wrapper(
         lightmodel="caribu", 
