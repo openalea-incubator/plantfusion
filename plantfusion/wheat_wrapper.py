@@ -597,17 +597,17 @@ class Wheat_wrapper(object):
             # update the self.g
             self.g.property(param).update(dico_par[param])
 
-    def soil_inputs(self, soil_dimensions, lighting, planter=None):
+    def soil_inputs(self, soil_dimensions, lighting):
         # ls_N
         N_content_roots = self.compute_N_content_roots()
         N_content_roots_per_plant = [N_content_roots] * self.nb_plants
 
         # ls_roots
-        roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil_dimensions, planter)
+        roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil_dimensions)
 
         # ls_epsi
         organs_results = lighting.results_organs()
-        filtered_data = organs_results[organs_results.VegetationType.isin(self.global_index)]
+        filtered_data = organs_results[organs_results.VegetationType.isin([self.global_index])]
         plant_leaf_area = numpy.sum(filtered_data["Area"].values) / self.nb_plants
         plants_light_interception = self.compute_plants_light_interception(plant_leaf_area, lighting.soil_energy())
 
@@ -909,7 +909,7 @@ class Wheat_wrapper(object):
 
         return N_content_roots.values[0]
 
-    def compute_roots_length(self, soil_dimensions, planter=None):
+    def compute_roots_length(self, soil_dimensions):
         nb_plants = self.nb_plants
         # une seule plante dans cnwheat
         roots_mass = [0]

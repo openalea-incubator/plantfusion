@@ -5,9 +5,17 @@ from plantfusion.planter import Planter
 
 import time
 import datetime
+import os
 
 
 def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_postprocessing=False):
+    try:
+        # Create target Directory
+        os.mkdir(os.path.normpath(out_folder))
+        print("Directory ", os.path.normpath(out_folder), " Created ")
+    except FileExistsError:
+        print("Directory ", os.path.normpath(out_folder), " already exists")
+
     plants_name = "wheat"
     index_log = Indexer(global_order=[plants_name], wheat_names=[plants_name])
 

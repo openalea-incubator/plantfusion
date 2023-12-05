@@ -10,6 +10,13 @@ import os
 
 
 def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_postprocessing=False):
+    try:
+        # Create target Directory
+        os.mkdir(os.path.normpath(out_folder))
+        print("Directory ", os.path.normpath(out_folder), " Created ")
+    except FileExistsError:
+        print("Directory ", os.path.normpath(out_folder), " already exists")
+
     create_child_folder(out_folder, "passive")
     create_child_folder(out_folder, "active")
 
