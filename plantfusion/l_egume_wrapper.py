@@ -497,7 +497,7 @@ class L_egume_wrapper(object):
             nomzip = self.lsystem.outvarfile[0:-4]
             IOtable.Outzip(self.lsystem.path_out, nomzip+'.zip', ls_fileOUT)
             IOtable.Outdel(ls_fileOUT)
-            
+
         print(("".join((self.simulation_name, " - done"))))
         # désallocation des lsystem
         self.lsystem.clear()
@@ -645,7 +645,7 @@ class L_egume_wrapper(object):
 
 def passive_lighting(data, energy, DOY, scene, legume_wrapper, lighting_wrapper):
     invar_saved = deepcopy(legume_wrapper.invar)
-    lighting_wrapper.run(scenes_l_egume=scene, energy=energy, day=DOY, parunit="RG")
+    lighting_wrapper.run(scenes=[scene], energy=energy, day=DOY, parunit="RG")
 
     legume_wrapper.light_results(energy, lighting_wrapper)
     legume_wrapper.invar = deepcopy(invar_saved)
