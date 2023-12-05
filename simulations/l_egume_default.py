@@ -16,7 +16,7 @@ def simulation(in_folder, out_folder, id_usm):
         name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm
     )
 
-    planter = Planter(indexer=index_log, legume_wrapper=legume)
+    planter = Planter(generation_type="default", indexer=index_log, legume_wrapper=legume)
 
     lighting = Light_wrapper(lightmodel="riri5", indexer=index_log, planter=planter, legume_wrapper=legume)
 

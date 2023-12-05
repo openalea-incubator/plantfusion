@@ -7,13 +7,13 @@ from alinea.adel.echap_leaf import echap_leaves
 
 from lightvegemanager.stems import extract_stems_from_MTG
 
-from fspmwheat import caribu_wrapper
-from fspmwheat import cnwheat_wrapper
-from fspmwheat import elongwheat_wrapper
-from fspmwheat import farquharwheat_wrapper
-from fspmwheat import growthwheat_wrapper
-from fspmwheat import senescwheat_wrapper
-from fspmwheat import fspmwheat_wrapper
+from fspmwheat import caribu_facade
+from fspmwheat import cnwheat_facade
+from fspmwheat import elongwheat_facade
+from fspmwheat import farquharwheat_facade
+from fspmwheat import growthwheat_facade
+from fspmwheat import senescwheat_facade
+from fspmwheat import fspmwheat_facade
 
 from cnwheat import (
     simulation as cnwheat_simulation,
@@ -46,6 +46,8 @@ class Wheat_wrapper(object):
         tillers_replications={},
         planter=Planter(),
         indexer=Indexer(),
+        plant_density=None,
+        nb_plants=0,
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
@@ -89,8 +91,14 @@ class Wheat_wrapper(object):
         self.indexer = indexer
         self.global_index = indexer.global_order.index(name)
         self.wheat_index = indexer.wheat_names.index(name)
-        self.nb_plants = planter.number_of_plants[self.global_index]
-        self.plant_density = planter.plant_density
+        if nb_plants != 0:
+            self.nb_plants = nb_plants
+        else:
+            self.nb_plants = planter.number_of_plants[self.global_index]
+        if plant_density is not None:
+            self.plant_density = plant_density
+        else:    
+            self.plant_density = planter.plant_density
         self.generation_type = planter.generation_type
 
         self.LIGHT_TIMESTEP = LIGHT_TIMESTEP
@@ -253,26 +261,26 @@ class Wheat_wrapper(object):
         # -- ELONGWHEAT (created first because it is the only wrapper to add new metamers) --
         # Initial states
         elongwheat_hiddenzones_initial_state = self.inputs_dataframes[HIDDENZONES_INITIAL_STATE_FILENAME][
-            elongwheat_wrapper.converter.HIDDENZONE_TOPOLOGY_COLUMNS
+            elongwheat_facade.converter.HIDDENZONE_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in elongwheat_wrapper.simulation.HIDDENZONE_INPUTS
+                for i in elongwheat_facade.simulation.HIDDENZONE_INPUTS
                 if i in self.inputs_dataframes[HIDDENZONES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
         elongwheat_elements_initial_state = self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME][
-            elongwheat_wrapper.converter.ELEMENT_TOPOLOGY_COLUMNS
+            elongwheat_facade.converter.ELEMENT_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in elongwheat_wrapper.simulation.ELEMENT_INPUTS
+                for i in elongwheat_facade.simulation.ELEMENT_INPUTS
                 if i in self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
         elongwheat_axes_initial_state = self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME][
-            elongwheat_wrapper.converter.AXIS_TOPOLOGY_COLUMNS
+            elongwheat_facade.converter.AXIS_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in elongwheat_wrapper.simulation.AXIS_INPUTS
+                for i in elongwheat_facade.simulation.AXIS_INPUTS
                 if i in self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -286,7 +294,7 @@ class Wheat_wrapper(object):
             update_parameters_elongwheat = None
 
         # wrapper initialisation
-        self.elongwheat_wrapper_ = elongwheat_wrapper.ElongWheatwrapper(
+        self.elongwheat_facade_ = elongwheat_facade.ElongWheatFacade(
             self.g,
             ELONGWHEAT_TIMESTEP * self.HOUR_TO_SECOND_CONVERSION_FACTOR,
             elongwheat_axes_initial_state,
@@ -302,7 +310,7 @@ class Wheat_wrapper(object):
         )
 
         # -- CARIBU --
-        self.caribu_wrapper_ = caribu_wrapper.Caribuwrapper(
+        self.caribu_facade_ = caribu_facade.CaribuFacade(
             self.g, self.shared_elements_inputs_outputs_df, self.adel_wheat, update_shared_df=UPDATE_SHARED_DF
         )
 
@@ -311,10 +319,10 @@ class Wheat_wrapper(object):
         senescwheat_roots_initial_state = (
             self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME]
             .loc[self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME]["organ"] == "roots"][
-                senescwheat_wrapper.converter.ROOTS_TOPOLOGY_COLUMNS
+                senescwheat_facade.converter.ROOTS_TOPOLOGY_COLUMNS
                 + [
                     i
-                    for i in senescwheat_wrapper.converter.SENESCWHEAT_ROOTS_INPUTS
+                    for i in senescwheat_facade.converter.SENESCWHEAT_ROOTS_INPUTS
                     if i in self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME].columns
                 ]
             ]
@@ -322,19 +330,19 @@ class Wheat_wrapper(object):
         )
 
         senescwheat_elements_initial_state = self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME][
-            senescwheat_wrapper.converter.ELEMENTS_TOPOLOGY_COLUMNS
+            senescwheat_facade.converter.ELEMENTS_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in senescwheat_wrapper.converter.SENESCWHEAT_ELEMENTS_INPUTS
+                for i in senescwheat_facade.converter.SENESCWHEAT_ELEMENTS_INPUTS
                 if i in self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
 
         senescwheat_axes_initial_state = self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME][
-            senescwheat_wrapper.converter.AXES_TOPOLOGY_COLUMNS
+            senescwheat_facade.converter.AXES_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in senescwheat_wrapper.converter.SENESCWHEAT_AXES_INPUTS
+                for i in senescwheat_facade.converter.SENESCWHEAT_AXES_INPUTS
                 if i in self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -346,7 +354,7 @@ class Wheat_wrapper(object):
             update_parameters_senescwheat = None
 
         # wrapper initialisation
-        self.senescwheat_wrapper_ = senescwheat_wrapper.SenescWheatwrapper(
+        self.senescwheat_facade_ = senescwheat_facade.SenescWheatFacade(
             self.g,
             SENESCWHEAT_TIMESTEP * self.HOUR_TO_SECOND_CONVERSION_FACTOR,
             senescwheat_roots_initial_state,
@@ -362,19 +370,19 @@ class Wheat_wrapper(object):
         # -- FARQUHARWHEAT --
         # Initial states
         farquharwheat_elements_initial_state = self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME][
-            farquharwheat_wrapper.converter.ELEMENT_TOPOLOGY_COLUMNS
+            farquharwheat_facade.converter.ELEMENT_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in farquharwheat_wrapper.converter.FARQUHARWHEAT_ELEMENTS_INPUTS
+                for i in farquharwheat_facade.converter.FARQUHARWHEAT_ELEMENTS_INPUTS
                 if i in self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
 
         farquharwheat_axes_initial_state = self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME][
-            farquharwheat_wrapper.converter.AXIS_TOPOLOGY_COLUMNS
+            farquharwheat_facade.converter.AXIS_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in farquharwheat_wrapper.converter.FARQUHARWHEAT_AXES_INPUTS
+                for i in farquharwheat_facade.converter.FARQUHARWHEAT_AXES_INPUTS
                 if i in self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -383,7 +391,7 @@ class Wheat_wrapper(object):
         update_parameters_farquharwheat = {"SurfacicProteins": False, "NSC_Retroinhibition": False}
 
         # wrapper initialisation
-        self.farquharwheat_wrapper_ = farquharwheat_wrapper.FarquharWheatwrapper(
+        self.farquharwheat_facade_ = farquharwheat_facade.FarquharWheatFacade(
             self.g,
             farquharwheat_elements_initial_state,
             farquharwheat_axes_initial_state,
@@ -395,19 +403,19 @@ class Wheat_wrapper(object):
         # -- GROWTHWHEAT --
         # Initial states
         growthwheat_hiddenzones_initial_state = self.inputs_dataframes[HIDDENZONES_INITIAL_STATE_FILENAME][
-            growthwheat_wrapper.converter.HIDDENZONE_TOPOLOGY_COLUMNS
+            growthwheat_facade.converter.HIDDENZONE_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in growthwheat_wrapper.simulation.HIDDENZONE_INPUTS
+                for i in growthwheat_facade.simulation.HIDDENZONE_INPUTS
                 if i in self.inputs_dataframes[HIDDENZONES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
 
         growthwheat_elements_initial_state = self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME][
-            growthwheat_wrapper.converter.ELEMENT_TOPOLOGY_COLUMNS
+            growthwheat_facade.converter.ELEMENT_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in growthwheat_wrapper.simulation.ELEMENT_INPUTS
+                for i in growthwheat_facade.simulation.ELEMENT_INPUTS
                 if i in self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -415,10 +423,10 @@ class Wheat_wrapper(object):
         growthwheat_root_initial_state = (
             self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME]
             .loc[self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME]["organ"] == "roots"][
-                growthwheat_wrapper.converter.ROOT_TOPOLOGY_COLUMNS
+                growthwheat_facade.converter.ROOT_TOPOLOGY_COLUMNS
                 + [
                     i
-                    for i in growthwheat_wrapper.simulation.ROOT_INPUTS
+                    for i in growthwheat_facade.simulation.ROOT_INPUTS
                     if i in self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME].columns
                 ]
             ]
@@ -426,10 +434,10 @@ class Wheat_wrapper(object):
         )
 
         growthwheat_axes_initial_state = self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME][
-            growthwheat_wrapper.converter.AXIS_TOPOLOGY_COLUMNS
+            growthwheat_facade.converter.AXIS_TOPOLOGY_COLUMNS
             + [
                 i
-                for i in growthwheat_wrapper.simulation.AXIS_INPUTS
+                for i in growthwheat_facade.simulation.AXIS_INPUTS
                 if i in self.inputs_dataframes[AXES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -441,7 +449,7 @@ class Wheat_wrapper(object):
             update_parameters_growthwheat = None
 
         # wrapper initialisation
-        self.growthwheat_wrapper_ = growthwheat_wrapper.GrowthWheatwrapper(
+        self.growthwheat_facade_ = growthwheat_facade.GrowthWheatFacade(
             self.g,
             GROWTHWHEAT_TIMESTEP * self.HOUR_TO_SECOND_CONVERSION_FACTOR,
             growthwheat_hiddenzones_initial_state,
@@ -461,7 +469,7 @@ class Wheat_wrapper(object):
         cnwheat_organs_initial_state = self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME][
             [
                 i
-                for i in cnwheat_wrapper.cnwheat_converter.ORGANS_VARIABLES
+                for i in cnwheat_facade.cnwheat_converter.ORGANS_VARIABLES
                 if i in self.inputs_dataframes[ORGANS_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -469,7 +477,7 @@ class Wheat_wrapper(object):
         cnwheat_hiddenzones_initial_state = self.inputs_dataframes[HIDDENZONES_INITIAL_STATE_FILENAME][
             [
                 i
-                for i in cnwheat_wrapper.cnwheat_converter.HIDDENZONE_VARIABLES
+                for i in cnwheat_facade.cnwheat_converter.HIDDENZONE_VARIABLES
                 if i in self.inputs_dataframes[HIDDENZONES_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -477,7 +485,7 @@ class Wheat_wrapper(object):
         cnwheat_elements_initial_state = self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME][
             [
                 i
-                for i in cnwheat_wrapper.cnwheat_converter.ELEMENTS_VARIABLES
+                for i in cnwheat_facade.cnwheat_converter.ELEMENTS_VARIABLES
                 if i in self.inputs_dataframes[ELEMENTS_INITIAL_STATE_FILENAME].columns
             ]
         ].copy()
@@ -486,7 +494,7 @@ class Wheat_wrapper(object):
             cnwheat_soils_initial_state = self.inputs_dataframes[SOILS_INITIAL_STATE_FILENAME][
                 [
                     i
-                    for i in cnwheat_wrapper.cnwheat_converter.SOILS_VARIABLES
+                    for i in cnwheat_facade.cnwheat_converter.SOILS_VARIABLES
                     if i in self.inputs_dataframes[SOILS_INITIAL_STATE_FILENAME].columns
                 ]
             ].copy()
@@ -500,7 +508,7 @@ class Wheat_wrapper(object):
             update_parameters_cnwheat = {}
 
         # wrapper initialisation
-        self.cnwheat_wrapper_ = cnwheat_wrapper.CNWheatwrapper(
+        self.cnwheat_facade_ = cnwheat_facade.CNWheatFacade(
             self.g,
             CNWHEAT_TIMESTEP * self.HOUR_TO_SECOND_CONVERSION_FACTOR,
             self.plant_density,
@@ -529,7 +537,7 @@ class Wheat_wrapper(object):
 
         # -- FSPMWHEAT --
         # wrapper initialisation
-        self.fspmwheat_wrapper_ = fspmwheat_wrapper.FSPMWheatwrapper(self.g)
+        self.fspmwheat_facade_ = fspmwheat_facade.FSPMWheatFacade(self.g)
 
         # update geometry
         self.adel_wheat.update_geometry(self.g)
@@ -570,7 +578,7 @@ class Wheat_wrapper(object):
         results = lighting.results_organs()
         lightmodel = lighting.lightmodel
 
-        # crée un tableau comme dans caribu_wrapper de fspm-wheat
+        # crée un tableau comme dans caribu_facade de fspm-wheat
         dico_par = {}
         para_dic = {}
         erel_dic = {}
@@ -635,7 +643,7 @@ class Wheat_wrapper(object):
         # suite de la simu
         for t_senescwheat in range(t_light, t_light + self.SENESCWHEAT_TIMESTEP, self.SENESCWHEAT_TIMESTEP):
             # run SenescWheat
-            self.senescwheat_wrapper_.run()
+            self.senescwheat_facade_.run()
 
             # Test for dead plant # TODO: adapt in case of multiple plants
             if (
@@ -667,14 +675,14 @@ class Wheat_wrapper(object):
                 ]
 
                 # run FarquharWheat
-                self.farquharwheat_wrapper_.run(Ta, ambient_CO2, RH, Ur)
+                self.farquharwheat_facade_.run(Ta, ambient_CO2, RH, Ur)
 
                 for t_elongwheat in range(
                     t_farquharwheat, t_farquharwheat + self.FARQUHARWHEAT_TIMESTEP, self.ELONGWHEAT_TIMESTEP
                 ):
                     # run ElongWheat
                     Tair, Tsoil = self.meteo.loc[t_elongwheat, ["air_temperature", "soil_temperature"]]
-                    self.elongwheat_wrapper_.run(Tair, Tsoil, option_static=self.option_static)
+                    self.elongwheat_facade_.run(Tair, Tsoil, option_static=self.option_static)
 
                     # Update geometry
                     self.adel_wheat.update_geometry(self.g)
@@ -683,7 +691,7 @@ class Wheat_wrapper(object):
                         t_elongwheat, t_elongwheat + self.ELONGWHEAT_TIMESTEP, self.GROWTHWHEAT_TIMESTEP
                     ):
                         # run GrowthWheat
-                        self.growthwheat_wrapper_.run()
+                        self.growthwheat_facade_.run()
 
                         for t_cnwheat in range(
                             t_growthwheat, t_growthwheat + self.GROWTHWHEAT_TIMESTEP, self.CNWHEAT_TIMESTEP
@@ -697,7 +705,7 @@ class Wheat_wrapper(object):
                                 and len(self.N_fertilizations) > 0
                             ):
                                 if t_cnwheat in self.N_fertilizations.keys():
-                                    self.cnwheat_wrapper_.soils[(1, "MS")].nitrates += self.N_fertilizations[t_cnwheat]
+                                    self.cnwheat_facade_.soils[(1, "MS")].nitrates += self.N_fertilizations[t_cnwheat]
 
                             if t_cnwheat > 0:
                                 if self.external_soil_model:
@@ -709,7 +717,7 @@ class Wheat_wrapper(object):
                                 # run CNWheat
                                 Tair = self.meteo.loc[t_elongwheat, "air_temperature"]
                                 Tsoil = self.meteo.loc[t_elongwheat, "soil_temperature"]
-                                self.cnwheat_wrapper_.run(Tair, Tsoil, self.tillers_replications)
+                                self.cnwheat_facade_.run(Tair, Tsoil, self.tillers_replications)
 
                             # append outputs at current step to global lists
                             if (self.stored_times == "all") or (t_cnwheat in self.stored_times):
@@ -719,7 +727,7 @@ class Wheat_wrapper(object):
                                     hiddenzones_outputs,
                                     organs_outputs,
                                     soils_outputs,
-                                ) = self.fspmwheat_wrapper_.build_outputs_df_from_MTG()
+                                ) = self.fspmwheat_facade_.build_outputs_df_from_MTG()
 
                                 self.all_simulation_steps.append(t_cnwheat)
                                 self.axes_all_data_list.append(axes_outputs)
@@ -782,7 +790,7 @@ class Wheat_wrapper(object):
                 postprocessing_df_dict[organs_postprocessing_file_basename],
                 postprocessing_df_dict[elements_postprocessing_file_basename],
                 postprocessing_df_dict[soils_postprocessing_file_basename],
-            ) = cnwheat_wrapper.CNWheatwrapper.postprocessing(
+            ) = cnwheat_facade.CNWheatfacade.postprocessing(
                 axes_outputs_df=outputs_df_dict[self.AXES_OUTPUTS_FILENAME.split(".")[0]],
                 hiddenzone_outputs_df=outputs_df_dict[self.HIDDENZONES_OUTPUTS_FILENAME.split(".")[0]],
                 organs_outputs_df=outputs_df_dict[self.ORGANS_OUTPUTS_FILENAME.split(".")[0]],
@@ -807,7 +815,7 @@ class Wheat_wrapper(object):
 
     def update_Nitrates_cnwheat_mtg(self):
         mtg_plants_iterator = self.g.components_iter(self.g.root)
-        for plant in self.cnwheat_wrapper_.population.plants:
+        for plant in self.cnwheat_facade_.population.plants:
             cnwheat_plant_index = plant.index
             while True:
                 mtg_plant_vid = next(mtg_plants_iterator)
@@ -815,7 +823,7 @@ class Wheat_wrapper(object):
                     break
             mtg_axes_iterator = self.g.components_iter(mtg_plant_vid)
             for axis in plant.axes:
-                # update in cnwheat_wrapper_
+                # update in cnwheat_facade_
                 axis.roots.__dict__["Uptake_Nitrates"] = self.uptake_nitrate_hour
 
                 # Update Nitrates uptake in MTG
@@ -912,11 +920,11 @@ class Wheat_wrapper(object):
         nb_plants = self.nb_plants
         # une seule plante dans cnwheat
         roots_mass = [0]
-        for i, plant in enumerate(self.cnwheat_wrapper_.population.plants):
+        for i, plant in enumerate(self.cnwheat_facade_.population.plants):
             for axis in plant.axes:
                 roots_mass[i] += axis.roots.mstruct  # masse en g
         if self.nb_plants == 1:
-            nb_plants = len(self.cnwheat_wrapper_.population.plants)
+            nb_plants = len(self.cnwheat_facade_.population.plants)
 
         SRL = self.compute_SRL_wheat(roots_mass[0])
 
@@ -968,7 +976,7 @@ class Wheat_wrapper(object):
 
     def force_nitrates_uptake(self, t):
         mtg_plants_iterator = self.g.components_iter(self.g.root)
-        for plant in self.cnwheat_wrapper_.population.plants:
+        for plant in self.cnwheat_facade_.population.plants:
             cnwheat_plant_index = plant.index
             while True:
                 mtg_plant_vid = next(mtg_plants_iterator)
