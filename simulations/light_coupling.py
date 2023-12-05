@@ -1,8 +1,8 @@
-from plantfusion.l_egume_facade import L_egume_facade
-from plantfusion.wheat_facade import Wheat_facade
+from plantfusion.l_egume_wrapper import L_egume_wrapper
+from plantfusion.wheat_wrapper import Wheat_wrapper
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.light_wrapper import Light
+from plantfusion.soil3ds_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 
 import time
@@ -28,7 +28,7 @@ def simulation(
         sky=sky, N_fertilizations=N_fertilizations, tillers_replications=tillers_replications, external_soil=False
     )
 
-    wheat = Wheat_facade(
+    wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
         environment=environment,
@@ -40,17 +40,17 @@ def simulation(
         LIGHT_TIMESTEP=light_timestep,
     )
 
-    legume = L_egume_facade(in_folder=in_folder_legume, out_folder=out_folder)
+    legume = L_egume_wrapper(in_folder=in_folder_legume, out_folder=out_folder)
 
     translate = (-0.21, -0.21)
     plants_positions = Planter(
         plantmodels=[wheat, legume], inter_rows=0.15, plant_density=plant_density, xy_translate=translate
     )
 
-    soil = Soil_facade(
+    soil = Soil_wrapper(
         in_folder=in_folder_legume,
         out_folder=out_folder,
-        legume_facade=legume,
+        legume_wrapper=legume,
         position=plants_positions,
         legume_pattern=True,
     )
@@ -60,8 +60,8 @@ def simulation(
         lightmodel="caribu",
         position=plants_positions,
         environment=environment,
-        wheat_facade=wheat,
-        legume_facade=legume,
+        wheat_wrapper=wheat,
+        legume_wrapper=legume,
         writegeo=writegeo,
     )
 

@@ -1,6 +1,6 @@
-from plantfusion.wheat_facade import Wheat_facade, passive_lighting
+from plantfusion.wheat_wrapper import Wheat_wrapper, passive_lighting
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
+from plantfusion.light_wrapper import Light
 from plantfusion.planter import Planter
 from plantfusion.utils import create_child_folder
 
@@ -30,7 +30,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
         sky=sky, N_fertilizations=N_fertilizations, tillers_replications=tillers_replications, external_soil=False
     )
 
-    wheat_default = Wheat_facade(
+    wheat_default = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=os.path.join(out_folder, "passive"),
         environment=environment,
@@ -46,7 +46,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
 
     lighting_default = Light(
         lightmodel="caribu",
-        wheat_facade=wheat_default,
+        wheat_wrapper=wheat_default,
         position=plants_positions_default,
         environment=environment,
         writegeo=False,
@@ -56,7 +56,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     dv = 0.05
     voxels_size = [dv, dv, dv]
 
-    wheat_ratp = Wheat_facade(
+    wheat_ratp = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=os.path.join(out_folder, "active"),
         environment=environment,
@@ -73,7 +73,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     lighting_ratp = Light(
         lightmodel="ratp",
         out_folder=out_folder,
-        wheat_facade=wheat_ratp,
+        wheat_wrapper=wheat_ratp,
         position=plants_positions_ratp,
         environment=environment,
         voxels_size=voxels_size,

@@ -1,7 +1,7 @@
-from plantfusion.l_egume_facade import L_egume_facade, passive_lighting
+from plantfusion.l_egume_wrapper import L_egume_wrapper, passive_lighting
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.light_wrapper import Light
+from plantfusion.soil3ds_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 from plantfusion.utils import create_child_folder
 
@@ -17,25 +17,25 @@ def simulation(in_folder, out_folder, write_geo=False):
 
     # version par défaut
     environment = Environment(external_soil=False)
-    legume_default = L_egume_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"))
+    legume_default = L_egume_wrapper(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"))
     plants_positions = Planter(plantmodels=[legume_default])
     lighting_default = Light(
         lightmodel="riri5",
         position=plants_positions,
         environment=environment,
         writegeo=False,
-        legume_facade=legume_default,
+        legume_wrapper=legume_default,
     )
-    soil_default = Soil_facade(
+    soil_default = Soil_wrapper(
         in_folder=in_folder,
         out_folder=os.path.join(out_folder, "passive"),
-        legume_facade=legume_default,
+        legume_wrapper=legume_default,
         position=plants_positions,
     )
 
     # lumiere avec caribu
     environment = Environment(sky="inputs_soil_legume/sky_5.data", external_soil=False)
-    legume_caribu = L_egume_facade(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"))
+    legume_caribu = L_egume_wrapper(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"))
     plants_positions = Planter(plantmodels=[legume_caribu])
     lighting_caribu = Light(
         lightmodel="caribu",
@@ -43,12 +43,12 @@ def simulation(in_folder, out_folder, write_geo=False):
         position=plants_positions,
         environment=environment,
         writegeo=write_geo,
-        legume_facade=legume_caribu,
+        legume_wrapper=legume_caribu,
     )
-    soil_caribu = Soil_facade(
+    soil_caribu = Soil_wrapper(
         in_folder=in_folder,
         out_folder=os.path.join(out_folder, "active"),
-        legume_facade=legume_caribu,
+        legume_wrapper=legume_caribu,
         position=plants_positions,
     )
 

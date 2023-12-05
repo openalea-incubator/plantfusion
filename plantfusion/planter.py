@@ -1,226 +1,171 @@
 import numpy
-import pandas
 import math
+import pandas
 
 from alinea.adel.Stand import AgronomicStand
 import openalea.plantgl.all as plantgl
 import random
+
+from plantfusion.mixing_management import IndexManagement
 
 
 class Planter:
     def __init__(
         self,
         generation_type="default",
-        global_order_fspm_wrappers=[],
+        indexmngmt=IndexManagement(),
+        legume_wrapper=None,
         inter_rows=0.15,
         plant_density={1: 250},
         xy_plane=None,
         xy_square_length=0.5,
         xy_translate=None,
-        noise_plant_positions=0.,
+        noise_plant_positions=0.0,
         save_wheat_positions=False,
+        seed=None,
     ) -> None:
         self.generation_type = generation_type
         # plant_density = {"legume" : [n1, n2], "wheat" : [n1, n2] ...}
         self.plant_density = plant_density
         self.save_wheat_positions = save_wheat_positions
         self.noise_plant_positions = noise_plant_positions
+        self.indexmngmt = indexmngmt
+
+        # les lsystem l-egume sont par défaut en cm et le reste en m
+        self.transformations = {"scenes unit": {}}
+        for i in range(len(self.indexmngmt.global_order)):
+            self.transformations["scenes unit"][i] = "m"
+        for i in self.indexmngmt.legume_index:
+            self.transformations["scenes unit"][i] = "cm"
 
         if generation_type == "default":
-            self.__default_preconfigured(global_order_fspm_wrappers, inter_rows, plant_density, xy_plane, xy_translate)
+            self.__default_preconfigured(legume_wrapper, inter_rows, plant_density, xy_plane, xy_translate, seed)
 
         elif generation_type == "random":
-            self.__random(global_order_fspm_wrappers, plant_density, xy_square_length)
+            self.__random(plant_density, xy_square_length)
             self.type_domain = "mix"
 
         elif generation_type == "row":
-            self.__row(global_order_fspm_wrappers, plant_density, inter_rows)
+            self.__row(plant_density, inter_rows)
             self.type_domain = "mix"
 
-    def __random(self, plantmodels, plant_density, xy_square_length):
+    def __random(self, plant_density, xy_square_length):
         # fait un carré à partir de (0,0)
         # xy_plane = longueur d'un cote du carré du sol
+        self.legume_nbcote = []
+        self.nb_wheat_plants = []
+        self.wheat_positions = []
+
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
-        if "legume" in plant_density:
-            # on réajuste le domaine pour avoir 64 plantes
-            if isinstance(plant_density["legume"], list):
-                 self.legume_nbcote = plant_density["legume"][0]
-                 self.legume_nbcote = [8] * len(plant_density["legume"])
-            else:
-                 self.legume_nbcote = plant_density["legume"]
-                 self.legume_nbcote = [8]
-            # xy_square_length = math.sqrt(64/legume_density)
-            # self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
-            
-            self.legume_typearrangement = "random8"
-            # conversion m en cm
-            self.legume_cote = xy_square_length * 100
-            
-            self.legume_optdamier = 8
+        for name, density in plant_density.items:
+            if name in self.indexmngmt.legume_names:
+                # on réajuste le domaine pour avoir 64 plantes
+                xy_square_length = math.sqrt(64 / density)
+                self.legume_nbcote.append(8)
+                self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
-        if "wheat" in plant_density:
-            if isinstance(plant_density["wheat"], list):
-                self.wheat_nbplants = [ int(xy_square_length * xy_square_length * wheat_density) for wheat_density in plant_density["wheat"] ]
-            else:
-                self.wheat_nbplants = [ int(xy_square_length * xy_square_length * plant_density["wheat"]) ]
-            self.wheat_positions = []
+                self.legume_typearrangement = "random8"
+                # conversion m en cm
+                self.legume_cote = xy_square_length * 100
 
-        # les lsystem l-egume sont par défaut en cm et wheat en m
-        self.index = {"wheat": [], "l-egume": []}
-        self.transformations = {"scenes unit": {}}
-        
-        # light_facade concatene d'abord les scènes wheat puis les scènes legume
-        nb_legume_scenes = plantmodels.count("legume")
-        nb_wheat_scenes = plantmodels.count("wheat")
-        for i in range(nb_wheat_scenes):
-            self.index["wheat"].append(i)
-            self.transformations["scenes unit"][i] = "m"
-        for i in range(nb_legume_scenes):
-            self.index["l-egume"].append(nb_wheat_scenes+i)
-            self.transformations["scenes unit"][nb_wheat_scenes+i] = "cm"
+                self.legume_optdamier = 8
 
-    def __row(self, plantmodels, plant_density, inter_rows):
-        if "legume" not in plant_density :
-            plant_density["legume"] = []
-        elif "wheat" not in plant_density :
-            plant_density["wheat"] = []
+            if name in self.indexmngmt.wheat_names:
+                self.nb_wheat_plants.append(int(xy_square_length * xy_square_length * density))
 
-        if isinstance(plant_density["legume"], list) :
-            self.total_n_rows = 2 * len(plant_density["legume"])
-        else:
-             self.total_n_rows = 2
-        if isinstance(plant_density["wheat"], list) :
-            self.total_n_rows += 2 * len(plant_density["wheat"])
-        else:
-             self.total_n_rows += 2
-        
+    def __row(self, plant_density, inter_rows):
+        self.total_n_rows = 2 * len(self.indexmngmt.global_order)
+
         xy_square_length = inter_rows * self.total_n_rows
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
-        if "legume" in plant_density:
-            self.legume_typearrangement = "row4_sp1"
-            # conversion m en cm
-            self.legume_cote = inter_rows * self.total_n_rows * 100
-            if isinstance(plant_density["legume"], list):
-                self.legume_nbcote = [int( xy_square_length * xy_square_length * d / 2) for d in plant_density["legume"] ]
-            else:
-                self.legume_nbcote = [int( xy_square_length * xy_square_length * plant_density["legume"] / 2 )]
+        self.inter_rows = inter_rows
+        self.legume_nbcote = []
+        self.nb_wheat_plants = []
+        self.wheat_positions = []
 
-            self.legume_optdamier = 2
+        for name, density in plant_density.items:
+            if name in self.indexmngmt.legume_names:
+                self.legume_typearrangement = "row4_sp1"
+                # conversion m en cm
+                self.legume_cote = inter_rows * self.total_n_rows * 100
+                self.legume_nbcote.append(int(xy_square_length * xy_square_length * density / 2))
+                self.legume_optdamier = 2
 
-        if "wheat" in plant_density:
-            if isinstance(plant_density["wheat"], list):
-                self.wheat_nbplants = [ int(xy_square_length * xy_square_length * wheat_density) for wheat_density in plant_density["wheat"] ]
-            else:
-                self.wheat_nbplants = [ int(xy_square_length * xy_square_length * plant_density["wheat"]) ]
-            self.inter_rows = inter_rows
-            self.wheat_positions = []
+            if name in self.indexmngmt.wheat_names:
+                self.nb_wheat_plants.append(int(xy_square_length * xy_square_length * density))
 
-        # les lsystem l-egume sont par défaut en cm et wheat en m
-        self.index = {"wheat": [], "l-egume": []}
-        self.transformations = {"scenes unit": {}}
-        # light_facade concatene d'abord les scènes wheat puis les scènes legume
-        nb_legume_scenes = plantmodels.count("legume")
-        nb_wheat_scenes = plantmodels.count("wheat")
-        for i in range(nb_wheat_scenes):
-            self.index["wheat"].append(i)
-            self.transformations["scenes unit"][i] = "m"
-        for i in range(nb_legume_scenes):
-            self.index["l-egume"].append(nb_wheat_scenes+i)
-            self.transformations["scenes unit"][nb_wheat_scenes+i] = "cm"
-        
         self.transformations["translate"] = {}
-        if self.total_n_rows > 4 :
-            i_wheat = 0
-            i_legume = nb_wheat_scenes
-            for i in range(len(plantmodels)):
-                if plantmodels[i] == "legume" :
-                    self.transformations["translate"][i_legume] = (0., (i) * inter_rows, 0.)
-                    i_legume += 1
-                elif plantmodels[i] == "wheat" :
-                    self.transformations["translate"][i_wheat] = (0., (i-0.5) * inter_rows, 0.)
-                    i_wheat += 1
-        
+        if self.total_n_rows > 4:
+            for i in self.indexmngmt.legume_index:
+                self.transformations["translate"][i] = (0.0, (i) * inter_rows, 0.0)
+            for i in self.indexmngmt.wheat_index:
+                self.transformations["translate"][i] = (0.0, (i - 0.5) * inter_rows, 0.0)
+
         # il y a que deux espèces
         else:
             # 2 wheats
-            if plantmodels.count("wheat") > 1 :
-                self.transformations["translate"][0] = (0., - inter_rows, 0.)
-            
-            # 2 legume
-            elif plantmodels.count("legume") > 1 :
-                self.transformations["translate"][1] = (0., inter_rows, 0.)
+            if len(self.indexmngmt.wheat_names) > 1:
+                self.transformations["translate"][0] = (0.0, -inter_rows, 0.0)
 
+            # 2 legume
+            elif len(self.indexmngmt.legume_names) > 1:
+                self.transformations["translate"][1] = (0.0, inter_rows, 0.0)
 
     def __default_preconfigured(
-        self, plantmodels=[], inter_rows=0.15, plant_density={1: 250}, xy_plane=None, xy_translate=None
+        self, legume_wrapper=None, inter_rows=0.15, plant_density={1: 250}, xy_plane=None, xy_translate=None, seed=None
     ):
-        from plantfusion.l_egume_facade import L_egume_facade
-        from plantfusion.wheat_facade import Wheat_facade
-
         self.plant_density = plant_density
         self.inter_rows = inter_rows
 
-        legume_instances = [facade for facade in plantmodels if isinstance(facade, L_egume_facade)]
-        wheat_instances = [facade for facade in plantmodels if isinstance(facade, Wheat_facade)]
-
         self.nb_plants = 0
         self.nb_wheat_plants = 50
-        if wheat_instances != [] :
+        if self.indexmngmt.wheat_active:
             self.type_domain = "create_heterogeneous_canopy"
-            # pour mettre à jour self.domain
-            setup_scene = self.create_heterogeneous_canopy(wheat_instances[0].adel_wheat, wheat_instances[0].g)
-            self.nb_plants = self.nb_wheat_plants * len(wheat_instances)
 
-        # les lsystem l-egume sont par défaut en cm et wheat en m
-        self.index = {"wheat": [], "l-egume": []}
-        self.transformations = {"scenes unit": {}}
-        id_specy = 0
-        for facade in plantmodels:
-            if isinstance(facade, Wheat_facade):
-                self.index["wheat"].append(id_specy)
-                self.transformations["scenes unit"][id_specy] = "m"
-            if isinstance(facade, L_egume_facade):
-                # il peut y avoir plusieurs lsystem dans un legume
-                for i in range(len(facade.idsimu)):
-                    self.index["l-egume"].append(id_specy)
-                    self.transformations["scenes unit"][id_specy] = "cm"
-                    id_specy += 1
-            id_specy += 1
+            # on vient récupérer le domain de AgronomicStand
+            if seed is not None:
+                random.seed(seed)
+                numpy.random.seed(seed)
+
+            stand = AgronomicStand(
+                sowing_density=self.plant_density[1],
+                plant_density=self.plant_density[1],
+                inter_row=self.inter_rows,
+                noise=self.noise_plant_positions,
+            )
+            _, domain, _, _ = stand.smart_stand(nplants=self.nb_wheat_plants, at=self.inter_rows, convunit=1)
+            self.domain = domain
+            self.nb_plants = self.nb_wheat_plants * len(self.indexmngmt.wheat_index)
 
         # temporaire : on applique les translations que aux instances l-egume
+        # xy_translate : dict {"name isntance" : (x,y,z)}
         if xy_translate is not None:
             self.transformations["translate"] = {}
-            id_specy = 0
-            for facade in plantmodels:
-                if isinstance(facade, L_egume_facade):
-                    # il peut y avoir plusieurs lsystem dans un legume
-                    for i in range(len(facade.idsimu)):
-                        # self.index["l-egume"].append(id_specy)
-                        self.transformations["translate"][id_specy] = (xy_translate[0], xy_translate[1], 0)
-                        id_specy += 1
-                id_specy += 1
+            for name, vector in xy_translate.items():
+                id = self.indexmngmt.global_order.index(name)
+                self.transformations["translate"][id] = vector
 
         # gestion du domain xy de définition
         if xy_plane is None:
             # si recalcul le domain via create_heterogeneous_canopy
-            if legume_instances == []:
+            if not self.indexmngmt.legume_active:
                 self.type_domain = "create_heterogeneous_canopy"
-            elif wheat_instances == []:
+            elif not self.indexmngmt.wheat_active:
                 self.type_domain = "l-egume"
-                n = legume_instances[0].idsimu[0]
+                n = legume_wrapper.idsimu[0]
                 # convertit domain cm en m
                 self.domain = (
                     (0.0, 0.0),
-                    (legume_instances[0].lsystems[n].cote * 0.01, legume_instances[0].lsystems[n].cote * 0.01),
+                    (legume_wrapper.lsystems[n].cote * 0.01, legume_wrapper.lsystems[n].cote * 0.01),
                 )
             else:
-                n = legume_instances[0].idsimu[0]
+                n = legume_wrappers.idsimu[0]
                 self.type_domain = "mix"
                 legume_domain = (
                     (0.0, 0.0),
-                    (legume_instances[0].lsystems[n].cote * 0.01, legume_instances[0].lsystems[n].cote * 0.01),
+                    (legume_wrapper.lsystems[n].cote * 0.01, legume_wrapper.lsystems[n].cote * 0.01),
                 )
                 if xy_translate is not None:
                     legume_domain = (
@@ -238,10 +183,9 @@ class Planter:
             self.domain = xy_plane
 
         # transmets l'information aux l-egumes (pour éviter d'avoir planter en input de l-egume (temporaire))
-        for facade in legume_instances:
-            facade.set_domain(self.domain)
+        legume_wrapper.set_domain(self.domain)
 
-    def generate_random_wheat(self, adel_wheat, mtg, indice_wheat_instance=0, seed=None):  
+    def generate_random_wheat(self, adel_wheat, mtg, indice_wheat_instance=0, seed=None):
         var_leaf_inclination = 0.157
         var_leaf_azimut = 1.57
         var_stem_azimut = 0.157
@@ -261,17 +205,16 @@ class Planter:
             positions = self.wheat_positions
         else:
             positions = []
-            for i in range(self.wheat_nbplants[indice_wheat_instance]):
-                positions.append((numpy.random.uniform(0.0, self.domain[1][0]), numpy.random.uniform(0.0, self.domain[1][0]), 0.0))
+            for i in range(self.nb_wheat_plants[indice_wheat_instance]):
+                positions.append(
+                    (numpy.random.uniform(0.0, self.domain[1][0]), numpy.random.uniform(0.0, self.domain[1][0]), 0.0)
+                )
 
         self.wheat_positions = positions
 
-        generated_scene =  self.__generate_wheat_from_positions(initial_scene,
-                                                                    mtg,
-                                                                    positions, 
-                                                                    var_leaf_inclination,
-                                                                    var_leaf_azimut,
-                                                                    var_stem_azimut)
+        generated_scene = self.__generate_wheat_from_positions(
+            initial_scene, mtg, positions, var_leaf_inclination, var_leaf_azimut, var_stem_azimut
+        )
 
         return generated_scene
 
@@ -294,29 +237,27 @@ class Planter:
         else:
             positions = []
 
-            inter_plants = 2 * self.domain[1][1] / self.wheat_nbplants[indice_wheat_instance]
+            inter_plants = 2 * self.domain[1][1] / self.nb_wheat_plants[indice_wheat_instance]
             nrows = 2
             self.total_n_rows
 
             # first row on left 1/2 interrow, then 1 out of 2 row is wheat
-            rows_y = [ self.inter_rows * 1.5, ((self.total_n_rows / nrows) + 1.5) * self.inter_rows ]
+            rows_y = [self.inter_rows * 1.5, ((self.total_n_rows / nrows) + 1.5) * self.inter_rows]
             for y in rows_y:
-                for ix in range(int(self.wheat_nbplants[indice_wheat_instance] / nrows)):
+                for ix in range(int(self.nb_wheat_plants[indice_wheat_instance] / nrows)):
                     x = inter_plants * (0.5 + ix)
-                    p = (random.uniform(x - self.noise_plant_positions, x + self.noise_plant_positions),
-                            random.uniform(y - self.noise_plant_positions, y + self.noise_plant_positions),
-                            0.)
+                    p = (
+                        random.uniform(x - self.noise_plant_positions, x + self.noise_plant_positions),
+                        random.uniform(y - self.noise_plant_positions, y + self.noise_plant_positions),
+                        0.0,
+                    )
                     positions.append(p)
-        
 
         self.wheat_positions = positions
 
-        generated_scene =  self.__generate_wheat_from_positions(initial_scene,
-                                                                    mtg,
-                                                                    positions, 
-                                                                    var_leaf_inclination,
-                                                                    var_leaf_azimut,
-                                                                    var_stem_azimut)
+        generated_scene = self.__generate_wheat_from_positions(
+            initial_scene, mtg, positions, var_leaf_inclination, var_leaf_azimut, var_stem_azimut
+        )
 
         return generated_scene
 
@@ -358,26 +299,26 @@ class Planter:
 
         random.seed(1234)
 
-        generated_scene =  self.__generate_wheat_from_positions(geometrical_model,
-                                                                    mtg,
-                                                                    positions, 
-                                                                    var_leaf_inclination,
-                                                                    var_leaf_azimut,
-                                                                    var_stem_azimut)
+        generated_scene = self.__generate_wheat_from_positions(
+            geometrical_model, mtg, positions, var_leaf_inclination, var_leaf_azimut, var_stem_azimut
+        )
 
         if self.type_domain == "create_heterogeneous_canopy":
             self.domain = domain
 
         return generated_scene
 
-    def __generate_wheat_from_positions(self, 
-                                        geometrical_model,
-                                        mtg=None,
-                                        positions=[(0.,0.,0.)], 
-                                        var_leaf_inclination=0.157,
-                                        var_leaf_azimut=1.57,
-                                        var_stem_azimut=0.157):
-
+    def __generate_wheat_from_positions(
+        self,
+        geometrical_model,
+        mtg=None,
+        positions=[(0.0, 0.0, 0.0)],
+        var_leaf_inclination=0.157,
+        var_leaf_azimut=1.57,
+        var_stem_azimut=0.157,
+        stem_name="StemElement",
+        leaf_name="LeafElement1",
+    ):
         # Load scene
         if not isinstance(geometrical_model, plantgl.Scene):
             initial_scene = geometrical_model.scene(mtg)
@@ -385,7 +326,7 @@ class Planter:
             initial_scene = geometrical_model
 
         alea_canopy = pandas.DataFrame()
-        
+
         # Built alea table if does not exist yet
         if alea_canopy.empty and mtg is not None:
             elements_vid_list = []
@@ -394,7 +335,7 @@ class Planter:
                     for mtg_metamer_vid in mtg.components_iter(mtg_axis_vid):
                         for mtg_organ_vid in mtg.components_iter(mtg_metamer_vid):
                             for mtg_element_vid in mtg.components_iter(mtg_organ_vid):
-                                if mtg.label(mtg_element_vid) == "LeafElement1":
+                                if mtg.label(mtg_element_vid) == leaf_name:
                                     elements_vid_list.append(mtg_element_vid)
 
             elements_vid_df = pandas.DataFrame({"vid": elements_vid_list, "tmp": 1})
@@ -419,12 +360,12 @@ class Planter:
         for pos in positions:
             azimut_stem = random.uniform(-var_stem_azimut, var_stem_azimut)
             for shp in initial_scene:
-                if mtg.label(shp.id) == "StemElement":
+                if mtg.label(shp.id) == stem_name:
                     rotated_geometry = plantgl.EulerRotated(azimut_stem, 0, 0, shp.geometry)
                     translated_geometry = plantgl.Translated(plantgl.Vector3(pos), rotated_geometry)
                     new_shape = plantgl.Shape(translated_geometry, appearance=shp.appearance, id=shp.id)
                     duplicated_scene += new_shape
-                elif mtg.label(shp.id) == "LeafElement1":
+                elif mtg.label(shp.id) == leaf_name:
                     # Add shp.id in alea_canopy if not in yet:
                     if shp.id not in list(alea_canopy["vid"]):
                         new_vid_df = pandas.DataFrame({"vid": shp.id, "pos": range(len(positions))})

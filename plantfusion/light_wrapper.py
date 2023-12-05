@@ -4,15 +4,22 @@ from lightvegemanager.LVM import LightVegeManager
 from lightvegemanager.stems import extract_stems_from_MTG
 from plantfusion.utils import create_child_folder
 from plantfusion.planter import Planter
+from plantfusion.index_management import IndexManagement
+
 
 class Light(object):
     def __init__(
         self,
-        environment,
-        position:Planter,
+        planter=Planter(),
+        index_mngmt=IndexManagement(),
         lightmodel="",
-        legume_facade=None,
-        wheat_facade=None,
+        sky="turtle46",
+        direct=False,
+        diffuse=True,
+        reflected=False,
+        coordinates=[46.4, 0.0, 1.0],
+        infinite=True,
+        legume_wrapper=None,
         caribu_opt={"par": (0.10, 0.07)},
         voxels_size=[1.0, 1.0, 1.0],
         angle_distrib_algo="compute voxel",
@@ -21,8 +28,8 @@ class Light(object):
         writegeo=False,
         out_folder="",
     ):
-        self.transformations = position.transformations
-        self.wheat_facade = wheat_facade
+        self.transformations = planter.transformations
+        self.index_mngmt = index_mngmt
         self.writegeo = writegeo
         self.compute_sensors = False
         if writegeo:
@@ -33,43 +40,49 @@ class Light(object):
 
         self.lightmodel = lightmodel
 
-        self.type_domain = position.type_domain
-        self.domain = position.domain
+        self.type_domain = planter.type_domain
+        self.domain = planter.domain
+
+        self.environment = {
+            "coordinates": coordinates,
+            "sky": sky,
+            "direct": direct,
+            "diffus": diffuse,
+            "reflected": reflected,
+            "infinite": infinite,
+        }
 
         # calcul du nombre d'espèce
-        self.number_of_species = 0
+        self.number_of_species = len(index_mngmt.global_order) - len(index_mngmt.legume_names)
 
         # les instances de l-egume doivent suivre la même grille
-        if legume_facade is not None:
-            if isinstance(legume_facade, list):
-                for leg in legume_facade:
+        dxyz_legume = [0.0] * 3
+        nxyz_legume = [0] * 3
+        if legume_wrapper is not None:
+            if isinstance(legume_wrapper, list):
+                for leg in legume_wrapper:
                     self.number_of_species += leg.number_of_species()
                 nxyz_legume = [
-                    legume_facade[0].number_of_voxels()[3],
-                    legume_facade[0].number_of_voxels()[2],
-                    legume_facade[0].number_of_voxels()[1],
+                    legume_wrapper[0].number_of_voxels()[3],
+                    legume_wrapper[0].number_of_voxels()[2],
+                    legume_wrapper[0].number_of_voxels()[1],
                 ]
-                dxyz_legume = [x * 0.01 for x in legume_facade[0].voxels_size()]  # conversion de cm à m
+                dxyz_legume = [x * 0.01 for x in legume_wrapper[0].voxels_size()]  # conversion de cm à m
             else:
-                self.number_of_species += legume_facade.number_of_species()
+                self.number_of_species += legume_wrapper.number_of_species()
                 nxyz_legume = [
-                    legume_facade.number_of_voxels()[3],
-                    legume_facade.number_of_voxels()[2],
-                    legume_facade.number_of_voxels()[1],
+                    legume_wrapper.number_of_voxels()[3],
+                    legume_wrapper.number_of_voxels()[2],
+                    legume_wrapper.number_of_voxels()[1],
                 ]
-                dxyz_legume = [x * 0.01 for x in legume_facade.voxels_size()]  # conversion de cm à m
-        if wheat_facade is not None:
-            if isinstance(wheat_facade, list):
-                self.number_of_species += len(wheat_facade)
-            else:
-                self.number_of_species += 1
+                dxyz_legume = [x * 0.01 for x in legume_wrapper.voxels_size()]  # conversion de cm à m
 
         lightmodel_parameters = {}
 
         if lightmodel == "caribu":
             lightmodel_parameters["caribu opt"] = caribu_opt
             lightmodel_parameters["sun algo"] = "caribu"
-            if legume_facade is not None:
+            if legume_wrapper is not None:
                 self.compute_sensors = True
                 orig = [self.domain[0][0], self.domain[0][1], 0.0]
                 if writegeo:
@@ -83,7 +96,7 @@ class Light(object):
             lightmodel_parameters["soil mesh"] = 1
 
         elif lightmodel == "ratp" or lightmodel == "riri5":
-            if legume_facade is not None:
+            if legume_wrapper is not None:
                 lightmodel_parameters["voxel size"] = dxyz_legume
                 lightmodel_parameters["origin"] = [0.0, 0.0, 0.0]
                 lightmodel_parameters["full grid"] = True
@@ -107,7 +120,7 @@ class Light(object):
             raise
 
         self.light = LightVegeManager(
-            environment=environment.light,
+            environment=self.environment,
             lightmodel=lightmodel,
             lightmodel_parameters=lightmodel_parameters,
             main_unit="m",
@@ -115,8 +128,7 @@ class Light(object):
 
         self.i_vtk = 0
 
-
-    def run(self, energy=1., scenes_wheat=[], scenes_l_egume=[], day=1, hour=12, parunit="RG"):
+    def run(self, energy=1.0, scenes=[], day=1, hour=12, parunit="RG"):
         self.wheat_index = list(range(len(scenes_wheat)))
         self.l_egume_index = list(range(len(scenes_wheat), len(scenes_wheat) + len(scenes_l_egume)))
         stems = None
@@ -126,23 +138,29 @@ class Light(object):
             self.wheat_index = None
         else:
             for id in self.wheat_index:
-                stems = extract_stems_from_MTG(self.wheat_facade.g, id)
+                stems = extract_stems_from_MTG(self.wheat_wrapper.g, id)
 
         scenes = scenes_wheat + scenes_l_egume
 
-        geometry = {"scenes": scenes, "domain" : self.domain, "transformations": self.transformations, "stems id": stems}
+        geometry = {"scenes": scenes, "domain": self.domain, "transformations": self.transformations, "stems id": stems}
 
         self.light.build(geometry)
-        self.light.run(energy=energy, day=day, hour=hour, truesolartime=True, parunit=parunit, id_sensors=self.l_egume_index)
+        self.light.run(
+            energy=energy, day=day, hour=hour, truesolartime=True, parunit=parunit, id_sensors=self.l_egume_index
+        )
 
         if self.writegeo:
             self.light.VTK_light(os.path.join(os.path.normpath(self.out_folder), "vtk", "scene_"), i=self.i_vtk)
             scene_plantgl = self.light.plantGL_light()
-            scene_plantgl.save(os.path.join(self.out_folder, "plantgl", "scene_light_plantgl_" + str(self.i_vtk)) + ".bgeom")
+            scene_plantgl.save(
+                os.path.join(self.out_folder, "plantgl", "scene_light_plantgl_" + str(self.i_vtk)) + ".bgeom"
+            )
 
             if self.compute_sensors:
                 sensors_plantgl = self.light.plantGL_sensors()
-                sensors_plantgl.save(os.path.join(self.out_folder, "plantgl", "sensors_plantgl_" + str(self.i_vtk)) + ".bgeom")
+                sensors_plantgl.save(
+                    os.path.join(self.out_folder, "plantgl", "sensors_plantgl_" + str(self.i_vtk)) + ".bgeom"
+                )
 
             self.i_vtk += 1
 
@@ -175,6 +193,6 @@ class Light(object):
 
     def nb_empty_z_layers(self):
         return self.light.legume_empty_layers
-    
+
     def xydomain_lightvegemanager(self):
         return self.light.domain

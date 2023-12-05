@@ -8,7 +8,7 @@ import legume.initialisation as initial
 from plantfusion.utils import create_child_folder
 
 
-class Soil_facade(object):
+class Soil_wrapper(object):
     def __init__(
         self,
         in_folder="",
@@ -20,7 +20,7 @@ class Soil_facade(object):
         opt_Nuptake=1,
         position=None,
         legume_pattern=False,
-        legume_facade=None,
+        legume_wrapper=None,
         save_results=False
     ) -> None:
         if position.type_domain != "l-egume" and not legume_pattern:  # lecture des parametre sol directement a partir d'un fichier sol
@@ -73,14 +73,14 @@ class Soil_facade(object):
             self.option_residu = opt_residu
             self.option_Nuptake = opt_Nuptake
 
-            if legume_facade is not None:
-                for n in legume_facade.idsimu :
-                    legume_facade.lsystems[legume_facade.idsimu[0]].S = soil
+            if legume_wrapper is not None:
+                for n in legume_wrapper.idsimu :
+                    legume_wrapper.lsystems[legume_wrapper.idsimu[0]].S = soil
 
         else:
-            self.soil = legume_facade.lsystems[legume_facade.idsimu[0]].tag_loop_inputs[18]
-            self.option_residu = legume_facade.lsystems[legume_facade.idsimu[0]].tag_loop_inputs[-2]
-            self.option_Nuptake = legume_facade.lsystems[legume_facade.idsimu[0]].opt_Nuptake
+            self.soil = legume_wrapper.lsystems[legume_wrapper.idsimu[0]].tag_loop_inputs[18]
+            self.option_residu = legume_wrapper.lsystems[legume_wrapper.idsimu[0]].tag_loop_inputs[-2]
+            self.option_Nuptake = legume_wrapper.lsystems[legume_wrapper.idsimu[0]].opt_Nuptake
 
         self.save_results = save_results
         if save_results :

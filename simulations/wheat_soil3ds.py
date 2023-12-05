@@ -1,8 +1,8 @@
-from plantfusion.wheat_facade import Wheat_facade
+from plantfusion.wheat_wrapper import Wheat_wrapper
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
+from plantfusion.light_wrapper import Light
 from plantfusion.planter import Planter
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.soil3ds_wrapper import Soil_wrapper
 
 import time
 import datetime
@@ -22,7 +22,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
 
     environment = Environment(sky=sky, tillers_replications=tillers_replications, external_soil=True)
 
-    wheat = Wheat_facade(
+    wheat = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=out_folder,
         environment=environment,
@@ -38,10 +38,10 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     plants_positions = Planter(plantmodels=[wheat], inter_rows=0.15, plant_density=plant_density)
 
     lighting = Light(
-        lightmodel="caribu", out_folder=out_folder, position=plants_positions, environment=environment, wheat_facade=wheat, writegeo=write_geo
+        lightmodel="caribu", out_folder=out_folder, position=plants_positions, environment=environment, wheat_wrapper=wheat, writegeo=write_geo
     )
 
-    soil = Soil_facade(in_folder="inputs_soil_legume", out_folder=out_folder, IDusm=1714, position=plants_positions, save_results=True)
+    soil = Soil_wrapper(in_folder="inputs_soil_legume", out_folder=out_folder, IDusm=1714, position=plants_positions, save_results=True)
     soil_dimensions = [len(soil.soil.dxyz[i]) for i in [2,0,1] ]
 
     try:

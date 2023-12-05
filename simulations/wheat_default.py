@@ -1,6 +1,6 @@
-from plantfusion.wheat_facade import Wheat_facade
+from plantfusion.wheat_wrapper import Wheat_wrapper
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
+from plantfusion.light_wrapper import Light
 from plantfusion.planter import Planter
 
 import time
@@ -24,7 +24,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
         sky=sky, N_fertilizations=N_fertilizations, tillers_replications=tillers_replications, external_soil=False
     )
 
-    wheat = Wheat_facade(
+    wheat = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=out_folder,
         environment=environment,
@@ -43,7 +43,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
         out_folder=out_folder, 
         position=plants_positions, 
         environment=environment, 
-        wheat_facade=wheat, 
+        wheat_wrapper=wheat, 
         writegeo=write_geo
     )
 

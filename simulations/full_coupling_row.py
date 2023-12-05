@@ -1,8 +1,8 @@
-from plantfusion.l_egume_facade import L_egume_facade
-from plantfusion.wheat_facade import Wheat_facade
+from plantfusion.l_egume_wrapper import L_egume_wrapper
+from plantfusion.wheat_wrapper import Wheat_wrapper
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.light_wrapper import Light
+from plantfusion.soil3ds_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 
 import time
@@ -36,7 +36,7 @@ def simulation(
 
     environment = Environment(sky=sky, tillers_replications=tillers_replications, external_soil=True)
 
-    wheat = Wheat_facade(
+    wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
         environment=environment,
@@ -50,13 +50,13 @@ def simulation(
         planter=planter
     )
 
-    legume = L_egume_facade(in_folder=in_folder_legume, out_folder=out_folder, IDusm=9, planter=planter)
+    legume = L_egume_wrapper(in_folder=in_folder_legume, out_folder=out_folder, IDusm=9, planter=planter)
 
-    soil = Soil_facade(
+    soil = Soil_wrapper(
         in_folder=in_folder_legume,
         out_folder=out_folder,
         IDusm=9,
-        legume_facade=legume,
+        legume_wrapper=legume,
         position=planter,
         save_results=True,
     )
@@ -67,8 +67,8 @@ def simulation(
         out_folder=out_folder,
         position=planter,
         environment=environment,
-        wheat_facade=wheat,
-        legume_facade=legume,
+        wheat_wrapper=wheat,
+        legume_wrapper=legume,
         writegeo=writegeo,
     )
 
@@ -84,14 +84,14 @@ def simulation(
         out_folder=out_folder,
         position=planter_legume,
         environment=environment,
-        legume_facade=legume,
+        legume_wrapper=legume,
         writegeo=writegeo,
     )
-    soil_legume = Soil_facade(
+    soil_legume = Soil_wrapper(
         in_folder=in_folder_legume,
         out_folder=out_folder,
         IDusm=9,
-        legume_facade=legume,
+        legume_wrapper=legume,
         position=planter_legume,
         save_results=True,
     )

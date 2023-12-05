@@ -1,8 +1,8 @@
-from plantfusion.l_egume_facade import L_egume_facade
-from plantfusion.wheat_facade import Wheat_facade
+from plantfusion.l_egume_wrapper import L_egume_wrapper
+from plantfusion.wheat_wrapper import Wheat_wrapper
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.light_wrapper import Light
+from plantfusion.soil3ds_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 
 import time
@@ -34,7 +34,7 @@ def simulation(
 
     environment = Environment(sky=sky, tillers_replications=tillers_replications, external_soil=True)
 
-    wheat = Wheat_facade(
+    wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
         environment=environment,
@@ -48,13 +48,13 @@ def simulation(
         planter=planter
     )
 
-    legume = L_egume_facade(in_folder=in_folder_legume, out_folder=out_folder, IDusm=9, planter=planter)
+    legume = L_egume_wrapper(in_folder=in_folder_legume, out_folder=out_folder, IDusm=9, planter=planter)
 
-    soil = Soil_facade(
+    soil = Soil_wrapper(
         in_folder=in_folder_legume,
         out_folder=out_folder,
         IDusm=9,
-        legume_facade=legume,
+        legume_wrapper=legume,
         position=planter,
         save_results=True,
     )
@@ -65,8 +65,8 @@ def simulation(
         out_folder=out_folder,
         position=planter,
         environment=environment,
-        wheat_facade=wheat,
-        legume_facade=legume,
+        wheat_wrapper=wheat,
+        legume_wrapper=legume,
         writegeo=writegeo,
     )
 
@@ -82,14 +82,14 @@ def simulation(
         out_folder=out_folder,
         position=planter_legume,
         environment=environment,
-        legume_facade=legume,
+        legume_wrapper=legume,
         writegeo=writegeo,
     )
-    soil_legume = Soil_facade(
+    soil_legume = Soil_wrapper(
         in_folder=in_folder_legume,
         out_folder=out_folder,
         IDusm=9,
-        legume_facade=legume,
+        legume_wrapper=legume,
         position=planter_legume,
         save_results=True,
     )
@@ -101,6 +101,7 @@ def simulation(
     current_time_of_the_system = time.time()
     t_legume = 0
     nb_iter = int(wheat.meteo.loc[0, ["DOY"]].iloc[0] - legume.lsystems[legume.idsimu[0]].DOYdeb)
+    # Journalier
     for t in range(nb_iter):
         legume.derive(t)
 
@@ -117,6 +118,7 @@ def simulation(
 
 
     lighting.i_vtk = lighting_legume.i_vtk
+    # horaire
     for t_wheat in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
         activate_legume = wheat.doy(t_wheat) != wheat.next_day_next_hour(t_wheat)
         daylight = (t_wheat % light_timestep == 0) and (wheat.PARi_next_hours(t_wheat) > 0)
@@ -178,5 +180,10 @@ if __name__ == "__main__":
     out_folder = "outputs/full_coupling_random"
     simulation_length = 2500
     writegeo = True
+
+    {
+        "legume1" : "1/1/2016 - 1/1/2017",
+        "wheat1" : "1/7/2016 - 1/7/2018",
+    }
 
     simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length, writegeo=writegeo)

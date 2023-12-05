@@ -1,7 +1,7 @@
-from plantfusion.l_egume_facade import L_egume_facade
+from plantfusion.l_egume_wrapper import L_egume_wrapper
 from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.light_wrapper import Light
+from plantfusion.soil3ds_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 
 import time
@@ -11,13 +11,13 @@ import datetime
 def simulation(in_folder, out_folder):
     environment = Environment(external_soil=False)
 
-    legume = L_egume_facade(in_folder=in_folder, out_folder=out_folder)
+    legume = L_egume_wrapper(in_folder=in_folder, out_folder=out_folder)
 
     plants_positions = Planter(plantmodels=[legume])
 
-    lighting = Light(lightmodel="riri5", position=plants_positions, environment=environment, legume_facade=legume)
+    lighting = Light(lightmodel="riri5", position=plants_positions, environment=environment, legume_wrapper=legume)
 
-    soil = Soil_facade(in_folder=in_folder, out_folder=out_folder, legume_facade=legume, position=plants_positions)
+    soil = Soil_wrapper(in_folder=in_folder, out_folder=out_folder, legume_wrapper=legume, position=plants_positions)
 
     nb_steps = max([legume.lsystems[n].derivationLength for n in legume.idsimu])
 
