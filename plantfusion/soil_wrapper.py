@@ -83,6 +83,9 @@ class Soil_wrapper(object):
             self.soil = legume_wrapper.lsystem.tag_loop_inputs[18]
             self.option_residu = legume_wrapper.lsystem.tag_loop_inputs[-2]
             self.option_Nuptake = legume_wrapper.lsystem.opt_Nuptake
+            self.meteo = legume_wrapper.lsystem.meteo
+            self.management = legume_wrapper.lsystem.mng
+            self.parameters_SN = legume_wrapper.lsystem.par_SN
 
         self.save_results = save_results
         if save_results:
@@ -164,7 +167,7 @@ class Soil_wrapper(object):
         self.inputs.append(v)
         v = []
         for t in N_content_roots_per_plant:
-            v.extend(t.tolist())
+            v.extend(t)
         self.inputs.append(numpy.array(v))
         self.inputs.append(self.option_residu)
         self.inputs.append(self.option_Nuptake)

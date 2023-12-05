@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import numpy
 import pandas
-from plantfusion.index_management import IndexManagement
+from plantfusion.indexer import Indexer
 import scipy
 
 from openalea.lpy import *
@@ -18,7 +18,7 @@ from legume.initialisation import init_plant_residues_fromParamP
 import riri5.RIRI5 as riri
 
 from plantfusion.utils import create_child_folder
-from plantfusion.light_wrapper import Light
+from plantfusion.light_wrapper import Light_wrapper
 from plantfusion.indexer import Indexer
 
 
@@ -66,7 +66,7 @@ class L_egume_wrapper(object):
         self.name = name
         self.indexer = indexer
         self.global_index = indexer.global_order.index(name)
-        self.legume_index = indexer.legume_index.index(name)
+        self.legume_index = indexer.legume_names.index(name)
 
         # read l-egume configuration files
         mn_path = os.path.join(in_folder, nameconfigfile)
@@ -156,7 +156,7 @@ class L_egume_wrapper(object):
             print("Unknown light model")
             raise
 
-    def light_results(self, energy, lighting: Light) -> None:
+    def light_results(self, energy, lighting: Light_wrapper) -> None:
         if lighting.lightmodel == "caribu":
             self.res_trans = self.transfer_caribu_legume(
                 energy=energy,
@@ -231,10 +231,10 @@ class L_egume_wrapper(object):
             ]
         soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol = results_soil
 
-        ls_ftsw = ls_ftsw[self.index_in_global_plants[0], self.index_in_global_plants[1]]
-        ls_transp = ls_transp[self.index_in_global_plants[0], self.index_in_global_plants[1]]
-        ls_Act_Nuptake_plt_leg = ls_Act_Nuptake_plt[self.index_in_global_plants[0], self.index_in_global_plants[1]]
-        temps_sol = temps_sol[self.index_in_global_plants[0], self.index_in_global_plants[1]]
+        ls_ftsw = ls_ftsw[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
+        ls_transp = ls_transp[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
+        ls_Act_Nuptake_plt_leg = ls_Act_Nuptake_plt[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
+        temps_sol = temps_sol[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
 
         self.results_soil = [soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt_leg, temps_sol]
 
@@ -474,10 +474,33 @@ class L_egume_wrapper(object):
         self.lsystem.I_I0profilInPlant = I_I0profilInPlant
 
     def end(self):
-        for n in self.simulation_name:
-            print(("".join((n, " - done"))))
-            # désallocation des lsystem
-            self.lsystem[n].clear()
+        if self.lsystem.tag_loop_inputs[8] < self.lsystem.DOYend :
+            #fermeture des bilans sol -> dicout
+            dicout = loop.sol_dicout_endsim(self.lsystem.S, self.lsystem.outvar, self.lsystem.DOYdeb, self.lsystem.DOYend, self.lsystem.opt_residu)
+            
+            #rasemble noms et objets pour ecritures sorties
+            ls_outf_names = [self.lsystem.outvarfile, self.lsystem.outBilanNfile, self.lsystem.outHRfile, self.lsystem.resrootfile, self.lsystem.lsorgfile, self.lsystem.outMngfile, self.lsystem.outsdfile] #noms des fichiers de sorties
+            ls_objw = [self.lsystem.outvar, dicout, self.lsystem.out_HR, self.lsystem.res_root, self.lsystem.savelsOrgans, self.lsystem.mng, self.lsystem.res_sd] #objets de donnees
+            
+            # liste de cle a verifier pour ecriture des sorties journaliere
+            ls_keyvar_pot = ['colnames','pattern','TT','time','cutNB','SurfPlante', 'PARaPlante', 'PARiPlante', 'epsi', 'dMSaer', 'Hplante', 'Dplante','RLTot','RDepth','MS_aerien','MS_feuil','MS_tot','countSh','countShExp','demandC','Leaf_Stem','NBsh','NBI','NBD1','NBB','FTSW','Etransp','DemandN_Feuil','DemandN_Pet', 'DemandN_Stem','DemandN_Tot', 'DemandN_Tot_Aer', 'Npc', 'Npc_aer', 'NNI','Ndfa', 'Qfix','Naerien','Nuptake_sol','R_DemandC_Root', 'SRL','dMSenFeuil','dMSenTige', 'MS_pivot', 'MS_rac_fine','R_DemandC_Shoot','RUEpot','RUE','Npc_piv','Npc_rac_fine','dRLenSentot','dMSenRoot','RLTotNet','MS_rac_fineNet','perteN_rac_fine','NBphyto','NBapexAct','transpi','cumtranspi','aliveB','dMSmortGel','dNmortGel','TTphyllo','DemCp','dTT','Udev','Udevstress','TTudev','MS_aerienNonRec', 'MS_aerienRec', 'NaerienNonRec','NaerienRec','Ncoty','MS_tige','graineC','graineN','CreservPiv','NreservPiv','dMSenPiv','dMSenNonRec', 'perteN_NonRec', 'perteN_Piv', 'perteN_aerien', 'Npc_aerNonRec','MS_senaerien','dMSmortPlant_aer','dMSmortPlant_pivot','dMSmortPlant_racfine','dNmortPlant_aer','dNmortPlant_pivot','dNmortPlant_racfine','alivePiv','alive','ChangeRoot','RLentotfromRootMass','RLentotfromDev','ConcNmoy']
+            
+            # ecriture + liste des fichiers ecrits en sortie et affichee en fin de simul
+            ls_fileOUT = loop.write_vgl_outf(self.lsystem.outf, self.lsystem.path_out, ls_outf_names, ls_objw, ls_keyvar_pot, self.lsystem.outfvar)
+    
+    
+            #zippe les sorties si option opt_zip
+            if self.lsystem.opt_zip==1:
+                if self.lsystem.opt_verbose == 1:
+                    print(ls_fileOUT)
+        
+            nomzip = self.lsystem.outvarfile[0:-4]
+            IOtable.Outzip(self.lsystem.path_out, nomzip+'.zip', ls_fileOUT)
+            IOtable.Outdel(ls_fileOUT)
+            
+        print(("".join((self.simulation_name, " - done"))))
+        # désallocation des lsystem
+        self.lsystem.clear()
 
     def voxels_size(self):
         return self.lsystem.tag_loop_inputs[-1]

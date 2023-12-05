@@ -599,7 +599,7 @@ class Wheat_wrapper(object):
     def soil_inputs(self, soil_dimensions, lighting, planter=None):
         # ls_N
         N_content_roots = self.compute_N_content_roots()
-        N_content_roots_per_plant = numpy.array([N_content_roots] * self.nb_plants)
+        N_content_roots_per_plant = [N_content_roots] * self.nb_plants
 
         # ls_roots
         roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil_dimensions, planter)

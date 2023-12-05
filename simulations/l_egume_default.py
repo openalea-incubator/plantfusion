@@ -47,11 +47,11 @@ def simulation(in_folder, out_folder, id_usm):
             legume.soil_results(soil.results, planter)
 
             legume.run()
-
+    
+    finally:
         execution_time = int(time.time() - current_time_of_the_system)
         print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
 
-    finally:
         legume.end()
 
 
