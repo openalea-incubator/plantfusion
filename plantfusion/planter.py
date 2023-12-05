@@ -173,12 +173,21 @@ class Planter:
                     (legume_wrapper.lsystem.cote * 0.01, legume_wrapper.lsystem.cote * 0.01),
                 )
                 if xy_translate is not None:
-                    legume_domain = (
-                        (legume_domain[0][0] + xy_translate[0], legume_domain[0][1] + xy_translate[1]),
-                        (legume_domain[1][0] + xy_translate[0], legume_domain[1][1] + xy_translate[1]),
-                    )
+                    if legume_wrapper.name in xy_translate :
+                        vector = xy_translate[legume_wrapper.name]
+                        legume_domain = (
+                            (legume_domain[0][0] + vector[0], legume_domain[0][1] + vector[1]),
+                            (legume_domain[1][0] + vector[0], legume_domain[1][1] + vector[1]),
+                        )
                 # a été calculé au-dessus à  l'appel de create_heterogeneous_canopy
                 wheat_domain = self.domain
+                if xy_translate is not None:
+                    if self.indexer.wheat_names[0] in xy_translate :
+                        vector = xy_translate[self.indexer.wheat_names[0]]
+                        wheat_domain = (
+                            (wheat_domain[0][0] + vector[0], wheat_domain[0][1] + vector[1]),
+                            (wheat_domain[1][0] + vector[0], wheat_domain[1][1] + vector[1]),
+                        )
                 self.domain = (
                     (min(legume_domain[0][0], wheat_domain[0][0]), min(legume_domain[0][1], wheat_domain[0][1])),
                     (max(legume_domain[1][0], wheat_domain[1][0]), max(legume_domain[1][1], wheat_domain[1][1])),
