@@ -88,20 +88,6 @@ class Light_wrapper(object):
                 else:
                     lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig]
 
-                if isinstance(legume_wrapper, list):
-                    for wrapper in legume_wrapper:
-                        wrapper.lsystem.visu_leaf = 1
-                        wrapper.lsystem.visu_roots = 0
-                        wrapper.lsystem.visu_shoots = 0
-                        wrapper.lsystem.visu_sol = 0
-                        wrapper.lsystem.visu_solsurf = 0
-                else:
-                    legume_wrapper.lsystem.visu_leaf = 1
-                    legume_wrapper.lsystem.visu_roots = 0
-                    legume_wrapper.lsystem.visu_shoots = 0
-                    legume_wrapper.lsystem.visu_sol = 0
-                    legume_wrapper.lsystem.visu_solsurf = 0
-
             lightmodel_parameters["debug"] = False
             lightmodel_parameters["soil mesh"] = 1
 

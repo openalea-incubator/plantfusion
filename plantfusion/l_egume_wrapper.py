@@ -41,6 +41,7 @@ class L_egume_wrapper(object):
         ongletconfigfile="exemple",
         IDusm=None,
         planter=None,
+        caribu_scene=False
     ) -> None:
         if out_folder is not None:
             try:
@@ -89,13 +90,20 @@ class L_egume_wrapper(object):
                 os.path.join(self.out_folder, "brut"),
                 planter,
             )
-
+        
         option_externalcoupling = 1
         option_Nuptake = 0
 
         self.lstring = self.lsystem.axiom
         self.lsystem.opt_external_coupling = option_externalcoupling
         self.lsystem.opt_Nuptake = option_Nuptake
+
+        if caribu_scene:
+            self.lsystem.visu_leaf = 1
+            self.lsystem.visu_root = 0
+            self.lsystem.visu_shoot = 0
+            self.lsystem.visu_sol = 0
+            self.lsystem.visu_solsurf = 0
 
         # in order to compute tag_inputs_loop
         lstrings_temp = self.lsystem.derive(self.lstring, 0, 1)
@@ -238,7 +246,7 @@ class L_egume_wrapper(object):
 
         self.results_soil = [soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt_leg, temps_sol]
 
-    def compute_plants_interception(self, organs_results=[], energy=1, pari_soil_in=-1, id=None):
+    def compute_plants_interception(self, organs_results=[], energy=1, pari_soil_in=-1):
         surf_refVOX = self.lsystem.tag_loop_inputs[15]
         dicFeuilBilanR = self.lsystem.tag_loop_inputs[14]
 
@@ -273,7 +281,7 @@ class L_egume_wrapper(object):
 
         # res_abs_i n'existe pas donc on est passé par caribu
         else:
-            species_not_legume = [i for i in organs_results["VegetationType"].unique() if i not in id]
+            species_not_legume = [i for i in organs_results["VegetationType"].unique() if i != self.global_index]
             filtered_data = organs_results[(organs_results.VegetationType.isin(species_not_legume))]
             pari_canopy = numpy.sum(self.invar["parip"])
             if not filtered_data.empty:
@@ -592,7 +600,7 @@ class L_egume_wrapper(object):
                 self.invar["parap"][id_plante] = a + p_s
 
         # all non empty plant must have a minimum intercepted energy
-        plants_surface = self.lsystem[self.simulation_name].tag_loop_inputs[14]["surf"]
+        plants_surface = self.lsystem.tag_loop_inputs[14]["surf"]
         if plants_surface != []:
             if len(self.invar["parip"]) == len(plants_surface):
                 for p in range(len(self.invar["parip"])):
