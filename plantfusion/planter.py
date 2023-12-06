@@ -57,7 +57,7 @@ class Planter:
 
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
-        for name, density in plant_density.items:
+        for name, density in plant_density.items():
             if name in self.indexer.legume_names:
                 # on réajuste le domaine pour avoir 64 plantes
                 xy_square_length = math.sqrt(64 / density)
@@ -87,7 +87,7 @@ class Planter:
         self.legume_nbcote = []
         self.wheat_positions = []
 
-        for name, density in plant_density.items:
+        for name, density in plant_density.items():
             if name in self.indexer.legume_names:
                 self.legume_typearrangement = "row4_sp1"
                 # conversion m en cm
@@ -96,7 +96,7 @@ class Planter:
                 self.legume_optdamier = 2
 
                 self.number_of_plants[self.indexer.global_order.index(name)] = int(
-                    xy_square_length * xy_square_length * density / 2
+                    xy_square_length * xy_square_length * density
                 )
 
             if name in self.indexer.wheat_names:

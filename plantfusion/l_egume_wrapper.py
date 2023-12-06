@@ -77,7 +77,7 @@ class L_egume_wrapper(object):
         # create list of lsystem from config file
         if IDusm is None:
             if all([i == 1 for i in ls_usms["torun"]]):
-                i = ls_usms["ID_usm"].index(1)
+                i = ls_usms["torun"].index(1)
                 self.__load_lsystem(
                     nameconfigfile, in_folder, ongletconfigfile, i, os.path.join(self.out_folder, "brut"), planter
                 )
