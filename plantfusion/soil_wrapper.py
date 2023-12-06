@@ -1,10 +1,14 @@
 import numpy
 import pandas
 import os
+
 from soil3ds import soil_moduleN as solN
 import soil3ds.IOxls as IOxls
 import soil3ds.IOtable as IOtable
 import legume.initialisation as initial
+
+from plantfusion.indexer import Indexer
+from plantfusion.planter import Planter
 from plantfusion.utils import create_child_folder
 
 
@@ -18,19 +22,19 @@ class Soil_wrapper(object):
         ongletconfigfile="exemple",
         opt_residu=0,
         opt_Nuptake=1,
-        planter=None,
+        planter=Planter(),
+        indexer=Indexer(),
         legume_pattern=False,
         legume_wrapper=None,
         save_results=False,
     ) -> None:
+        self.indexer = indexer
+        self.planter = planter
         if (
             planter.type_domain != "l-egume" and not legume_pattern
         ):  # lecture des parametre sol directement a partir d'un fichier sol
             # initialisation taille scene / discretisation (1D - homogene pour ttes les couches)
             # initialisation d'une première scène pour avoir les côtés du domaine simulé
-            pattern8 = [[v * 100 for v in x] for x in planter.domain]  # conversion m en cm
-            dz_sol = 5.0  # cm
-            discret_solXY = [1, 1]  # nombre de voxel selon X et Y
 
             # lecture meteo / mng journaliere = fixe
             usms_path = os.path.join(in_folder, nameconfigfile)
@@ -56,6 +60,10 @@ class Soil_wrapper(object):
             met = IOxls.read_met_file(path_met, ongletMet)
             mng = IOxls.read_met_file(path_mng, ongletMn)
 
+            dz_sol = inis['dz_sol']
+            pattern8 = [[v * 100 for v in x] for x in planter.domain]  # conversion m en cm
+            discret_solXY = list(map(int, inis['discret_solXY']))  # [10,10]# nb de discretisation du sol en X et en Y
+
             # meteo / mng journalier
             meteo_j = IOxls.extract_dataframe(
                 met, ["TmoyDay", "RG", "Et0", "Precip", "Tmin", "Tmax", "Tsol"], "DOY", val=ls_usms["DOYdeb"][id]
@@ -76,8 +84,7 @@ class Soil_wrapper(object):
             self.option_Nuptake = opt_Nuptake
 
             if legume_wrapper is not None:
-                for n in legume_wrapper.idsimu:
-                    legume_wrapper.lsystems[legume_wrapper.idsimu[0]].S = soil
+                legume_wrapper.lsystem.S = soil
 
         else:
             self.soil = legume_wrapper.lsystem.tag_loop_inputs[18]
@@ -135,7 +142,7 @@ class Soil_wrapper(object):
         N_content_roots_per_plant=[],
         roots_length_per_plant_per_soil_layer=[],
         soil_plants_parameters=[],
-        plants_light_interception=[],
+        plants_light_interception=[]
     ):
         meteo_j = IOxls.extract_dataframe(
             self.meteo, ["TmoyDay", "RG", "Et0", "Precip", "Tmin", "Tmax", "Tsol"], "DOY", val=day

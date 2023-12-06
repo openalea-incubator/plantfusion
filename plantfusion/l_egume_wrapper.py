@@ -164,7 +164,11 @@ class L_egume_wrapper(object):
             print("Unknown light model")
             raise
 
-    def light_results(self, energy, lighting: Light_wrapper) -> None:
+    def light_results(self, energy, lighting: Light_wrapper, selective_global_index=None) -> None:
+        if selective_global_index is not None:
+            saved_global_index = self.global_index
+            self.global_index = selective_global_index
+
         if lighting.lightmodel == "caribu":
             self.res_trans = self.transfer_caribu_legume(
                 energy=energy,
@@ -184,6 +188,9 @@ class L_egume_wrapper(object):
 
         self.compute_plants_interception(lighting.results_organs(), energy, lighting.soil_energy())
         self.compute_potential_plant_growth()
+
+        if selective_global_index is not None:
+            self.global_index = saved_global_index
 
     def soil_inputs(self):
         ls_roots = self.lsystem.tag_loop_inputs[21]
@@ -231,12 +238,22 @@ class L_egume_wrapper(object):
             plants_light_interception,
         )
 
-    def soil_results(self, results_soil, planter=None) -> None:
+    def soil_results(self, results_soil, planter=None, selective_global_index=None) -> None:
+        if selective_global_index is not None:
+            saved_global_index = self.global_index
+            self.global_index = selective_global_index
+            self.index_in_global_plants = [
+                sum(planter.number_of_plants[: self.global_index]),
+                sum(planter.number_of_plants[: self.global_index + 1]),
+            ]
+            self.global_index = saved_global_index
+
         if planter is not None:
             self.index_in_global_plants = [
                 sum(planter.number_of_plants[: self.global_index]),
                 sum(planter.number_of_plants[: self.global_index + 1]),
             ]
+            
         soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol = results_soil
 
         ls_ftsw = ls_ftsw[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
@@ -263,7 +280,7 @@ class L_egume_wrapper(object):
 
         # interception au sol
         if pari_soil_in < 0:
-            transmi_sol = numpy.sum(self.res_trans[-1][:][:]) / (energy * surfsolref)
+            transmi_sol = numpy.sum(self.res_trans[-1][:][:]) / (energy * surf_refVOX)
             pari_soil = max(1.0 - transmi_sol, 1e-15)
         else:
             pari_soil = 1 - pari_soil_in
@@ -440,7 +457,8 @@ class L_egume_wrapper(object):
         ##########
 
         # refait initialisation des residues au step 1 avec ensemble des plante (ParamP commun)
-        if iter == 1 and opt_residu == 1:
+        current_iter = self.doy() - self.lsystem.DOYdeb
+        if current_iter == 0 and opt_residu == 1:
             CC = init_plant_residues_fromParamP(soil, opt_residu, ParamP, par_SN)
 
         if opt_residu == 1:  # option residu activee: mise a jour des cres
@@ -458,7 +476,7 @@ class L_egume_wrapper(object):
             ls_mat_res = loop.distrib_residue_mat_frominvar(
                 *tag_inputs_residue_updt
             )  # update la matrice des residus (propre a l-egume/VGL)
-            S = loop.merge_residue_mat(ls_mat_res, vCC, soil)  # update du sol
+            soil = loop.merge_residue_mat(ls_mat_res, vCC, soil)  # update du sol
 
         #########
         # reinjecte les sorties midiee dans le lsystem

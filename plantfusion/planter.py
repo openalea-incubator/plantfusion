@@ -19,7 +19,7 @@ class Planter:
         plant_density={1: 250},
         xy_plane=None,
         xy_square_length=0.5,
-        xy_translate=None,
+        translate=None,
         noise_plant_positions=0.0,
         save_wheat_positions=False,
         seed=None,
@@ -39,7 +39,7 @@ class Planter:
             self.transformations["scenes unit"][i] = "cm"
 
         if generation_type == "default":
-            self.__default_preconfigured(legume_wrapper, inter_rows, plant_density, xy_plane, xy_translate, seed)
+            self.__default_preconfigured(legume_wrapper, inter_rows, plant_density, xy_plane, translate, seed)
 
         elif generation_type == "random":
             self.__random(plant_density, xy_square_length)
@@ -122,7 +122,7 @@ class Planter:
                 self.transformations["translate"][1] = (0.0, inter_rows, 0.0)
 
     def __default_preconfigured(
-        self, legume_wrapper=None, inter_rows=0.15, plant_density={1: 250}, xy_plane=None, xy_translate=None, seed=None
+        self, legume_wrapper=None, inter_rows=0.15, plant_density={1: 250}, xy_plane=None, translate=None, seed=None
     ):
         self.plant_density = plant_density
         self.inter_rows = inter_rows
@@ -148,9 +148,9 @@ class Planter:
 
         # temporaire : on applique les translations que aux instances l-egume
         # xy_translate : dict {"name isntance" : (x,y,z)}
-        if xy_translate is not None:
+        if translate is not None:
             self.transformations["translate"] = {}
-            for name, vector in xy_translate.items():
+            for name, vector in translate.items():
                 id = self.indexer.global_order.index(name)
                 self.transformations["translate"][id] = vector
 
@@ -172,18 +172,18 @@ class Planter:
                     (0.0, 0.0),
                     (legume_wrapper.lsystem.cote * 0.01, legume_wrapper.lsystem.cote * 0.01),
                 )
-                if xy_translate is not None:
-                    if legume_wrapper.name in xy_translate :
-                        vector = xy_translate[legume_wrapper.name]
+                if translate is not None:
+                    if legume_wrapper.name in translate :
+                        vector = translate[legume_wrapper.name]
                         legume_domain = (
                             (legume_domain[0][0] + vector[0], legume_domain[0][1] + vector[1]),
                             (legume_domain[1][0] + vector[0], legume_domain[1][1] + vector[1]),
                         )
                 # a été calculé au-dessus à  l'appel de create_heterogeneous_canopy
                 wheat_domain = self.domain
-                if xy_translate is not None:
-                    if self.indexer.wheat_names[0] in xy_translate :
-                        vector = xy_translate[self.indexer.wheat_names[0]]
+                if translate is not None:
+                    if self.indexer.wheat_names[0] in translate :
+                        vector = translate[self.indexer.wheat_names[0]]
                         wheat_domain = (
                             (wheat_domain[0][0] + vector[0], wheat_domain[0][1] + vector[1]),
                             (wheat_domain[1][0] + vector[0], wheat_domain[1][1] + vector[1]),

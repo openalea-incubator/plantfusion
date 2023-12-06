@@ -20,5 +20,11 @@ class Indexer:
         for name, geo in scenes_dict.items():
             scenes[self.global_order.index(name)] = geo
         return scenes
+    
+    def soil_inputs(self, soil_dict):
+        out = [[0.] * len(self.global_order) for i in range(4)]
+        for name, tuple_var in soil_dict.items():
+            for v, w in zip(out, tuple_var):
+                v[self.global_order.index(name)] = w
 
-
+        return tuple(out)

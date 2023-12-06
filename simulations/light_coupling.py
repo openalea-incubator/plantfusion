@@ -132,7 +132,7 @@ if __name__ == "__main__":
     in_folder_wheat = "inputs_fspmwheat"
     out_folder = "outputs/light_coupling"
     simulation_length = 2500
-    id_usm = 17111
+    id_usm = 9
     writegeo = True
 
     simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length, id_usm, writegeo=writegeo)

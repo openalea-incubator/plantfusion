@@ -92,7 +92,7 @@ def simulation(in_folder, out_folder, id_usm, write_geo=False):
             scene_legume = legume_caribu.light_inputs(lightmodel="caribu")
             start = time.time()
             lighting_caribu.run(
-                scenes=[scene_legume], energy=legume_caribu.energy(), day=legume_caribu.doy(), parunit="RG"
+                scenes=[scene_legume], day=legume_caribu.doy(), parunit="RG"
             )
             caribu_time = time.time() - start
             legume_caribu.light_results(legume_caribu.energy(), lighting_caribu)
@@ -135,4 +135,4 @@ if __name__ == "__main__":
     out_folder = "outputs/legume_caribu"
     write_geo = False
 
-    simulation(in_folder, out_folder, 17111, write_geo)
+    simulation(in_folder, out_folder, 9, write_geo)

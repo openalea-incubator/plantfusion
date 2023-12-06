@@ -49,6 +49,7 @@ class Wheat_wrapper(object):
         run_from_outputs=False,
         external_soil_model=False,
         nitrates_uptake_forced=False,
+        initialize_nitrates_uptake=0.25,
         update_parameters_all_models=None,
         stored_times=None,
         option_static=False,
@@ -525,7 +526,7 @@ class Wheat_wrapper(object):
                 t = 0
                 self.force_nitrates_uptake(t)
             else:
-                self.uptake_nitrate_hour = 0.25
+                self.uptake_nitrate_hour = initialize_nitrates_uptake
                 self.update_Nitrates_cnwheat_mtg()
 
         # -- FSPMWHEAT --
@@ -567,7 +568,11 @@ class Wheat_wrapper(object):
 
         return scene_wheat, stems
 
-    def light_results(self, energy, lighting):
+    def light_results(self, energy, lighting, selective_global_index=None):
+        if selective_global_index is not None:
+            saved_global_index = self.global_index
+            self.global_index = selective_global_index
+
         results = lighting.results_organs()
         lightmodel = lighting.lightmodel
 
@@ -597,6 +602,9 @@ class Wheat_wrapper(object):
             # update the self.g
             self.g.property(param).update(dico_par[param])
 
+        if selective_global_index is not None:
+            self.global_index = saved_global_index
+
     def soil_inputs(self, soil_dimensions, lighting):
         # ls_N
         N_content_roots = self.compute_N_content_roots()
@@ -618,8 +626,29 @@ class Wheat_wrapper(object):
             plants_light_interception,
         )
 
-    def soil_results(self, uptakeN_per_plant):
-        self.uptake_nitrate_hour = self.convert_uptake_nitrate(uptakeN_per_plant)
+    def soil_results(self, uptakeN_per_plant, planter=None, selective_global_index=None):
+        if selective_global_index is not None:
+            saved_global_index = self.global_index
+            self.global_index = selective_global_index
+
+        if planter is not None :
+            index_in_global_plants = [
+                    sum(planter.number_of_plants[: self.global_index]),
+                    sum(planter.number_of_plants[: self.global_index + 1]),
+                ]
+        else:
+            index_in_global_plants = [0, self.nb_plants]
+
+        # considère que tous les blé sont identiques: moyenne
+        uptake_nitrate = 0.
+        for i in range(*index_in_global_plants):
+            uptake_nitrate += numpy.sum(uptakeN_per_plant[i])
+        uptake_nitrate *= 1/self.nb_plants
+
+        self.uptake_nitrate_hour = self.convert_uptake_nitrate(uptake_nitrate)
+
+        if selective_global_index is not None:
+            self.global_index = saved_global_index
 
     def run(self, t_light):
         if not ((t_light % self.LIGHT_TIMESTEP == 0) and (self.PARi_next_hours(t_light) > 0)):
@@ -948,10 +977,7 @@ class Wheat_wrapper(object):
         return [(1 - soil_energy) * ((plant_leaf_area * c) / self.nb_plants)] * self.nb_plants
 
     @staticmethod
-    def convert_uptake_nitrate(uptakeN_per_plant):
-        # considère que tous les blé sont identiques
-        uptake_nitrate = numpy.sum(uptakeN_per_plant[0])
-
+    def convert_uptake_nitrate(uptake_nitrate):
         # masse atomic de l'azote 14.0067 g.mol-1
         atomic_mass_N = 14.0067
 
