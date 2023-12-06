@@ -60,9 +60,9 @@ class Soil_wrapper(object):
             met = IOxls.read_met_file(path_met, ongletMet)
             mng = IOxls.read_met_file(path_mng, ongletMn)
 
-            dz_sol = inis['dz_sol']
+            dz_sol = inis["dz_sol"]
             pattern8 = [[v * 100 for v in x] for x in planter.domain]  # conversion m en cm
-            discret_solXY = list(map(int, inis['discret_solXY']))  # [10,10]# nb de discretisation du sol en X et en Y
+            discret_solXY = list(map(int, inis["discret_solXY"]))  # [10,10]# nb de discretisation du sol en X et en Y
 
             # meteo / mng journalier
             meteo_j = IOxls.extract_dataframe(
@@ -138,11 +138,11 @@ class Soil_wrapper(object):
 
     def run(
         self,
-        day,
+        day=1,
         N_content_roots_per_plant=[],
         roots_length_per_plant_per_soil_layer=[],
         soil_plants_parameters=[],
-        plants_light_interception=[]
+        plants_light_interception=[],
     ):
         meteo_j = IOxls.extract_dataframe(
             self.meteo, ["TmoyDay", "RG", "Et0", "Precip", "Tmin", "Tmax", "Tsol"], "DOY", val=day
