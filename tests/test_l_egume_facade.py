@@ -1,4 +1,4 @@
-from plantfusion.l_egume_facade import L_egume_facade
+from plantfusion.l_egume_wrapper import L_egume_wrapper
 import numpy
 import pandas
 
@@ -27,7 +27,7 @@ def test_transfer_ratp_legume():
     nb0 = m_lais.shape[1] - njz
     dS = dx * dy
 
-    legume = L_egume_facade(in_folder="inputs_soil_legume", IDusm=17111)
+    legume = L_egume_wrapper(in_folder="inputs_soil_legume", IDusm=17111)
 
     legume.lsystems[legume.idsimu[0]].tag_loop_inputs[13] = m_lais
     for n in legume.idsimu[1:]:
@@ -83,7 +83,7 @@ def test_transfer_caribu_legume():
     ]
     dS = sensors_dxyz[0] * sensors_dxyz[1]
 
-    legume = L_egume_facade(in_folder="inputs_soil_legume", IDusm=[17111, 17112])
+    legume = L_egume_wrapper(in_folder="inputs_soil_legume", IDusm=[17111, 17112])
 
     legume.invar = list_invar
     legume.lstrings = list_lstring
