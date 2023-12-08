@@ -8,6 +8,10 @@ build
 dist
 .vscode
 Run-tmp
+soil
+wheat
+legume
+light
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -92,7 +92,10 @@ class Wheat_wrapper(object):
         self.wheat_index = indexer.wheat_names.index(name)
 
         self.nb_plants = planter.number_of_plants[self.global_index]
-        self.plant_density = planter.plant_density
+        if name in planter.plant_density:
+            self.plant_density = { 1 : planter.plant_density[name]}
+        else:
+            self.plant_density = planter.plant_density
         self.generation_type = planter.generation_type
 
         self.LIGHT_TIMESTEP = LIGHT_TIMESTEP
@@ -117,7 +120,7 @@ class Wheat_wrapper(object):
         self.SOILS_POSTPROCESSING_FILENAME = SOILS_POSTPROCESSING_FILENAME
 
         if out_folder is not None:
-            self.out_folder = os.path.join(os.path.normpath(out_folder), "wheat")
+            self.out_folder = os.path.join(os.path.normpath(out_folder), name)
             try:
                 os.mkdir(os.path.normpath(self.out_folder))
                 print("Directory ", self.out_folder, " Created ")

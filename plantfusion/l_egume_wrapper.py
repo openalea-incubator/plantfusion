@@ -52,7 +52,7 @@ class L_egume_wrapper(object):
 
             # output folder for l-egume
             out_folder = os.path.normpath(out_folder)
-            self.out_folder = os.path.join(out_folder, "legume")
+            self.out_folder = os.path.join(out_folder, name)
             try:
                 os.mkdir(os.path.normpath(self.out_folder))
                 print("Directory ", self.out_folder, " Created ")

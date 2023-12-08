@@ -28,8 +28,6 @@ def simulation(
     legume_name = "legume"
     indexer = Indexer(global_order=[legume_name, wheat_name], wheat_names=[wheat_name], legume_names=[legume_name])
 
-
-    N_fertilizations = {2016: 357143, 2520: 1000000}
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     plant_density = {1: 250}
     sky = "turtle46"
@@ -56,7 +54,6 @@ def simulation(
         indexer=indexer,
         external_soil_model=True,
         nitrates_uptake_forced=False,
-        N_fertilizations=N_fertilizations,
         tillers_replications=tillers_replications,
         update_parameters_all_models=RERmax_vegetative_stages_example,
         SENESCWHEAT_TIMESTEP=senescwheat_timestep,
