@@ -83,6 +83,9 @@ class Soil_wrapper(object):
             self.option_residu = opt_residu
             self.option_Nuptake = opt_Nuptake
 
+            plant_path = os.path.join(in_folder, ls_usms["plante"][id])
+            self.soil_plants_parameters_bare_soil = IOxls.read_plant_param(plant_path, "solnu")
+
             if legume_wrapper is not None:
                 legume_wrapper.lsystem.S = soil
 
@@ -93,6 +96,7 @@ class Soil_wrapper(object):
             self.meteo = legume_wrapper.lsystem.meteo
             self.management = legume_wrapper.lsystem.mng
             self.parameters_SN = legume_wrapper.lsystem.par_SN
+            self.soil_plants_parameters_bare_soil = IOxls.read_plant_param(legume_wrapper.lsystem.path_plante, "solnu")
 
         self.save_results = save_results
         if save_results:
@@ -184,6 +188,15 @@ class Soil_wrapper(object):
 
         if self.save_results:
             self.append_results(day)
+
+    def bare_soil_inputs(self, epsilon=1e-10):
+        R1 = self.soil.m_1 * epsilon  # pas zero sinon bug FTSW
+        ls_roots = [R1]
+        ls_epsi = [0.0]
+        ls_N = [1.0]
+        ls_paramP = [self.soil_plants_parameters_bare_soil]
+
+        return ls_N, ls_roots, ls_paramP, ls_epsi
 
     def append_results(self, day):
         Nuptake_1plant = self.results[4][0].sum()

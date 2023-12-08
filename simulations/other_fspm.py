@@ -8,6 +8,7 @@ import openalea.plantgl.all as pgl
 import random
 import numpy
 
+
 class fakeFSPM:
     def __init__(self, name=""):
         self.name = name
@@ -63,11 +64,11 @@ class fakeFSPM:
         print("--- END ---")
 
 
-def simulation(iterations, out_folder="", writegeo=False):
+def simulation(iterations, out_folder="outputs/other_fspm", writegeo=False):
     indexer = Indexer(global_order=["fspm"], other_names=["fspm"])
 
-    planter = Planter()
-    planter.domain = ((-0.5, -0.5), (0.5, 0.5))
+    plane = ((-0.5, -0.5), (0.5, 0.5))
+    planter = Planter(xy_plane=plane)
 
     fspm = fakeFSPM(name="fspm")
 
@@ -76,7 +77,7 @@ def simulation(iterations, out_folder="", writegeo=False):
     soil_dimensions = [len(soil.soil.dxyz[i]) for i in [2, 0, 1]]
 
     # meteo file follows soil3ds in "inputs_soil_legume/list_usms_exemple.xls"
-    for i in range(60, 60+iterations):
+    for i in range(60, 60 + iterations):
         # LIGHT #
         scene = fspm.light_inputs()
         light.run(scenes=[scene], day=i, energy=random.uniform(1, 500))
