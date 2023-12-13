@@ -89,15 +89,20 @@ class Planter:
 
         for name, density in plant_density.items():
             if name in self.indexer.legume_names:
-                self.legume_typearrangement = "row4_sp1"
+                if self.indexer.legume_number_of_species[self.indexer.legume_names.index(name)] == 1:
+                    self.legume_typearrangement = "row4_sp1"
+                elif self.indexer.legume_number_of_species[self.indexer.legume_names.index(name)] == 2:
+                    self.legume_typearrangement = "row4"
+
                 # conversion m en cm
                 self.legume_cote = inter_rows * self.total_n_rows * 100
                 self.legume_nbcote.append(int(xy_square_length * xy_square_length * density / 2))
                 self.legume_optdamier = 2
 
-                self.number_of_plants[self.indexer.global_order.index(name)] = int(
-                    xy_square_length * xy_square_length * density
-                )
+                # if self.indexer.legume_number_of_species[self.indexer.legume_names.index(name)] > 1:
+                indices = [index for index, item in enumerate(self.indexer.global_order) if item == name]
+                for i in indices:
+                    self.number_of_plants[i] = int(xy_square_length * xy_square_length * density)
 
             if name in self.indexer.wheat_names:
                 self.number_of_plants[self.indexer.global_order.index(name)] = int(

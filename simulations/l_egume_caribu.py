@@ -135,4 +135,4 @@ if __name__ == "__main__":
     out_folder = "outputs/legume_caribu"
     write_geo = False
 
-    simulation(in_folder, out_folder, 9, write_geo)
+    simulation(in_folder, out_folder, 1711, write_geo)

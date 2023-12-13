@@ -43,7 +43,7 @@ def simulation(
     )
 
     translate = { legume_name : (-0.21, -0.21) }
-    planter = Planter(generation_type="default", indexer=indexer, inter_rows=0.15, plant_density=plant_density, legume_wrapper=legume, xy_translate=translate)
+    planter = Planter(generation_type="default", indexer=indexer, inter_rows=0.15, plant_density=plant_density, legume_wrapper=legume, translate=translate)
 
     wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,

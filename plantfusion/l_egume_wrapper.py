@@ -91,12 +91,9 @@ class L_egume_wrapper(object):
                 planter,
             )
         
-        option_externalcoupling = 1
-        option_Nuptake = 0
-
         self.lstring = self.lsystem.axiom
-        self.lsystem.opt_external_coupling = option_externalcoupling
-        self.lsystem.opt_Nuptake = option_Nuptake
+        self.lsystem.opt_external_coupling = 1
+        self.lsystem.opt_Nuptake = 0
 
         if caribu_scene:
             self.lsystem.visu_leaf = 1
@@ -108,18 +105,26 @@ class L_egume_wrapper(object):
         # in order to compute tag_inputs_loop
         lstrings_temp = self.lsystem.derive(self.lstring, 0, 1)
 
-        self.number_of_species_per_usm = len(self.lsystem.tag_loop_inputs[17])
+        self.number_of_species = len(self.lsystem.tag_loop_inputs[17])
         self.number_of_plants = len(self.lsystem.tag_loop_inputs[3])
 
-        if self.number_of_species_per_usm > 1:
-            print("--> Please use one plant specy per usm.")
-            raise
+        if self.number_of_species > 1 :
+            if self.indexer.legume_number_of_species[self.legume_index] != self.number_of_species:
+                self.indexer.legume_number_of_species[self.legume_index] = self.number_of_species
+                self.indexer.update_legume_several_species(self.name)
+            self.global_index = [index for index, item in enumerate(self.indexer.global_order) if item == self.name]
+            self.legume_index = [index for index, item in enumerate(self.indexer.global_order) if item == self.name]
+
 
         if planter is not None:
-            self.index_in_global_plants = [
-                sum(planter.number_of_plants[: self.global_index]),
-                sum(planter.number_of_plants[: self.global_index + 1]),
-            ]
+            if isinstance(self.global_index, list):
+             self.index_in_global_plants = [sum(planter.number_of_plants[: self.global_index[0]]),
+                                                    sum(planter.number_of_plants[: self.global_index[-1] + 1])]
+            else:
+                self.index_in_global_plants = [
+                    sum(planter.number_of_plants[: self.global_index]),
+                    sum(planter.number_of_plants[: self.global_index + 1]),
+                ]
 
         self.res_trans = None
         self.res_abs_i = None
@@ -242,20 +247,29 @@ class L_egume_wrapper(object):
         if selective_global_index is not None:
             saved_global_index = self.global_index
             self.global_index = selective_global_index
-            self.index_in_global_plants = [
-                sum(planter.number_of_plants[: self.global_index]),
-                sum(planter.number_of_plants[: self.global_index + 1]),
-            ]
+            if isinstance(self.global_index, list):
+                self.index_in_global_plants = [sum(planter.number_of_plants[: self.global_index[0]]),
+                                                    sum(planter.number_of_plants[: self.global_index[-1] + 1])]
+            else:
+                self.index_in_global_plants = [
+                    sum(planter.number_of_plants[: self.global_index]),
+                    sum(planter.number_of_plants[: self.global_index + 1]),
+                ]
             self.global_index = saved_global_index
 
         if planter is not None:
-            self.index_in_global_plants = [
-                sum(planter.number_of_plants[: self.global_index]),
-                sum(planter.number_of_plants[: self.global_index + 1]),
-            ]
+            if isinstance(self.global_index, list):
+                self.index_in_global_plants = [sum(planter.number_of_plants[: self.global_index[0]]),
+                                                        sum(planter.number_of_plants[: self.global_index[-1] + 1])]
+            else:
+                self.index_in_global_plants = [
+                    sum(planter.number_of_plants[: self.global_index]),
+                    sum(planter.number_of_plants[: self.global_index + 1]),
+                ]
             
         soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol = results_soil
 
+        # if 
         ls_ftsw = ls_ftsw[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
         ls_transp = ls_transp[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
         ls_Act_Nuptake_plt_leg = ls_Act_Nuptake_plt[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
@@ -263,16 +277,15 @@ class L_egume_wrapper(object):
 
         self.results_soil = [soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt_leg, temps_sol]
 
-    def compute_plants_interception(self, organs_results=[], energy=1, pari_soil_in=-1):
+    def compute_plants_interception(self, organs_results=None, energy=1, pari_soil_in=-1):
         surf_refVOX = self.lsystem.tag_loop_inputs[15]
         dicFeuilBilanR = self.lsystem.tag_loop_inputs[14]
+        leaf_area = self.lsystem.tag_loop_inputs[13]
 
         if self.domain is None:
             surfsolref = self.lsystem.tag_loop_inputs[12]
         else:
             surfsolref = (self.domain[1][0] - self.domain[0][0]) * (self.domain[1][1] - self.domain[0][1])
-
-        leaf_area = self.lsystem.tag_loop_inputs[13]
 
         # R_FR voxel (calcul de zeta)
         tag_light_inputs2 = [self.res_trans / (energy * surf_refVOX)]  # input tag
@@ -280,27 +293,26 @@ class L_egume_wrapper(object):
 
         # interception au sol
         if pari_soil_in < 0:
-            transmi_sol = numpy.sum(self.res_trans[-1][:][:]) / (energy * surf_refVOX)
+            transmi_sol = numpy.sum(self.res_trans[-1][:][:]) / (energy * surfsolref)
             pari_soil = max(1.0 - transmi_sol, 1e-15)
         else:
             pari_soil = 1 - pari_soil_in
 
-        # calul des interception feuille et ls_epsi plante
-        # res_abs_i existe donc on est passé soit par ratp soit riri
+        # interception des plantes
+        # res_abs_i existe donc on est passé soit par ratp soit riri, il faut màj invar['parip']
         if self.res_abs_i is not None:
-            pari_canopy = 0
-            # si on a pas calculé l'interception par plante dans invar
-            if numpy.sum(self.invar["parip"]) == 0.0:
-                # filtered_data = organs_results[(organs_results.VegetationType.isin(id))]
-                dicFeuilBilanR = sh.calc_paraF(dicFeuilBilanR, leaf_area, self.res_abs_i)
-                sh.calc_para_Plt(self.invar, dicFeuilBilanR)
-            pari_canopy += numpy.sum(self.invar["parip"])
+            dicFeuilBilanR = sh.calc_paraF(dicFeuilBilanR, leaf_area, self.res_abs_i)
+            sh.calc_para_Plt(self.invar, dicFeuilBilanR)
 
-        # res_abs_i n'existe pas donc on est passé par caribu
-        else:
-            species_not_legume = [i for i in organs_results["VegetationType"].unique() if i != self.global_index]
+        pari_canopy = numpy.sum(self.invar["parip"])
+        
+        # on ajoute les rayonnements des autres fspm de la scène
+        if organs_results is not None and not organs_results.empty:
+            if isinstance(self.global_index, list):
+                species_not_legume = [i for i in organs_results["VegetationType"].unique() if i not in self.global_index]
+            else:
+                species_not_legume = [i for i in organs_results["VegetationType"].unique() if i != self.global_index]
             filtered_data = organs_results[(organs_results.VegetationType.isin(species_not_legume))]
-            pari_canopy = numpy.sum(self.invar["parip"])
             if not filtered_data.empty:
                 pari_canopy += numpy.sum(filtered_data["par Ei"]) * energy
 
@@ -535,9 +547,6 @@ class L_egume_wrapper(object):
         leaf_area_per_voxels = self.lsystem.tag_loop_inputs[13]
         return leaf_area_per_voxels.shape
 
-    def number_of_species(self):
-        return len(self.simulation_name)
-
     def transfer_ratp_legume(self, energy, voxels_outputs, nb0, epsilon=1e-8):
         m_lais = self.lsystem.tag_loop_inputs[13]
         # initialize absorb energy array
@@ -569,16 +578,20 @@ class L_egume_wrapper(object):
                         s_entity += m_lais[k][legume_iz][iy][ix]
 
                     if s_entity > 0.0:
-                        for ie in range(m_lais.shape[0]):
+                        if isinstance(self.global_index, list):
+                            indices = self.global_index
+                        elif isinstance(self.global_index, int):
+                            indices = [self.global_index]
+                        for id_legume,id_global in enumerate(indices):
                             if len(vox_data) > 0:
-                                v_dat = vox_data[vox_data.VegetationType == ie + 1]
+                                v_dat = vox_data[vox_data.VegetationType == id_global + 1]
                                 v = v_dat["Intercepted"].values[0]
                                 if v > epsilon:
-                                    res_abs_i[ie, legume_iz, iy, ix] = energy * v
+                                    res_abs_i[id_legume, legume_iz, iy, ix] = energy * v
 
                                 # if a voxel has leaf area > 0, it must have a minimum intercepted energy value
                                 else:
-                                    res_abs_i[ie, legume_iz, iy, ix] = epsilon
+                                    res_abs_i[id_legume, legume_iz, iy, ix] = epsilon
 
         return res_abs_i, res_trans
 
@@ -596,7 +609,10 @@ class L_egume_wrapper(object):
         self.invar["parip"] = scipy.array([0.0] * nplantes)
 
         ent_organs_outputs = pandas.DataFrame({})
-        filter = elements_outputs.VegetationType == self.global_index
+        if isinstance(self.global_index, list):
+            filter = elements_outputs["VegetationType"].isin(self.global_index)
+        else:
+            filter = elements_outputs.VegetationType == self.global_index
         ent_organs_outputs = elements_outputs[filter]
 
         # non empty scene

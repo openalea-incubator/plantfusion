@@ -21,7 +21,7 @@ class Light_wrapper(object):
         legume_wrapper=None,
         caribu_opt={"par": (0.10, 0.07)},
         voxels_size=[1.0, 1.0, 1.0],
-        angle_distrib_algo="compute voxel",
+        angle_distrib_algo="compute global",
         nb_angle_class=9,
         mu=1.0,
         writegeo=False,
@@ -156,7 +156,7 @@ class Light_wrapper(object):
         try:
             return self.light.elements_outputs
         except AttributeError:
-            return []
+            return None
 
     def results_voxels(self):
         return self.light.voxels_outputs

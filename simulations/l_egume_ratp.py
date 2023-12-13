@@ -35,6 +35,8 @@ def simulation(in_folder, out_folder, id_usm):
 
 
     # lumiere avec RATP
+    # réinitialise l'indexer
+    index_log = Indexer(global_order=[plants_name], legume_names=[plants_name])
     legume_ratp = L_egume_wrapper(
         name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), IDusm=id_usm
     )
@@ -132,4 +134,4 @@ if __name__ == "__main__":
     in_folder = "inputs_soil_legume"
     out_folder = "outputs/legume_ratp"
 
-    simulation(in_folder, out_folder, 17111)
+    simulation(in_folder, out_folder, 1711)

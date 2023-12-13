@@ -28,6 +28,9 @@ def simulation(
     legume_name = "legume"
     indexer = Indexer(global_order=[legume_name, wheat_name], wheat_names=[wheat_name], legume_names=[legume_name])
 
+    # update number of plant species in l-egume
+    indexer.update_legume_several_species(legume_name, number_of_species=2)
+
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     plant_density = {1: 250}
     sky = "turtle46"
@@ -186,7 +189,7 @@ if __name__ == "__main__":
     in_folder_wheat = "inputs_fspmwheat"
     out_folder = "outputs/full_coupling_default"
     simulation_length = 2500
-    id_usm = 9
+    id_usm = 1711
     writegeo = True
 
     simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length, id_usm, writegeo=writegeo)

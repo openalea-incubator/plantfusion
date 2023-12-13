@@ -66,6 +66,6 @@ def simulation(in_folder, out_folder, id_usm):
 if __name__ == "__main__":
     in_folder = "inputs_soil_legume"
     out_folder = "outputs/legume_default"
-    id_usm = 17111
+    id_usm = 1711
 
     simulation(in_folder, out_folder, id_usm)
