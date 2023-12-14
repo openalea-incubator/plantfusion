@@ -65,8 +65,8 @@ def simulation(in_folder, out_folder, idusm1, idusm2, writegeo=False):
         legume1.derive(t)
         legume2.derive(t)
 
-        scene_legume1 = legume1.light_inputs(lightmodel="caribu")
-        scene_legume2 = legume2.light_inputs(lightmodel="caribu")
+        scene_legume1 = legume1.light_inputs(elements="triangles")
+        scene_legume2 = legume2.light_inputs(elements="triangles")
         lighting.run(scenes=[scene_legume1, scene_legume2], day=legume1.doy(), parunit="RG")
         legume1.light_results(legume1.energy(), lighting)
         legume2.light_results(legume2.energy(), lighting)

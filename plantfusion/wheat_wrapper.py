@@ -86,6 +86,8 @@ class Wheat_wrapper(object):
         self.nitrates_uptake_forced = nitrates_uptake_forced
         self.option_static = option_static
 
+        self.last_year_doy = 0
+
         self.name = name
         self.indexer = indexer
         self.global_index = indexer.global_order.index(name)
@@ -1027,8 +1029,15 @@ class Wheat_wrapper(object):
     def energy(self, t):
         return self.meteo.loc[t, ["PARi"]].iloc[0]
 
-    def doy(self, t):
-        return self.meteo.loc[t, ["DOY"]].iloc[0]
+    def doy(self, t, soil3ds=False):
+        if soil3ds :
+            if t > 0:
+                if self.meteo.loc[t-1, ["DOY"]].iloc[0] > self.meteo.loc[t, ["DOY"]].iloc[0] :
+                    self.last_year_doy += self.meteo.loc[t-1, ["DOY"]].iloc[0]
+            return self.meteo.loc[t, ["DOY"]].iloc[0] + self.last_year_doy
+
+        else:
+            return self.meteo.loc[t, ["DOY"]].iloc[0]
 
     def hour(self, t):
         return self.meteo.loc[t, ["hour"]].iloc[0]

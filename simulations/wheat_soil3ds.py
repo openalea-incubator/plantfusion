@@ -78,7 +78,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
                     plants_light_interception,
                 ) = wheat.soil_inputs(soil_dimensions, lighting)
                 soil.run(
-                    wheat.doy(t),
+                    wheat.doy(t, soil3ds=True),
                     [N_content_roots_per_plant],
                     [roots_length_per_plant_per_soil_layer],
                     [wheat_soil_parameters],
