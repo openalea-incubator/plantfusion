@@ -1,4 +1,5 @@
 import os
+import math
 
 from lightvegemanager.LVM import LightVegeManager
 from plantfusion.utils import create_child_folder
@@ -59,11 +60,14 @@ class Light_wrapper(object):
         nxyz_legume = [0] * 3
         if legume_wrapper is not None:
             if isinstance(legume_wrapper, list):
-                nxyz_legume = [
-                    legume_wrapper[0].number_of_voxels()[3],
-                    legume_wrapper[0].number_of_voxels()[2],
-                    legume_wrapper[0].number_of_voxels()[1],
-                ]
+                nxyz_legume = []
+                for wrap in legume_wrapper:
+                    nxyz_legume.append([
+                        wrap.number_of_voxels()[3],
+                        wrap.number_of_voxels()[2],
+                        wrap.number_of_voxels()[1],
+                    ])
+                nxyz_legume = [max(*x) for x in zip(*nxyz_legume)]
                 dxyz_legume = [x * 0.01 for x in legume_wrapper[0].voxels_size()]  # conversion de cm à m
             else:
                 nxyz_legume = [
@@ -80,13 +84,43 @@ class Light_wrapper(object):
             lightmodel_parameters["sun algo"] = "caribu"
             if legume_wrapper is not None:
                 self.compute_sensors = True
-                orig = [self.domain[0][0], self.domain[0][1], 0.0]
-                if writegeo:
-                    path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
-                    lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig, path, "vtk"]
-                    create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
-                else:
-                    lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig]
+                if isinstance(legume_wrapper, list):
+                    x_trans, y_trans = 0, 0
+                    lightmodel_parameters["sensors"] = {}
+                    for wrap in legume_wrapper:
+                        if "translate" in planter.transformations:
+                            if wrap.global_index in planter.transformations["translate"]:
+                                x_trans, y_trans, z = planter.transformations["translate"][wrap.global_index]
+                        orig = [self.domain[0][0]+x_trans, self.domain[0][1]+y_trans, 0.0]
+                        nxyz_legume = [
+                            wrap.number_of_voxels()[3],
+                            wrap.number_of_voxels()[2],
+                            wrap.number_of_voxels()[1],
+                        ]
+                        dxyz_legume = [x * 0.01 for x in wrap.voxels_size()]  # conversion de cm à m
+
+                        if writegeo:
+                            path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
+                            lightmodel_parameters["sensors"][wrap.global_index] = ["grid", dxyz_legume, nxyz_legume, orig, path, "vtk"]
+                            create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
+                        else:
+                            lightmodel_parameters["sensors"][wrap.global_index] = ["grid", dxyz_legume, nxyz_legume, orig]
+                else:                
+                    if "translate" in planter.transformations:
+                        if isinstance(legume_wrapper.global_index, list):
+                            if any([i in planter.transformations["translate"] for i in legume_wrapper.global_index]) :
+                                x_trans, y_trans, z = planter.transformations["translate"][legume_wrapper.global_index[0]]
+                        else:
+                            if legume_wrapper.global_index in planter.transformations["translate"] :
+                                x_trans, y_trans, z = planter.transformations["translate"][legume_wrapper.global_index]
+                    orig = [self.domain[0][0]+x_trans, self.domain[0][1]+y_trans, 0.0]   
+
+                    if writegeo:
+                        path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
+                        lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig, path, "vtk"]
+                        create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
+                    else:
+                        lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig]
 
             lightmodel_parameters["debug"] = False
             lightmodel_parameters["soil mesh"] = 1
@@ -165,7 +199,7 @@ class Light_wrapper(object):
         return self.light.triangles_outputs
 
     def results_sensors(self):
-        return self.light.sensors_outputs
+        return self.light.sensors_outputs(dataframe=True)
 
     def res_trans(self):
         return self.light.riri5_transmitted_light

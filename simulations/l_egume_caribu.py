@@ -60,12 +60,12 @@ def simulation(in_folder, out_folder, id_usm, write_geo=False):
             legume_caribu.derive(t)
 
             ### DEFAULT + PASSIVE
-            scene_legume = legume_default.light_inputs(lightmodel="caribu")
+            scene_legume = legume_default.light_inputs(elements="triangles")
             passive_lighting(
                 light_data, legume_default.energy(), legume_default.doy(), scene_legume, legume_default, lighting_caribu
             )
 
-            scene_legume = legume_default.light_inputs(lightmodel="riri5")
+            scene_legume = legume_default.light_inputs(elements="voxels")
             start = time.time()
             lighting_default.run(
                 scenes=[scene_legume], energy=legume_default.energy(), day=legume_default.doy(), parunit="RG"
@@ -89,7 +89,7 @@ def simulation(in_folder, out_folder, id_usm, write_geo=False):
             legume_default.soil_results(soil_default.results, planter)
 
             ### CARIBU
-            scene_legume = legume_caribu.light_inputs(lightmodel="caribu")
+            scene_legume = legume_caribu.light_inputs(elements="triangles")
             start = time.time()
             lighting_caribu.run(
                 scenes=[scene_legume], day=legume_caribu.doy(), parunit="RG"

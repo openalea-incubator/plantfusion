@@ -29,7 +29,6 @@ def simulation(
 
 
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
-    plant_density = {1: 250}
     sky = "turtle46"
     RERmax_vegetative_stages_example = {
         "elongwheat": {

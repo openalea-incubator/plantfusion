@@ -83,7 +83,7 @@ def simulation(
                 legume.derive(t_legume)
 
             wheat_input, stems = wheat.light_inputs(planter)
-            legume_input = legume.light_inputs("caribu")
+            legume_input = legume.light_inputs(elements="triangles")
             scenes = indexer.light_scenes_mgmt({wheat_name : wheat_input, legume_name : legume_input})
             lighting.run(
                 scenes=scenes,

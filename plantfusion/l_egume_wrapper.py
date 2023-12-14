@@ -155,11 +155,11 @@ class L_egume_wrapper(object):
         self.lstring = self.lsystem.derive(self.lstring, t, 1)
         self.invar = self.lsystem.tag_loop_inputs[0]
 
-    def light_inputs(self, lightmodel):
-        if lightmodel == "caribu":
+    def light_inputs(self, elements="triangles"):
+        if elements == "triangles":
             return self.lsystem.sceneInterpretation(self.lstring)
 
-        elif lightmodel == "ratp" or lightmodel == "riri5":
+        elif elements == "voxels":
             leaf_area = self.lsystem.tag_loop_inputs[13]
             angle_distrib = self.lsystem.tag_loop_inputs[17]
             legume_grid = {"LA": leaf_area, "distrib": angle_distrib}
@@ -652,11 +652,16 @@ class L_egume_wrapper(object):
 
         # if non empty scene
         if not elements_outputs.empty:
+            if [x for x in self.indexer.legume_names if x != self.name] != []:
+                sensors_specy_id = self.global_index
+            else:
+                sensors_specy_id = 0
+            sensors = sensors_outputs[sensors_outputs.VegetationType==sensors_specy_id]
             ID_capt = 0
             for ix in range(m_lais.shape[3]):
                 for iy in range(m_lais.shape[2]):
                     for iz in range(m_lais.shape[1] - nb0):
-                        a = min(sensors_outputs["par"][ID_capt], 1.0)
+                        a = min(sensors.iloc[ID_capt]["PAR"], 1.0)
                         res_trans[((m_lais.shape[1] - 1)) - iz][iy][ix] = a
                         ID_capt += 1
 

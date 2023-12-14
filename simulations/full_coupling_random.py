@@ -96,7 +96,7 @@ def simulation(
 
         legume.derive(t)
 
-        scene_legume = legume.light_inputs(lightmodel="caribu")
+        scene_legume = legume.light_inputs(elements="triangles")
         lighting.run(scenes=[scene_legume], day=legume.doy(), parunit="RG")
         legume.light_results(legume.energy(), lighting)
 

@@ -61,7 +61,7 @@ def simulation(in_folder, out_folder, id_usm):
             legume_ratp.derive(t)
 
             ### DEFAULT + PASSIVE
-            scene_legume = legume_default.light_inputs(lightmodel="riri5")
+            scene_legume = legume_default.light_inputs(elements="voxels")
             passive_lighting(
                 light_data, legume_default.energy(), legume_default.doy(), scene_legume, legume_default, lighting_ratp
             )
@@ -89,7 +89,7 @@ def simulation(in_folder, out_folder, id_usm):
             legume_default.soil_results(soil_default.results, planter)
 
             ### RATP
-            scene_legume = legume_ratp.light_inputs(lightmodel="ratp")
+            scene_legume = legume_ratp.light_inputs(elements="voxels")
             start = time.time()
             lighting_ratp.run(
                 scenes=[scene_legume], energy=legume_ratp.energy(), day=legume_ratp.doy(), parunit="RG"

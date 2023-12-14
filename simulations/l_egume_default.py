@@ -35,7 +35,7 @@ def simulation(in_folder, out_folder, id_usm):
         for t in range(legume.lsystem.derivationLength):
             legume.derive(t)
 
-            scene_legume = legume.light_inputs(lightmodel="riri5")
+            scene_legume = legume.light_inputs(elements="voxels")
             lighting.run(scenes=[scene_legume], energy=legume.energy(), day=legume.doy(), parunit="RG")
             legume.light_results(legume.energy(), lighting)
 
