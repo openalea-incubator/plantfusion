@@ -128,7 +128,7 @@ def simulation(
                 ) = indexer.soil_inputs({wheat1_name : soil_wheat_inputs1, wheat2_name : soil_wheat_inputs2})
                 
                 soil.run(
-                    wheat1.doy(t_wheat),
+                    wheat1.doy(t_wheat, soil3ds=True),
                     N_content_roots_per_plant,
                     roots_length_per_plant_per_soil_layer,
                     plants_soil_parameters,

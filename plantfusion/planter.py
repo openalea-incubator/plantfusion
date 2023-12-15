@@ -167,10 +167,16 @@ class Planter:
             elif not self.indexer.wheat_active:
                 self.type_domain = "l-egume"
                 # convertit domain cm en m
-                self.domain = (
-                    (0.0, 0.0),
-                    (legume_wrapper.lsystem.cote * 0.01, legume_wrapper.lsystem.cote * 0.01),
-                )
+                if isinstance(legume_wrapper, list):
+                    self.domain = (
+                        (0.0, 0.0),
+                        (legume_wrapper[0].lsystem.cote * 0.01, legume_wrapper[0].lsystem.cote * 0.01),
+                    )
+                else:
+                    self.domain = (
+                        (0.0, 0.0),
+                        (legume_wrapper.lsystem.cote * 0.01, legume_wrapper.lsystem.cote * 0.01),
+                    )
             else:
                 self.type_domain = "mix"
                 legume_domain = (
@@ -203,8 +209,14 @@ class Planter:
 
         if legume_wrapper is not None:
             # transmets l'information aux l-egumes (pour éviter d'avoir planter en input de l-egume (temporaire))
-            legume_wrapper.set_domain(self.domain)
-            self.number_of_plants[self.indexer.legume_index[0]] = legume_wrapper.number_of_plants
+            if isinstance(legume_wrapper, list):
+                for wrap in legume_wrapper:
+                    wrap.set_domain(self.domain)
+                    self.number_of_plants[self.indexer.global_order.index(wrap.name)] = wrap.number_of_plants
+            else:
+                legume_wrapper.set_domain(self.domain)
+                self.number_of_plants[self.indexer.global_order.index(legume_wrapper.name)] = legume_wrapper.number_of_plants
+
 
     def generate_random_wheat(
         self, adel_wheat, mtg, indice_wheat_instance=0, stem_name="stem", leaf_name="leaf", seed=None

@@ -25,18 +25,12 @@ def simulation(in_folder, out_folder, idusm1, idusm2, writegeo=False):
     legume2_name = "legume2"
     indexer = Indexer(global_order=[legume1_name, legume2_name], legume_names=[legume1_name, legume2_name])
 
-    generation_type = "row"
-    plant_density = {legume1_name : 250, legume2_name : 450} # plantes.m-2
-    inter_rows = 0.10 # m
-    planter = Planter(generation_type=generation_type, indexer=indexer, plant_density=plant_density, inter_rows=inter_rows)
+    legume1 = L_egume_wrapper(name=legume1_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=idusm1)
 
-    legume1 = L_egume_wrapper(
-        name=legume1_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=idusm1, planter=planter, caribu_scene=True
-    )
+    legume2 = L_egume_wrapper(name=legume2_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=idusm2)
 
-    legume2 = L_egume_wrapper(
-        name=legume2_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=idusm2, planter=planter, caribu_scene=True
-    )
+    generation_type = "default"
+    planter = Planter(generation_type=generation_type, indexer=indexer, legume_wrapper=[legume1, legume2])
 
     sky = "turtle46"
     lighting = Light_wrapper(
@@ -45,7 +39,7 @@ def simulation(in_folder, out_folder, idusm1, idusm2, writegeo=False):
         sky=sky,
         planter=planter, 
         indexer=indexer,
-        legume_wrapper=legume1,
+        legume_wrapper=[legume1, legume2],
         writegeo=writegeo
     )
 
@@ -53,6 +47,7 @@ def simulation(in_folder, out_folder, idusm1, idusm2, writegeo=False):
                         out_folder=out_folder, 
                         IDusm=1711, 
                         planter=planter, 
+                        legume_wrapper=legume1,
                         opt_residu=0, 
                         save_results=True)
     
@@ -102,9 +97,9 @@ def simulation(in_folder, out_folder, idusm1, idusm2, writegeo=False):
 
 if __name__ == "__main__":
     in_folder = "inputs_soil_legume"
-    out_folder = "outputs/two_legume_caribu"
+    out_folder = "outputs/two_legume_ratp"
     id1 = 17111
     id2 = 17112
-    writegeo = True
+    writegeo = False
 
     simulation(in_folder, out_folder, id1, id2, writegeo=writegeo)

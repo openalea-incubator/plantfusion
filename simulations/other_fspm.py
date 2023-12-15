@@ -73,7 +73,7 @@ def simulation(iterations, out_folder="outputs/other_fspm", writegeo=False):
     fspm = fakeFSPM(name="fspm")
 
     light = Light_wrapper(lightmodel="caribu", planter=planter, out_folder=out_folder, writegeo=writegeo)
-    soil = Soil_wrapper(in_folder="inputs_soil_legume", IDusm=17111, planter=planter, save_results=True)
+    soil = Soil_wrapper(in_folder="inputs_soil_legume", IDusm=1711, planter=planter, save_results=True)
     soil_dimensions = [len(soil.soil.dxyz[i]) for i in [2, 0, 1]]
 
     # meteo file follows soil3ds in "inputs_soil_legume/list_usms_exemple.xls"
