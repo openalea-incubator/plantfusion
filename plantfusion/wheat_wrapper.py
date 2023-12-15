@@ -1,6 +1,7 @@
 import os
 import numpy
 import pandas
+import math
 
 from alinea.adel.adel_dynamic import AdelDyn
 from alinea.adel.echap_leaf import echap_leaves
@@ -95,7 +96,7 @@ class Wheat_wrapper(object):
 
         self.nb_plants = planter.number_of_plants[self.global_index]
         if name in planter.plant_density:
-            self.plant_density = { 1 : planter.plant_density[name]}
+            self.plant_density = {1: planter.plant_density[name]}
         else:
             self.plant_density = planter.plant_density
         self.generation_type = planter.generation_type
@@ -610,13 +611,13 @@ class Wheat_wrapper(object):
         if selective_global_index is not None:
             self.global_index = saved_global_index
 
-    def soil_inputs(self, soil_dimensions, lighting):
+    def soil_inputs(self, soil, planter, lighting):
         # ls_N
         N_content_roots = self.compute_N_content_roots()
         N_content_roots_per_plant = [N_content_roots] * self.nb_plants
 
         # ls_roots
-        roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil_dimensions)
+        roots_length_per_plant_per_soil_layer = self.compute_roots_length(soil, planter)
 
         # ls_epsi
         organs_results = lighting.results_organs()
@@ -636,19 +637,19 @@ class Wheat_wrapper(object):
             saved_global_index = self.global_index
             self.global_index = selective_global_index
 
-        if planter is not None :
+        if planter is not None:
             index_in_global_plants = [
-                    sum(planter.number_of_plants[: self.global_index]),
-                    sum(planter.number_of_plants[: self.global_index + 1]),
-                ]
+                sum(planter.number_of_plants[: self.global_index]),
+                sum(planter.number_of_plants[: self.global_index + 1]),
+            ]
         else:
             index_in_global_plants = [0, self.nb_plants]
 
         # considère que tous les blé sont identiques: moyenne
-        uptake_nitrate = 0.
+        uptake_nitrate = 0.0
         for i in range(*index_in_global_plants):
             uptake_nitrate += numpy.sum(uptakeN_per_plant[i])
-        uptake_nitrate *= 1/self.nb_plants
+        uptake_nitrate *= 1 / self.nb_plants
 
         self.uptake_nitrate_hour = self.convert_uptake_nitrate(uptake_nitrate)
 
@@ -943,37 +944,45 @@ class Wheat_wrapper(object):
 
         return N_content_roots.values[0]
 
-    def compute_roots_length(self, soil_dimensions):
-        nb_plants = self.nb_plants
+    def compute_roots_length(self, soil_wrapper, planter):
+        """
+        soil_dimensions : [z, x, y]
+        """
         # une seule plante dans cnwheat
         roots_mass = [0]
         for i, plant in enumerate(self.cnwheat_facade_.population.plants):
             for axis in plant.axes:
                 roots_mass[i] += axis.roots.mstruct  # masse en g
-        if self.nb_plants == 1:
-            nb_plants = len(self.cnwheat_facade_.population.plants)
 
-        SRL = self.compute_SRL_wheat(roots_mass[0])
+        positions = planter.wheat_positions
+        self.compute_SRL_wheat(roots_mass[0])
 
         # longueur spécifique x masse en gramme/nbplantes
         ls_roots = []
-        for i in range(nb_plants):
+        for p in positions:
             # on répartit de manière homogène les racines à travers les couches du sol
             # convertit m en cm # --> peut etre en metre finalement
-            rootLen_i = numpy.ones(soil_dimensions) * (roots_mass[0] * SRL) / numpy.prod(soil_dimensions)
-            ls_roots.append(rootLen_i)
+            ix, iy = soil_wrapper.whichvoxel_xy(p)
+            roots_length_per_voxel = self.rootsdistribution(roots_mass[0], ix, iy, soil_wrapper)
+            ls_roots.append(roots_length_per_voxel)
 
         return ls_roots
 
-    @staticmethod
-    def compute_SRL_wheat(mass_roots):
+    def rootsdistribution(self, roots_mass, ix, iy, soil_wrapper, distribtype="homogeneous"):
+        roots_length_per_voxel = numpy.zeros(soil_wrapper.soil_dimensions)
+        if distribtype == "homogeneous":
+            roots_length_per_voxel[:, ix, iy] = (roots_mass * self.SRL) / soil_wrapper.soil_dimensions[0]
+        
+        return roots_length_per_voxel
+
+    def compute_SRL_wheat(self, mass_roots):
         if mass_roots < 0.6:
             a = 334
-            return a * mass_roots + 60
+            self.SRL =  a * mass_roots + 60
             # a = 8.247933150630281 # math.log(141)/0.6
             # return np.exp(mass_roots * a) + 59
         else:
-            return 200
+            self.SRL = 200
 
     def compute_plants_light_interception(self, plant_leaf_area, soil_energy):
         # conversion
@@ -1030,10 +1039,10 @@ class Wheat_wrapper(object):
         return self.meteo.loc[t, ["PARi"]].iloc[0]
 
     def doy(self, t, soil3ds=False):
-        if soil3ds :
+        if soil3ds:
             if t > 0:
-                if self.meteo.loc[t-1, ["DOY"]].iloc[0] > self.meteo.loc[t, ["DOY"]].iloc[0] :
-                    self.last_year_doy += self.meteo.loc[t-1, ["DOY"]].iloc[0]
+                if self.meteo.loc[t - 1, ["DOY"]].iloc[0] > self.meteo.loc[t, ["DOY"]].iloc[0]:
+                    self.last_year_doy += self.meteo.loc[t - 1, ["DOY"]].iloc[0]
             return self.meteo.loc[t, ["DOY"]].iloc[0] + self.last_year_doy
 
         else:

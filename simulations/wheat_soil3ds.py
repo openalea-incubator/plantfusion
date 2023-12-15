@@ -58,7 +58,6 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     )
 
     soil = Soil_wrapper(in_folder="inputs_soil_legume", out_folder=out_folder, IDusm=17111, planter=planter, save_results=True)
-    soil_dimensions = [len(soil.soil.dxyz[i]) for i in [2,0,1] ]
 
     current_time_of_the_system = time.time()
     for t in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
@@ -76,7 +75,7 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
                     roots_length_per_plant_per_soil_layer,
                     wheat_soil_parameters,
                     plants_light_interception,
-                ) = wheat.soil_inputs(soil_dimensions, lighting)
+                ) = wheat.soil_inputs(soil, planter, lighting)
                 soil.run(
                     wheat.doy(t, soil3ds=True),
                     [N_content_roots_per_plant],

@@ -1,6 +1,7 @@
 import numpy
 import pandas
 import os
+import math
 
 from soil3ds import soil_moduleN as solN
 import soil3ds.IOxls as IOxls
@@ -97,6 +98,8 @@ class Soil_wrapper(object):
             self.management = legume_wrapper.lsystem.mng
             self.parameters_SN = legume_wrapper.lsystem.par_SN
             self.soil_plants_parameters_bare_soil = IOxls.read_plant_param(legume_wrapper.lsystem.path_plante, "solnu")
+
+        self.soil_dimensions = [len(self.soil.dxyz[i]) for i in [2, 0, 1]]
 
         self.save_results = save_results
         if save_results:
@@ -247,3 +250,12 @@ class Soil_wrapper(object):
             print("Soil save results not activated")
         finally:
             pass
+
+    def whichvoxel_xy(self, p):
+        """
+        dxyz : [dx, dy, dz]
+        """
+        ix = math.floor((p[0] - self.soil.origin[0]) / self.soil.dxyz[0][0])
+        iy = math.floor((p[1] - self.soil.origin[1]) / self.soil.dxyz[1][0])
+
+        return ix, iy
