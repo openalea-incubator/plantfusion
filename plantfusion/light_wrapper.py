@@ -32,6 +32,7 @@ class Light_wrapper(object):
         self.indexer = indexer
         self.writegeo = writegeo
         self.compute_sensors = False
+        self.direct=direct
         if writegeo:
             create_child_folder(os.path.normpath(out_folder), "light")
             self.out_folder = os.path.join(os.path.normpath(out_folder), "light")
@@ -84,8 +85,8 @@ class Light_wrapper(object):
             lightmodel_parameters["sun algo"] = "caribu"
             if legume_wrapper is not None:
                 self.compute_sensors = True
+                x_trans, y_trans = 0, 0
                 if isinstance(legume_wrapper, list):
-                    x_trans, y_trans = 0, 0
                     lightmodel_parameters["sensors"] = {}
                     for wrap in legume_wrapper:
                         if "translate" in planter.transformations:
@@ -98,13 +99,7 @@ class Light_wrapper(object):
                             wrap.number_of_voxels()[1],
                         ]
                         dxyz_legume = [x * 0.01 for x in wrap.voxels_size()]  # conversion de cm à m
-
-                        if writegeo:
-                            path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
-                            lightmodel_parameters["sensors"][wrap.global_index] = ["grid", dxyz_legume, nxyz_legume, orig, path, "vtk"]
-                            create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
-                        else:
-                            lightmodel_parameters["sensors"][wrap.global_index] = ["grid", dxyz_legume, nxyz_legume, orig]
+                        lightmodel_parameters["sensors"][wrap.global_index] = ["grid", dxyz_legume, nxyz_legume, orig]
                 else:                
                     if "translate" in planter.transformations:
                         if isinstance(legume_wrapper.global_index, list):
@@ -114,13 +109,7 @@ class Light_wrapper(object):
                             if legume_wrapper.global_index in planter.transformations["translate"] :
                                 x_trans, y_trans, z = planter.transformations["translate"][legume_wrapper.global_index]
                     orig = [self.domain[0][0]+x_trans, self.domain[0][1]+y_trans, 0.0]   
-
-                    if writegeo:
-                        path = os.path.join(os.path.normpath(self.out_folder), "vtk", "sensors")
-                        lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig, path, "vtk"]
-                        create_child_folder(os.path.join(os.path.normpath(self.out_folder), "vtk"), "sensors")
-                    else:
-                        lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig]
+                    lightmodel_parameters["sensors"] = ["grid", dxyz_legume, nxyz_legume, orig]
 
             lightmodel_parameters["debug"] = False
             lightmodel_parameters["soil mesh"] = 1
@@ -172,16 +161,35 @@ class Light_wrapper(object):
         )
 
         if self.writegeo:
-            self.light.VTK_light(os.path.join(os.path.normpath(self.out_folder), "vtk", "scene_"), i=self.i_vtk)
-            scene_plantgl = self.light.plantGL_light()
-            scene_plantgl.save(
-                os.path.join(self.out_folder, "plantgl", "scene_light_plantgl_" + str(self.i_vtk)) + ".bgeom"
-            )
+            file_project_name = os.path.join(os.path.normpath(self.out_folder), "vtk", "plantfusion_")
+            
+            if self.lightmodel == "ratp":
+                printvoxels = True
+            elif self.lightmodel == "caribu":
+                printvoxels = True
 
+            self.light.to_VTK(lighting=True, 
+                                path=file_project_name, 
+                                i=self.i_vtk, 
+                                printtriangles=True, 
+                                printvoxels=printvoxels, 
+                                virtual_sensors=self.compute_sensors, 
+                                sun=self.direct)
+            scene_plantgl= self.light.to_plantGL(lighting=True, 
+                                                    printtriangles=True, 
+                                                    printvoxels=printvoxels, 
+                                                    virtual_sensors=self.compute_sensors)
+            
             if self.compute_sensors:
-                sensors_plantgl = self.light.plantGL_sensors()
-                sensors_plantgl.save(
+                scene_plantgl[0].save(
+                    os.path.join(self.out_folder, "plantgl", "scene_light_plantgl_" + str(self.i_vtk)) + ".bgeom"
+                )
+                scene_plantgl[1].save(
                     os.path.join(self.out_folder, "plantgl", "sensors_plantgl_" + str(self.i_vtk)) + ".bgeom"
+                )
+            else:
+                scene_plantgl.save(
+                    os.path.join(self.out_folder, "plantgl", "scene_light_plantgl_" + str(self.i_vtk)) + ".bgeom"
                 )
 
             self.i_vtk += 1
