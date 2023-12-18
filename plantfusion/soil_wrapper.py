@@ -27,10 +27,13 @@ class Soil_wrapper(object):
         indexer=Indexer(),
         legume_pattern=False,
         legume_wrapper=None,
+        only_water_balance=False,
         save_results=False,
     ) -> None:
         self.indexer = indexer
         self.planter = planter
+        self.only_water_balance = only_water_balance
+
         if (
             planter.type_domain != "l-egume" and not legume_pattern
         ):  # lecture des parametre sol directement a partir d'un fichier sol
@@ -162,35 +165,54 @@ class Soil_wrapper(object):
         for k in list(mng_j.keys()):
             mng_j[k] = mng_j[k][0]
 
-        self.inputs = []
-        self.inputs.append(self.soil)
-        self.inputs.append(self.parameters_SN)
-        self.inputs.append(meteo_j)
-        self.inputs.append(mng_j)
-        v = []
-        for t in soil_plants_parameters:
-            v.extend(t)
-        self.inputs.append(v)
-        v = []
-        for t in plants_light_interception:
-            v.extend(t)
-        self.inputs.append(v)
-        v = []
-        for t in roots_length_per_plant_per_soil_layer:
-            v.extend(t)
-        self.inputs.append(v)
-        v = []
-        for t in N_content_roots_per_plant:
-            v.extend(t)
-        self.inputs.append(numpy.array(v))
-        self.inputs.append(self.option_residu)
-        self.inputs.append(self.option_Nuptake)
+        if not self.only_water_balance :
+            self.inputs = []
+            self.inputs.append(self.soil)
+            self.inputs.append(self.parameters_SN)
+            self.inputs.append(meteo_j)
+            self.inputs.append(mng_j)
+            v = []
+            for t in soil_plants_parameters:
+                v.extend(t)
+            self.inputs.append(v)
+            v = []
+            for t in plants_light_interception:
+                v.extend(t)
+            self.inputs.append(v)
+            v = []
+            for t in roots_length_per_plant_per_soil_layer:
+                v.extend(t)
+            self.inputs.append(v)
+            v = []
+            for t in N_content_roots_per_plant:
+                v.extend(t)
+            self.inputs.append(numpy.array(v))
+            self.inputs.append(self.option_residu)
+            self.inputs.append(self.option_Nuptake)
 
-        self.nb_plants = len(self.inputs[4])
-        self.results = solN.step_bilanWN_solVGL(*self.inputs)
+            self.nb_plants = len(self.inputs[4])
+            self.results = solN.step_bilanWN_solVGL(*self.inputs)
 
-        if self.save_results:
-            self.append_results(day)
+            if self.save_results:
+                self.append_results(day)
+        else:
+            self.inputs = []
+            self.inputs.append(meteo_j['Et0'] * self.soil.surfsolref)
+
+            v = []
+            for t in roots_length_per_plant_per_soil_layer:
+                v.extend(t)
+            self.inputs.append(v)
+            v = []
+            for t in plants_light_interception:
+                v.extend(t)
+            self.inputs.append(v)
+
+            self.inputs.append(meteo_j['Precip'] * self.soil.surfsolref)
+            self.inputs.append(mng_j['Irrig'] * self.soil.surfsolref)
+            self.inputs.append(self.soil.stateEV)
+            self.nb_plants = len(self.inputs[1])
+            self.results = self.soil.stepWBmc(*self.inputs)
 
     def bare_soil_inputs(self, epsilon=1e-10):
         R1 = self.soil.m_1 * epsilon  # pas zero sinon bug FTSW
