@@ -20,11 +20,11 @@ def simulation(in_folder, out_folder, id_usm):
     plants_name = "legume"
     index_log = Indexer(global_order=[plants_name], legume_names=[plants_name])
 
-    legume = L_egume_wrapper(
-        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm
-    )
+    planter = Planter(generation_type="default", indexer=index_log, legume_cote={plants_name : 40.})
 
-    planter = Planter(generation_type="default", indexer=index_log, legume_wrapper=legume)
+    legume = L_egume_wrapper(
+        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm, planter=planter
+    )
 
     lighting = Light_wrapper(lightmodel="riri5", indexer=index_log, planter=planter, legume_wrapper=legume)
 

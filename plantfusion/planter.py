@@ -14,7 +14,7 @@ class Planter:
         self,
         generation_type="default",
         indexer=Indexer(),
-        legume_wrapper=None,
+        legume_cote={},
         inter_rows=0.15,
         plant_density={1: 250},
         xy_plane=None,
@@ -39,7 +39,7 @@ class Planter:
             self.transformations["scenes unit"][i] = "cm"
 
         if generation_type == "default":
-            self.__default_preconfigured(legume_wrapper, inter_rows, plant_density, xy_plane, translate, seed)
+            self.__default_preconfigured(legume_cote, inter_rows, plant_density, xy_plane, translate, seed)
 
         elif generation_type == "random":
             self.__random(plant_density, xy_square_length)
@@ -54,6 +54,7 @@ class Planter:
         # xy_plane = longueur d'un cote du carré du sol
         self.legume_nbcote = []
         self.wheat_positions = []
+        self.other_positions = []
 
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
@@ -72,7 +73,7 @@ class Planter:
 
                 self.number_of_plants[self.indexer.global_order.index(name)] = 64
 
-            if name in self.indexer.wheat_names:
+            else:
                 self.number_of_plants[self.indexer.global_order.index(name)] = int(
                     xy_square_length * xy_square_length * density
                 )
@@ -86,6 +87,7 @@ class Planter:
         self.inter_rows = inter_rows
         self.legume_nbcote = []
         self.wheat_positions = []
+        self.other_positions = []
 
         for name, density in plant_density.items():
             if name in self.indexer.legume_names:
@@ -104,7 +106,7 @@ class Planter:
                 for i in indices:
                     self.number_of_plants[i] = int(xy_square_length * xy_square_length * density)
 
-            if name in self.indexer.wheat_names:
+            else:
                 self.number_of_plants[self.indexer.global_order.index(name)] = int(
                     xy_square_length * xy_square_length * density
                 )
@@ -115,11 +117,13 @@ class Planter:
                 self.transformations["translate"][i] = (0.0, (i) * inter_rows, 0.0)
             for i in self.indexer.wheat_index:
                 self.transformations["translate"][i] = (0.0, (i - 0.5) * inter_rows, 0.0)
+            for i in self.indexer.other_index:
+                self.transformations["translate"][i] = (0.0, (i - 0.5) * inter_rows, 0.0)
 
         # il y a que deux espèces
         else:
-            # 2 wheats
-            if len(self.indexer.wheat_names) > 1:
+            # 2 wheats ou combinaison avec 1 ou 2 autres FSPM
+            if len(self.indexer.wheat_names) > 1  or len(self.indexer.other_names) > 1:
                 self.transformations["translate"][0] = (0.0, -inter_rows, 0.0)
 
             # 2 legume
@@ -127,7 +131,7 @@ class Planter:
                 self.transformations["translate"][1] = (0.0, inter_rows, 0.0)
 
     def __default_preconfigured(
-        self, legume_wrapper=None, inter_rows=0.15, plant_density={1: 250}, xy_plane=None, translate=None, seed=None
+        self, legume_cote={}, inter_rows=0.15, plant_density={1: 250}, xy_plane=None, translate=None, seed=None
     ):
         self.plant_density = plant_density
         self.inter_rows = inter_rows
@@ -167,29 +171,33 @@ class Planter:
             elif not self.indexer.wheat_active:
                 self.type_domain = "l-egume"
                 # convertit domain cm en m
-                if isinstance(legume_wrapper, list):
-                    self.domain = (
-                        (0.0, 0.0),
-                        (legume_wrapper[0].lsystem.cote * 0.01, legume_wrapper[0].lsystem.cote * 0.01),
-                    )
-                else:
-                    self.domain = (
-                        (0.0, 0.0),
-                        (legume_wrapper.lsystem.cote * 0.01, legume_wrapper.lsystem.cote * 0.01),
-                    )
+                domains = []
+                for name, cote in legume_cote.items():
+                    vector = (0, 0, 0)
+                    if name in translate :
+                        vector = translate[name]
+                    domains.append[(
+                        (0.0 + vector[0], 0.0  + vector[1]),
+                        (cote * 0.01  + vector[0], cote * 0.01  + vector[1]),
+                    )]
+                self.domain = ((min([x[0][0] for x in domains]), min([x[0][1] for x in domains])), 
+                            ((max([x[1][0] for x in domains]), max([x[1][1] for x in domains]))))
+
             else:
                 self.type_domain = "mix"
-                legume_domain = (
-                    (0.0, 0.0),
-                    (legume_wrapper.lsystem.cote * 0.01, legume_wrapper.lsystem.cote * 0.01),
-                )
-                if translate is not None:
-                    if legume_wrapper.name in translate :
-                        vector = translate[legume_wrapper.name]
-                        legume_domain = (
-                            (legume_domain[0][0] + vector[0], legume_domain[0][1] + vector[1]),
-                            (legume_domain[1][0] + vector[0], legume_domain[1][1] + vector[1]),
-                        )
+                if self.indexer.legume_active:
+                    domains = []
+                    for name, cote in legume_cote.items():
+                        vector = (0, 0, 0)
+                        if name in translate :
+                            vector = translate[name]
+                        domains.append[(
+                            (0.0 + vector[0], 0.0  + vector[1]),
+                            (cote * 0.01  + vector[0], cote * 0.01  + vector[1]),
+                        )]
+                    legume_domain = ((min([x[0][0] for x in domains]), min([x[0][1] for x in domains])), 
+                                ((max([x[1][0] for x in domains]), max([x[1][1] for x in domains]))))
+
                 # a été calculé au-dessus à  l'appel de create_heterogeneous_canopy
                 wheat_domain = self.domain
                 if translate is not None:
@@ -207,17 +215,30 @@ class Planter:
             self.type_domain = "input"
             self.domain = xy_plane
 
-        if legume_wrapper is not None:
-            # transmets l'information aux l-egumes (pour éviter d'avoir planter en input de l-egume (temporaire))
-            if isinstance(legume_wrapper, list):
-                for wrap in legume_wrapper:
-                    wrap.set_domain(self.domain)
-                    self.number_of_plants[self.indexer.global_order.index(wrap.name)] = wrap.number_of_plants
-            else:
-                legume_wrapper.set_domain(self.domain)
-                self.number_of_plants[self.indexer.global_order.index(legume_wrapper.name)] = legume_wrapper.number_of_plants
 
+    def generate_random_other(self, indice_instance=0, seed=None):
+        if seed is not None:
+            s = seed
+        else:
+            s = 1234
+        random.seed(s)
+        numpy.random.seed(s)
 
+        # tirage des positions
+        # list de 3-tuple des positions
+        if self.other_positions != [] :
+            positions = self.other_positions
+        else:
+            positions = []
+            for i in range(self.number_of_plants[self.indexer.other_index_index[indice_instance]]):
+                positions.append(
+                    (numpy.random.uniform(0.0, self.domain[1][0]), numpy.random.uniform(0.0, self.domain[1][0]), 0.0)
+                )
+
+        self.other_positions = positions
+
+        return positions
+    
     def generate_random_wheat(
         self, adel_wheat, mtg, indice_wheat_instance=0, stem_name="stem", leaf_name="leaf", seed=None
     ):
@@ -252,6 +273,42 @@ class Planter:
         )
 
         return generated_scene
+
+    def generate_row_wheat(self, indice_instance=0, seed=None):
+
+        if seed is not None:
+            s = seed
+        else:
+            s = 1234
+        random.seed(s)
+        numpy.random.seed(s)
+
+        if self.other_positions != []:
+            positions = self.other_positions
+        else:
+            positions = []
+
+            inter_plants = (
+                2 * self.domain[1][1] / self.number_of_plants[self.indexer.wheat_index[indice_instance]]
+            )
+            nrows = 2
+            self.total_n_rows
+
+            # first row on left 1/2 interrow, then 1 out of 2 row is wheat
+            rows_y = [self.inter_rows * 1.5, ((self.total_n_rows / nrows) + 1.5) * self.inter_rows]
+            for y in rows_y:
+                for ix in range(int(self.number_of_plants[self.indexer.wheat_index[indice_instance]] / nrows)):
+                    x = inter_plants * (0.5 + ix)
+                    p = (
+                        random.uniform(x - self.noise_plant_positions, x + self.noise_plant_positions),
+                        random.uniform(y - self.noise_plant_positions, y + self.noise_plant_positions),
+                        0.0,
+                    )
+                    positions.append(p)
+
+        self.other_positions = positions
+
+        return positions
 
     def generate_row_wheat(
         self, adel_wheat, mtg, indice_wheat_instance=0, stem_name="stem", leaf_name="leaf", seed=None
