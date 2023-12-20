@@ -226,3 +226,9 @@ class Light_wrapper(object):
 
     def xydomain_lightvegemanager(self):
         return self.light.domain
+    
+    def plantgl(self, lighting=False, printtriangles=True, printvoxels=False):
+        return self.light.to_plantGL(lighting=lighting, 
+                                        printtriangles=printtriangles, 
+                                        printvoxels=printvoxels, 
+                                        virtual_sensors=self.compute_sensors) 

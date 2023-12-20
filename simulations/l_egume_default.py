@@ -18,17 +18,17 @@ def simulation(in_folder, out_folder, id_usm):
         print("Directory ", os.path.normpath(out_folder), " already exists")
 
     plants_name = "legume"
-    index_log = Indexer(global_order=[plants_name], legume_names=[plants_name])
+    indexer = Indexer(global_order=[plants_name], legume_names=[plants_name])
 
-    planter = Planter(generation_type="default", indexer=index_log, legume_cote={plants_name : 40.})
+    planter = Planter(generation_type="default", indexer=indexer, legume_cote={plants_name : 40.}, legume_number_of_plants={plants_name : 64})
 
     legume = L_egume_wrapper(
-        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm, planter=planter
+        name=plants_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm, planter=planter
     )
 
-    lighting = Light_wrapper(lightmodel="riri5", indexer=index_log, planter=planter, legume_wrapper=legume)
+    lighting = Light_wrapper(lightmodel="riri5", indexer=indexer, planter=planter, legume_wrapper=legume)
 
-    soil = Soil_wrapper(in_folder=in_folder, out_folder=out_folder, legume_wrapper=legume, planter=planter)
+    soil = Soil_wrapper(out_folder=out_folder, legume_wrapper=legume, legume_pattern=True)
 
     try:
         current_time_of_the_system = time.time()

@@ -8,7 +8,6 @@ import soil3ds.IOxls as IOxls
 import soil3ds.IOtable as IOtable
 import legume.initialisation as initial
 
-from plantfusion.indexer import Indexer
 from plantfusion.planter import Planter
 from plantfusion.utils import create_child_folder
 
@@ -24,19 +23,17 @@ class Soil_wrapper(object):
         opt_residu=0,
         opt_Nuptake=1,
         planter=Planter(),
-        indexer=Indexer(),
         legume_pattern=False,
         legume_wrapper=None,
         only_water_balance=False,
         save_results=False,
     ) -> None:
-        self.indexer = indexer
-        self.planter = planter
         self.only_water_balance = only_water_balance
 
-        if (
-            planter.type_domain != "l-egume" and not legume_pattern
-        ):  # lecture des parametre sol directement a partir d'un fichier sol
+        if not legume_pattern:  
+            self.planter = planter
+
+            # lecture des parametre sol directement a partir d'un fichier sol
             # initialisation taille scene / discretisation (1D - homogene pour ttes les couches)
             # initialisation d'une première scène pour avoir les côtés du domaine simulé
 
@@ -94,6 +91,8 @@ class Soil_wrapper(object):
                 legume_wrapper.lsystem.S = soil
 
         else:
+            if only_water_balance :
+                raise AttributeError("l-egume soil computes N balance")
             self.soil = legume_wrapper.lsystem.tag_loop_inputs[18]
             self.option_residu = legume_wrapper.lsystem.tag_loop_inputs[-2]
             self.option_Nuptake = legume_wrapper.lsystem.opt_Nuptake

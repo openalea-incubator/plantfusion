@@ -15,6 +15,7 @@ class Planter:
         generation_type="default",
         indexer=Indexer(),
         legume_cote={},
+        legume_number_of_plants={},
         inter_rows=0.15,
         plant_density={1: 250},
         xy_plane=None,
@@ -40,6 +41,8 @@ class Planter:
 
         if generation_type == "default":
             self.__default_preconfigured(legume_cote, inter_rows, plant_density, xy_plane, translate, seed)
+            for name, nb_plt in legume_number_of_plants.items():
+                self.number_of_plants[indexer.global_order.index(name)] = nb_plt
 
         elif generation_type == "random":
             self.__random(plant_density, xy_square_length)
@@ -174,12 +177,12 @@ class Planter:
                 domains = []
                 for name, cote in legume_cote.items():
                     vector = (0, 0, 0)
-                    if name in translate :
+                    if translate is not None and name in translate :
                         vector = translate[name]
-                    domains.append[(
+                    domains.append([
                         (0.0 + vector[0], 0.0  + vector[1]),
                         (cote * 0.01  + vector[0], cote * 0.01  + vector[1]),
-                    )]
+                    ])
                 self.domain = ((min([x[0][0] for x in domains]), min([x[0][1] for x in domains])), 
                             ((max([x[1][0] for x in domains]), max([x[1][1] for x in domains]))))
 
@@ -189,12 +192,12 @@ class Planter:
                     domains = []
                     for name, cote in legume_cote.items():
                         vector = (0, 0, 0)
-                        if name in translate :
+                        if translate is not None and name in translate :
                             vector = translate[name]
-                        domains.append[(
+                        domains.append([
                             (0.0 + vector[0], 0.0  + vector[1]),
                             (cote * 0.01  + vector[0], cote * 0.01  + vector[1]),
-                        )]
+                        ])
                     legume_domain = ((min([x[0][0] for x in domains]), min([x[0][1] for x in domains])), 
                                 ((max([x[1][0] for x in domains]), max([x[1][1] for x in domains]))))
 
