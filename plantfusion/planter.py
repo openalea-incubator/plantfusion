@@ -144,6 +144,7 @@ class Planter:
             from alinea.adel.Stand import AgronomicStand
             
             self.type_domain = "create_heterogeneous_canopy"
+            self.wheat_positions = [[] for i in range(len(self.indexer.wheat_names))]
 
             # on vient récupérer le domain de AgronomicStand
             if seed is not None:

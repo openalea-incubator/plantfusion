@@ -25,11 +25,23 @@ def simulation(
     legume_name = "legume"
     indexer = Indexer(global_order=[legume_name, wheat_name], wheat_names=[wheat_name], legume_names=[legume_name])
 
+    translate = { legume_name : (-0.21, -0.21, 0.) }
+    plant_density = {1: 250}
+    planter = Planter(generation_type="default", 
+                      indexer=indexer, 
+                      inter_rows=0.15, 
+                      plant_density=plant_density, 
+                      legume_cote={legume_name : 40.}, 
+                      legume_number_of_plants={legume_name : 32}, 
+                      translate=translate)
+
+    legume = L_egume_wrapper(
+    name=legume_name, indexer=indexer, in_folder=in_folder_legume, out_folder=out_folder, IDusm=id_usm, caribu_scene=True, planter=planter
+    )   
 
     N_fertilizations = {2016: 357143, 2520: 1000000}
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
-    plant_density = {1: 250}
-    sky = "turtle46"
+
     RERmax_vegetative_stages_example = {
         "elongwheat": {
             "RERmax": {5: 3.35e-06, 6: 2.1e-06, 7: 2.0e-06, 8: 1.83e-06, 9: 1.8e-06, 10: 1.65e-06, 11: 1.56e-06}
@@ -37,14 +49,6 @@ def simulation(
     }
     senescwheat_timestep = 1
     light_timestep = 4
-
-    legume = L_egume_wrapper(
-        name=legume_name, indexer=indexer, in_folder=in_folder_legume, out_folder=out_folder, IDusm=id_usm, caribu_scene=True
-    )
-
-    translate = { legume_name : (-0.21, -0.21) }
-    planter = Planter(generation_type="default", indexer=indexer, inter_rows=0.15, plant_density=plant_density, legume_wrapper=legume, translate=translate)
-
     wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
@@ -59,8 +63,9 @@ def simulation(
         LIGHT_TIMESTEP=light_timestep,
     )
 
-    soil = Soil_wrapper(in_folder=in_folder_legume, out_folder=out_folder, IDusm=id_usm, legume_wrapper=legume, planter=planter, legume_pattern=True)
+    soil = Soil_wrapper(out_folder=out_folder, IDusm=id_usm, legume_wrapper=legume, planter=planter, legume_pattern=True)
 
+    sky = "turtle46"
     lighting = Light_wrapper(
         lightmodel="caribu", 
         out_folder=out_folder, 

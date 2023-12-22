@@ -157,7 +157,6 @@ class Light_wrapper(object):
             hour=hour,
             truesolartime=True,
             parunit=parunit,
-            id_sensors=self.indexer.legume_index,
         )
 
         if self.writegeo:
