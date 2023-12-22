@@ -27,19 +27,19 @@ def simulation(in_folder, out_folder, id_usm, write_geo=False):
 
 
     # version par défaut
+    planter = Planter(indexer=index_log, legume_cote={plants_name : 40.}, legume_number_of_plants={plants_name : 64})
     legume_default = L_egume_wrapper(
-        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), IDusm=id_usm, caribu_scene=True
+        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), IDusm=id_usm, caribu_scene=True, planter=planter
     )
-    planter = Planter(indexer=index_log, legume_wrapper=legume_default)
     lighting_default = Light_wrapper(lightmodel="riri5", indexer=index_log, planter=planter, legume_wrapper=legume_default)
-    soil_default = Soil_wrapper(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), legume_wrapper=legume_default, planter=planter)
+    soil_default = Soil_wrapper(out_folder=os.path.join(out_folder, "passive"), legume_wrapper=legume_default, legume_pattern=True, planter=planter)
 
 
     # lumiere avec caribu
+    planter = Planter(indexer=index_log, legume_cote={plants_name : 40.}, legume_number_of_plants={plants_name : 64})
     legume_caribu = L_egume_wrapper(
-        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), IDusm=id_usm, caribu_scene=True
+        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), IDusm=id_usm, caribu_scene=True, planter=planter
     )
-    planter = Planter(indexer=index_log, legume_wrapper=legume_caribu)
     lighting_caribu = Light_wrapper(
         lightmodel="caribu",
         indexer=index_log, 
@@ -48,7 +48,7 @@ def simulation(in_folder, out_folder, id_usm, write_geo=False):
         sky="inputs_soil_legume/sky_5.data",
         writegeo=False,
     )
-    soil_caribu = Soil_wrapper(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), legume_wrapper=legume_caribu, planter=planter)
+    soil_caribu = Soil_wrapper(out_folder=os.path.join(out_folder, "active"), legume_wrapper=legume_caribu,  legume_pattern=True, planter=planter)
 
     light_data = {"epsi": [], "parip": [], "t": []}
 
