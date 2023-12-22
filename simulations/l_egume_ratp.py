@@ -25,22 +25,24 @@ def simulation(in_folder, out_folder, id_usm):
     plants_name = "legume"
     index_log = Indexer(global_order=[plants_name], legume_names=[plants_name])
 
+
+
     # version par défaut
+    planter = Planter(indexer=index_log, legume_cote={plants_name : 40.}, legume_number_of_plants={plants_name : 64})
     legume_default = L_egume_wrapper(
-        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), IDusm=id_usm
+        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), IDusm=id_usm, planter=planter
     )
-    planter = Planter(indexer=index_log, legume_wrapper=legume_default)
     lighting_default = Light_wrapper(lightmodel="riri5", indexer=index_log, planter=planter, legume_wrapper=legume_default)
-    soil_default = Soil_wrapper(in_folder=in_folder, out_folder=os.path.join(out_folder, "passive"), legume_wrapper=legume_default, planter=planter)
+    soil_default = Soil_wrapper(out_folder=os.path.join(out_folder, "passive"), legume_wrapper=legume_default, legume_pattern=True, planter=planter)
 
 
     # lumiere avec RATP
     # réinitialise l'indexer
     index_log = Indexer(global_order=[plants_name], legume_names=[plants_name])
+    planter = Planter(indexer=index_log, legume_cote={plants_name : 40.}, legume_number_of_plants={plants_name : 64})
     legume_ratp = L_egume_wrapper(
-        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), IDusm=id_usm
+        name=plants_name, indexer=index_log, in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), IDusm=id_usm, planter=planter
     )
-    planter = Planter(indexer=index_log, legume_wrapper=legume_ratp)
     lighting_ratp = Light_wrapper(
         lightmodel="ratp",
         indexer=index_log, 
@@ -50,7 +52,7 @@ def simulation(in_folder, out_folder, id_usm):
         angle_distrib_algo="compute global",
         writegeo=False,
     )
-    soil_ratp = Soil_wrapper(in_folder=in_folder, out_folder=os.path.join(out_folder, "active"), legume_wrapper=legume_ratp, planter=planter)
+    soil_ratp = Soil_wrapper(out_folder=os.path.join(out_folder, "active"), legume_wrapper=legume_ratp, legume_pattern=True, planter=planter)
 
     light_data = {"epsi": [], "parip": [], "t": []}
 
