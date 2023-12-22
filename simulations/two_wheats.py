@@ -118,8 +118,8 @@ def simulation(
                 wheat2.light_results(energy=wheat2.energy(t_wheat), lighting=lighting)
 
             if activate_soil:
-                soil_wheat_inputs1 = wheat1.soil_inputs(soil_dimensions, lighting)
-                soil_wheat_inputs2 = wheat2.soil_inputs(soil_dimensions, lighting)
+                soil_wheat_inputs1 = wheat1.soil_inputs(soil, planter, lighting)
+                soil_wheat_inputs2 = wheat2.soil_inputs(soil, planter, lighting)
                 (
                     N_content_roots_per_plant,
                     roots_length_per_plant_per_soil_layer,
@@ -136,7 +136,6 @@ def simulation(
                 )
                 wheat1.soil_results(soil.results[4], planter=planter)
                 wheat2.soil_results(soil.results[4], planter=planter)
-
 
         wheat1.run(t_wheat)
         wheat2.run(t_wheat)

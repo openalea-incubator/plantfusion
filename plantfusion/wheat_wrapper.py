@@ -944,7 +944,7 @@ class Wheat_wrapper(object):
 
         return N_content_roots.values[0]
 
-    def compute_roots_length(self, soil_wrapper, planter):
+    def compute_roots_length(self, soil_wrapper, planter:Planter):
         """
         soil_dimensions : [z, x, y]
         """
@@ -954,7 +954,7 @@ class Wheat_wrapper(object):
             for axis in plant.axes:
                 roots_mass[i] += axis.roots.mstruct  # masse en g
 
-        positions = planter.wheat_positions
+        positions = planter.wheat_positions[self.wheat_index]
         self.compute_SRL_wheat(roots_mass[0])
 
         # longueur spécifique x masse en gramme/nbplantes

@@ -2,7 +2,6 @@ import numpy
 import math
 import pandas
 
-from alinea.adel.Stand import AgronomicStand
 import openalea.plantgl.all as plantgl
 import random
 
@@ -56,8 +55,8 @@ class Planter:
         # fait un carré à partir de (0,0)
         # xy_plane = longueur d'un cote du carré du sol
         self.legume_nbcote = []
-        self.wheat_positions = []
-        self.other_positions = []
+        self.wheat_positions = [[] for i in range(len(self.indexer.wheat_names))]
+        self.other_positions = [[] for i in range(len(self.indexer.other_names))]
 
         self.domain = ((0.0, 0.0), (xy_square_length, xy_square_length))
 
@@ -89,8 +88,8 @@ class Planter:
 
         self.inter_rows = inter_rows
         self.legume_nbcote = []
-        self.wheat_positions = []
-        self.other_positions = []
+        self.wheat_positions = [[] for i in range(len(self.indexer.wheat_names))]
+        self.other_positions = [[] for i in range(len(self.indexer.other_names))]
 
         for name, density in plant_density.items():
             if name in self.indexer.legume_names:
@@ -142,6 +141,8 @@ class Planter:
         for i in self.indexer.wheat_index:
             self.number_of_plants[i] = 50
         if self.indexer.wheat_active:
+            from alinea.adel.Stand import AgronomicStand
+            
             self.type_domain = "create_heterogeneous_canopy"
 
             # on vient récupérer le domain de AgronomicStand
@@ -229,16 +230,16 @@ class Planter:
 
         # tirage des positions
         # list de 3-tuple des positions
-        if self.other_positions != [] :
-            positions = self.other_positions
+        if self.other_positions[indice_instance] != [] :
+            positions = self.other_positions[indice_instance]
         else:
             positions = []
-            for i in range(self.number_of_plants[self.indexer.other_index_index[indice_instance]]):
+            for i in range(self.number_of_plants[self.indexer.other_index[indice_instance]]):
                 positions.append(
                     (numpy.random.uniform(0.0, self.domain[1][0]), numpy.random.uniform(0.0, self.domain[1][0]), 0.0)
                 )
 
-        self.other_positions = positions
+        self.other_positions[indice_instance] = positions
 
         return positions
     
@@ -260,8 +261,8 @@ class Planter:
 
         # tirage des positions
         # list de 3-tuple des positions
-        if self.wheat_positions != [] and self.save_wheat_positions:
-            positions = self.wheat_positions
+        if self.wheat_positions[indice_wheat_instance] != [] and self.save_wheat_positions:
+            positions = self.wheat_positions[indice_wheat_instance]
         else:
             positions = []
             for i in range(self.number_of_plants[self.indexer.wheat_index[indice_wheat_instance]]):
@@ -269,7 +270,7 @@ class Planter:
                     (numpy.random.uniform(0.0, self.domain[1][0]), numpy.random.uniform(0.0, self.domain[1][0]), 0.0)
                 )
 
-        self.wheat_positions = positions
+        self.wheat_positions[indice_wheat_instance] = positions
 
         generated_scene = self.__generate_wheat_from_positions(
             initial_scene, mtg, positions, var_leaf_inclination, var_leaf_azimut, var_stem_azimut, stem_name, leaf_name
@@ -286,8 +287,8 @@ class Planter:
         random.seed(s)
         numpy.random.seed(s)
 
-        if self.other_positions != []:
-            positions = self.other_positions
+        if self.other_positions[indice_instance] != []:
+            positions = self.other_positions[indice_instance]
         else:
             positions = []
 
@@ -309,7 +310,7 @@ class Planter:
                     )
                     positions.append(p)
 
-        self.other_positions = positions
+        self.other_positions[indice_instance] = positions
 
         return positions
 
@@ -329,8 +330,8 @@ class Planter:
 
         initial_scene = adel_wheat.scene(mtg)
 
-        if self.wheat_positions != [] and self.save_wheat_positions:
-            positions = self.wheat_positions
+        if self.wheat_positions[indice_wheat_instance] != [] and self.save_wheat_positions:
+            positions = self.wheat_positions[indice_wheat_instance]
         else:
             positions = []
 
@@ -352,7 +353,7 @@ class Planter:
                     )
                     positions.append(p)
 
-        self.wheat_positions = positions
+        self.wheat_positions[indice_wheat_instance] = positions
 
         generated_scene = self.__generate_wheat_from_positions(
             initial_scene,
@@ -392,6 +393,8 @@ class Planter:
         :return: duplicated heterogenous scene and its domain
         :rtype: openalea.plantgl.all.Scene, (float)
         """
+        from alinea.adel.Stand import AgronomicStand
+        
         if seed is not None:
             random.seed(seed)
             numpy.random.seed(seed)
@@ -408,7 +411,7 @@ class Planter:
             at=self.inter_rows,
             convunit=1,
         )
-        self.wheat_positions = positions
+        self.wheat_positions[indice_wheat_instance] = positions
 
         random.seed(1234)
 
