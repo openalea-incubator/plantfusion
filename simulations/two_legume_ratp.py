@@ -25,12 +25,16 @@ def simulation(in_folder, out_folder, idusm1, idusm2, writegeo=False):
     legume2_name = "legume2"
     indexer = Indexer(global_order=[legume1_name, legume2_name], legume_names=[legume1_name, legume2_name])
 
-    legume1 = L_egume_wrapper(name=legume1_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=idusm1)
-
-    legume2 = L_egume_wrapper(name=legume2_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=idusm2)
-
     generation_type = "default"
-    planter = Planter(generation_type=generation_type, indexer=indexer, legume_wrapper=[legume1, legume2])
+    planter = Planter(generation_type=generation_type, 
+                      indexer=indexer,  
+                      legume_cote={legume1_name : 40., legume2_name : 40.}, 
+                      legume_number_of_plants={legume1_name : 32, legume2_name : 32})
+
+    legume1 = L_egume_wrapper(name=legume1_name, indexer=indexer, planter=planter, in_folder=in_folder, out_folder=out_folder, IDusm=idusm1)
+
+    legume2 = L_egume_wrapper(name=legume2_name, indexer=indexer, planter=planter, in_folder=in_folder, out_folder=out_folder, IDusm=idusm2)
+
 
     sky = "turtle46"
     lighting = Light_wrapper(

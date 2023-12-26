@@ -78,11 +78,11 @@ class L_egume_wrapper(object):
         if planter.generation_type == "default":
             planter = None
 
-            if all([i == 1 for i in ls_usms["torun"]]):
-                i = ls_usms["torun"].index(1)
-                self.__load_lsystem(
-                    nameconfigfile, in_folder, ongletconfigfile, i, os.path.join(self.out_folder, "brut"), planter
-                )
+        if IDusm is None and all([i == 1 for i in ls_usms["torun"]]):
+            i = ls_usms["torun"].index(1)
+            self.__load_lsystem(
+                nameconfigfile, in_folder, ongletconfigfile, i, os.path.join(self.out_folder, "brut"), planter
+            )
         else:
             self.__load_lsystem(
                 nameconfigfile,

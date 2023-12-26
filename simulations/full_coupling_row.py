@@ -43,7 +43,7 @@ def simulation(
     light_timestep = 4
 
     generation_type = "row"
-    plant_density = {wheat_name : 250, legume_name : 450}
+    plant_density = {wheat_name : 150, legume_name : 250}
     inter_rows = 0.10 # m
     planter = Planter(generation_type=generation_type, indexer=indexer, plant_density=plant_density, inter_rows=inter_rows, save_wheat_positions=True)
 
@@ -151,7 +151,7 @@ def simulation(
             if activate_legume:
                 legume.light_results(legume.energy(), lighting)
 
-                soil_wheat_inputs = wheat.soil_inputs(soil_dimensions, lighting)
+                soil_wheat_inputs = wheat.soil_inputs(soil, planter, lighting)
                 soil_legume_inputs = legume.soil_inputs()
                 (
                     N_content_roots_per_plant,

@@ -28,9 +28,21 @@ def simulation(
     legume_name = "legume"
     indexer = Indexer(global_order=[legume_name, wheat_name], wheat_names=[wheat_name], legume_names=[legume_name])
 
-    tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
+    translate = { legume_name : (-0.21, -0.21, 0.) }
     plant_density = {1: 250}
-    sky = "turtle46"
+    planter = Planter(generation_type="default", 
+                      indexer=indexer, 
+                      inter_rows=0.15, 
+                      plant_density=plant_density, 
+                      legume_cote={legume_name : 40.}, 
+                      legume_number_of_plants={legume_name : 32}, 
+                      translate=translate)
+
+    legume = L_egume_wrapper(
+        name=legume_name, indexer=indexer, planter=planter, in_folder=in_folder_legume, out_folder=out_folder, IDusm=id_usm, caribu_scene=True
+    )
+
+    tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     RERmax_vegetative_stages_example = {
         "elongwheat": {
             "RERmax": {5: 3.35e-06, 6: 2.1e-06, 7: 2.0e-06, 8: 1.83e-06, 9: 1.8e-06, 10: 1.65e-06, 11: 1.56e-06}
@@ -38,14 +50,6 @@ def simulation(
     }
     senescwheat_timestep = 1
     light_timestep = 4
-
-    legume = L_egume_wrapper(
-        name=legume_name, indexer=indexer, in_folder=in_folder_legume, out_folder=out_folder, IDusm=id_usm, caribu_scene=True
-    )
-
-    translate = { legume_name : (-0.21, -0.21, 0.) }
-    planter = Planter(generation_type="default", indexer=indexer, inter_rows=0.15, plant_density=plant_density, legume_wrapper=legume, translate=translate)
-
     wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
@@ -60,6 +64,7 @@ def simulation(
         SOIL_PARAMETERS_FILENAME="inputs_soil_legume/Parametres_plante_exemple.xls"
     )
 
+    sky = "turtle46"
     lighting = Light_wrapper(
         lightmodel="caribu", 
         out_folder=out_folder, 
@@ -77,7 +82,6 @@ def simulation(
                         planter=planter, 
                         opt_residu=0, 
                         save_results=True)
-    soil_dimensions = [len(soil.soil.dxyz[i]) for i in [2,0,1] ]
     
     ##################
     ### SIMULATION ###
@@ -146,7 +150,7 @@ def simulation(
             if activate_legume:
                 legume.light_results(legume.energy(), lighting)
 
-                soil_wheat_inputs = wheat.soil_inputs(soil_dimensions, lighting)
+                soil_wheat_inputs = wheat.soil_inputs(soil, planter, lighting)
                 soil_legume_inputs = legume.soil_inputs()
                 (
                     N_content_roots_per_plant,

@@ -147,7 +147,7 @@ def simulation(
             if activate_legume:
                 legume.light_results(legume.energy(), lighting)
 
-                soil_wheat_inputs = wheat.soil_inputs(soil_dimensions, lighting)
+                soil_wheat_inputs = wheat.soil_inputs(soil, planter, lighting)
                 soil_legume_inputs = legume.soil_inputs()
                 (
                     N_content_roots_per_plant,
