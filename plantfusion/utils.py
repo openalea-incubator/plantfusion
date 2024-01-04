@@ -22,6 +22,15 @@ def save_df_to_csv(df, outputs_filepath, precision):
 
 
 def create_child_folder(parentfolderpath, childfolderpath):
+    """Create a child folder from parent folder path
+
+    Parameters
+    ----------
+    parentfolderpath : string
+        parent folder path
+    childfolderpath : string
+        name of the child folder
+    """    
     dirName = os.path.join(os.path.normpath(parentfolderpath), os.path.normpath(childfolderpath))
     try:
         # Create target Directory

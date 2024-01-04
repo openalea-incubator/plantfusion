@@ -1,5 +1,4 @@
 import os
-import math
 
 from lightvegemanager.LVM import LightVegeManager
 from plantfusion.utils import create_child_folder

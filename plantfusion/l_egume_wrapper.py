@@ -1,3 +1,8 @@
+"""
+    contains L_egume_wrapper class
+
+"""
+
 import os
 from copy import deepcopy
 
@@ -25,9 +30,7 @@ from plantfusion.indexer import Indexer
 class L_egume_wrapper(object):
     """Wrapper for l-egume model
 
-    construction creates the lsystem
-
-    1 instance = 1 usm = 1 plant specy
+    ..note:: only one lsystem per wrapper instance
 
     """
 
@@ -43,6 +46,29 @@ class L_egume_wrapper(object):
         planter=None,
         caribu_scene=False
     ) -> None:
+        """Constructor, creates the lsystem
+
+        Parameters
+        ----------
+        name : str, optional
+            name of the fspm instance, by default "legume"
+        indexer : Indexer, optional
+            indexer for listing FSPM in the simulation, by default Indexer()
+        in_folder : str, optional
+            input folder path, by default ""
+        out_folder : str, optional
+            output folder path if writing outputs is activated, by default None
+        nameconfigfile : str, optional
+            excel file name which contains the usm to run, by default "liste_usms_exemple.xls"
+        ongletconfigfile : str, optional
+            sheet containing the usm to run in ``nameconfigfile`` file, by default "exemple"
+        IDusm : int, optional
+            ID of the usm to run. Needed if you want to bypass the "torun" column in the usms config file, by default None
+        planter : Planter, optional
+            Object containing plant positions and/or number of plants and/or soil domain, by default None
+        caribu_scene : bool, optional
+            if you want to force the rendered interpretation scene to leaves only, by default False
+        """        
         if out_folder is not None:
             try:
                 os.mkdir(os.path.normpath(out_folder))
@@ -134,6 +160,23 @@ class L_egume_wrapper(object):
         self.domain = None
 
     def __load_lsystem(self, nameconfigfile, in_folder, ongletconfigfile, i, path_OUT, planter=None):
+        """Prepare and run the ``lsystemInputOutput_usm`` function in order to create the lsystem
+
+        Parameters
+        ----------
+        nameconfigfile : str
+            excel file name which contains the usm to run
+        in_folder : str
+            input folder path
+        ongletconfigfile : str
+            sheet containing the usm to run in ``nameconfigfile`` file
+        i : int
+            ID of the usm to load
+        path_OUT : str
+            outputs folder path
+        planter : Planter, optional
+            Object containing plant positions and/or number of plants and/or soil domain, by default None
+        """        
         update_parameters = {}
         if planter is not None:
             update_parameters["typearrangement"] = planter.legume_typearrangement
@@ -154,10 +197,30 @@ class L_egume_wrapper(object):
         self.lsystem = mylsys[name]
 
     def derive(self, t):
+        """Derive the lsystem
+
+        Parameters
+        ----------
+        t : int
+            timestep
+        """        
         self.lstring = self.lsystem.derive(self.lstring, t, 1)
         self.invar = self.lsystem.tag_loop_inputs[0]
 
     def light_inputs(self, elements="triangles"):
+        """Return a geometric scene of plant leaves
+
+        Parameters
+        ----------
+        elements : str, optional
+            "triangles" or "voxels", precise the returned scene type , by default "triangles"
+
+        Returns
+        -------
+        plantgl.Scene or dict,
+            if elements == "triangles", it returns a plantgl.Scene of leaves 
+            if elements == "voxels", it returns a dict with a leaf area entry and distribution of leaf angles entry
+        """        
         if elements == "triangles":
             return self.lsystem.sceneInterpretation(self.lstring)
 
@@ -172,6 +235,23 @@ class L_egume_wrapper(object):
             raise
 
     def light_results(self, energy, lighting: Light_wrapper, selective_global_index=None) -> None:
+        """Interpret the lighting results
+
+        Steps :
+            1) transfer absorbed lighing to plant data
+            2) create local transmitted lighting following l-egume internal grid of voxels
+            3) compute relative intercepted lighting per plant (epsi variable)
+            4) compute potential plant growth
+
+        Parameters
+        ----------
+        energy : float
+            meteo ray input in W/m²
+        lighting : Light_wrapper
+            lighting results and parameters
+        selective_global_index : int, optional
+            if specy ID in lighting results is different from self.global_index, by default None
+        """        
         if selective_global_index is not None:
             saved_global_index = self.global_index
             self.global_index = selective_global_index
@@ -200,6 +280,16 @@ class L_egume_wrapper(object):
             self.global_index = saved_global_index
 
     def soil_inputs(self):
+        """Returns a 4-tuple with soil inputs
+
+        Returns
+        -------
+        4-tuple
+            * N content in roots per plant [0-1]
+            * roots length per plant per voxel in m
+            * plant parameters per plant (KMAX, VMAX, N content thresholds)
+            * light interception capability per plant [0-1]
+        """        
         ls_roots = self.lsystem.tag_loop_inputs[21]
         ParamP = self.lsystem.tag_loop_inputs[3]
         par_SN = self.lsystem.tag_loop_inputs[19]
@@ -246,6 +336,17 @@ class L_egume_wrapper(object):
         )
 
     def soil_results(self, results_soil, planter=None, selective_global_index=None) -> None:
+        """Interprets soil results for l-egume
+
+        Parameters
+        ----------
+        results_soil : list
+            a list containing : ``soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol`` from soil3ds results
+        planter : Planter, optional
+            _description_, by default None
+        selective_global_index : int, optional
+            if specy ID in lighting results is different from self.global_index, by default None
+        """        
         if selective_global_index is not None:
             saved_global_index = self.global_index
             self.global_index = selective_global_index
@@ -271,7 +372,6 @@ class L_egume_wrapper(object):
             
         soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol = results_soil
 
-        # if 
         ls_ftsw = ls_ftsw[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
         ls_transp = ls_transp[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
         ls_Act_Nuptake_plt_leg = ls_Act_Nuptake_plt[self.index_in_global_plants[0] : self.index_in_global_plants[1]]
@@ -279,7 +379,20 @@ class L_egume_wrapper(object):
 
         self.results_soil = [soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt_leg, temps_sol]
 
-    def compute_plants_interception(self, organs_results=None, energy=1, pari_soil_in=-1):
+    def compute_plants_interception(self, organs_results=None, energy=1., pari_soil_in=-1.):
+        """Compute light interception capacity per plant
+
+        Lighting must have be done before this step
+
+        Parameters
+        ----------
+        organs_results : pandas.Dataframe, optional
+            lighting results per organs from the light wrapper, by default None
+        energy : float, optional
+            meteo ray input in W/m², by default 1
+        pari_soil_in : float, optional
+            forced input of intercepted light on soil, if it's < 0, this value is computed, by default -1
+        """        
         surf_refVOX = self.lsystem.tag_loop_inputs[15]
         dicFeuilBilanR = self.lsystem.tag_loop_inputs[14]
         leaf_area = self.lsystem.tag_loop_inputs[13]
@@ -293,14 +406,14 @@ class L_egume_wrapper(object):
         tag_light_inputs2 = [self.res_trans / (energy * surf_refVOX)]  # input tag
         self.rfr = riri.rfr_calc_relatif(*tag_light_inputs2)
 
-        # interception au sol
+        # soil interception
         if pari_soil_in < 0:
             transmi_sol = numpy.sum(self.res_trans[-1][:][:]) / (energy * surfsolref)
             pari_soil = max(1.0 - transmi_sol, 1e-15)
         else:
             pari_soil = 1 - pari_soil_in
 
-        # interception des plantes
+        # plants interception
         # res_abs_i existe donc on est passé soit par ratp soit riri, il faut màj invar['parip']
         if self.res_abs_i is not None:
             dicFeuilBilanR = sh.calc_paraF(dicFeuilBilanR, leaf_area, self.res_abs_i)
@@ -308,7 +421,7 @@ class L_egume_wrapper(object):
 
         pari_canopy = numpy.sum(self.invar["parip"])
         
-        # on ajoute les rayonnements des autres fspm de la scène
+        # we add radiations from other fspm in the simulation
         if organs_results is not None and not organs_results.empty:
             if isinstance(self.global_index, list):
                 species_not_legume = [i for i in organs_results["VegetationType"].unique() if i not in self.global_index]
@@ -324,6 +437,10 @@ class L_egume_wrapper(object):
         print(self.simulation_name, "epsi = ", sum(self.epsi))
 
     def compute_potential_plant_growth(self):
+        """Compute potential plant growth
+
+        Lighting must have be done before this step
+        """        
         outvar = self.lsystem.tag_loop_inputs[1]
         ParamP = self.lsystem.tag_loop_inputs[3]
         meteo_j = self.lsystem.tag_loop_inputs[6]
@@ -368,6 +485,8 @@ class L_egume_wrapper(object):
         self.temps = temps
 
     def run(self):
+        """Time step computing of l-egume. Independant from other fspm in the simulation
+        """        
         # pour les variables communes
         (
             invar0,
@@ -514,6 +633,8 @@ class L_egume_wrapper(object):
         self.lsystem.I_I0profilInPlant = I_I0profilInPlant
 
     def end(self):
+        """Writes outputs and close the instance in the simulation
+        """        
         if self.lsystem.tag_loop_inputs[8] < self.lsystem.DOYend :
             #fermeture des bilans sol -> dicout
             dicout = loop.sol_dicout_endsim(self.lsystem.S, self.lsystem.outvar, self.lsystem.DOYdeb, self.lsystem.DOYend, self.lsystem.opt_residu)
@@ -543,13 +664,51 @@ class L_egume_wrapper(object):
         self.lsystem.clear()
 
     def voxels_size(self):
+        """Size of the voxels in l-egume internal grid
+
+        Returns
+        -------
+        list of float
+            [dx, dy, dz] in cm
+        """        
         return self.lsystem.tag_loop_inputs[-1]
 
     def number_of_voxels(self):
+        """Number of voxels in l-egume internal grid
+
+        Returns
+        -------
+        list of int
+            [number of plant species, nz, ny, nx]
+        """        
         leaf_area_per_voxels = self.lsystem.tag_loop_inputs[13]
         return leaf_area_per_voxels.shape
 
     def transfer_ratp_legume(self, energy, voxels_outputs, nb0, epsilon=1e-8):
+        """Transfers lightig outputs from RATP to l-egume
+
+        Parameters
+        ----------
+        energy : float
+            input energy
+        voxels_outputs : pandas.Dataframe
+            results at organ scale
+        nb0 : int
+            number of empty layers from top of the canopy and maximum z layers in m_lais
+        epsilon : float, optional
+            criteria of minimum intercepted portion of PAR in a non empty voxel, by default 1e-8
+
+        Returns
+        -------
+        numpy.array, numpy.array
+            two array with lighting informations
+
+            * ``res_abs_i``: absorb PAR in each voxel for RATP grid of voxels. It has the same dimensions as ``m_lais``
+
+            * ``res_trans``: transmitted PAR in each voxel, i.e. the energy leaving the voxels from input rays. This value is not dependent on specy
+
+            dimensions are (number of z layers, number of y layers, number of x layers)
+        """        
         m_lais = self.lsystem.tag_loop_inputs[13]
         # initialize absorb energy array
         res_abs_i = numpy.zeros((m_lais.shape[0], m_lais.shape[1], m_lais.shape[2], m_lais.shape[3]))
@@ -605,6 +764,33 @@ class L_egume_wrapper(object):
         sensors_outputs,
         epsilon=1e-8,
     ):
+        """Transfers lighting results from CARIBU to l-egume
+        We will update list_invar which stores the total intercepted energy for each plant, and return
+        an array storing transmitted energy following the intern grid of voxels in l-egume. To do so, we
+        used virtual sensors in CARIBU to get incoming radiations in selected locations.
+
+        Parameters
+        ----------
+        energy : float
+            input energy
+        nb0 : int
+            number of empty layers from top of the canopy and maximum z layers in m_lais
+        elements_outputs : pandas.Dataframe
+            lighting results at triangle scale
+        sensors_outputs : pandas.Dataframe
+            intercepted light by virtual sensors following l-egume internal grid of voxels
+        epsilon : float, optional
+            criteria of minimum intercepted portion of PAR in a non empty voxel, by default 1e-8
+
+        Returns
+        -------
+        numpy.array
+            
+            * it updates ``list_invar`` and its key entries ``"parap"`` and ``"parip"``, each element if the scipy.array is the sum of all intercepted energy for each plant. This process is a rewrite of ``calc_paraF`` in ShootMorpho.py module of l-egume, adapted to LightVegeManager numerotation of triangles
+            
+            * ``res_trans`` an array of transmitted energy for each voxel in a grid of dimensions ``sensors_dxyz * sensors_nxyz``
+
+        """        
         # initialize absorb energy
         nplantes = len(self.invar["Hplante"])
         self.invar["parap"] = scipy.array([0.0] * nplantes)
@@ -675,24 +861,56 @@ class L_egume_wrapper(object):
         return res_trans
 
     def energy(self):
+        """Radiation input from meteo data
+
+        Returns
+        -------
+        float
+            radiation in W/m²/s-1
+        """        
         meteo_j = self.lsystem.tag_loop_inputs[6]
         energy = 0.48 * meteo_j["RG"] * 10000 / (3600 * 24)
         return energy
 
     def doy(self):
+        """Day of the year in the current lsystem timestep
+
+        Returns
+        -------
+        int
+            day of the year
+        """        
         DOY = self.lsystem.tag_loop_inputs[8]
         return DOY
 
     def set_domain(self, domain):
+        """Setters of self.domain
+
+        Parameters
+        ----------
+        domain : list
+            ((xmin, ymin), (xmax, ymax))
+        """        
         self.domain = domain
 
-    @staticmethod
-    def fake_scene():
-        epsilon = 1e-14
-        return {0: [[(0.0, 0.0, 0.0), (0.0, epsilon, 0.0), (0.0, epsilon, epsilon)]]}
-
-
 def passive_lighting(data, energy, DOY, scene, legume_wrapper, lighting_wrapper):
+    """Run the lighting computation step without saving
+
+    Parameters
+    ----------
+    data : dict
+        l-egume lighting step results saved
+    energy : float
+        input meteo radiation
+    DOY : int
+        day of the year
+    scene : plantgl.Scene or dict
+        geometric scene of the plants
+    legume_wrapper : Legume_wrapper
+        l-egume instance which will compute the lighting step
+    lighting_wrapper : Light_wrapper
+        lighting management
+    """    
     invar_saved = deepcopy(legume_wrapper.invar)
     lighting_wrapper.run(scenes=[scene], energy=energy, day=DOY, parunit="RG")
 
