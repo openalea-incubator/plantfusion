@@ -31,6 +31,33 @@ class Planter:
 
         * "row": generates two rows for each plant specy in a squared soil
 
+    Parameters
+    ----------
+    generation_type : str, optional
+        choose between "default", "random" or "row", by default "default"
+    indexer : Indexer, optional
+        indexer for listing FSPM in the simulation, by default Indexer()
+    legume_cote : dict, optional
+        precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}
+    legume_number_of_plants : dict, optional
+        number of plants for each l-egume instances. An entry is {wrapper.name : number of plants}, by default {}
+    inter_rows : float, optional
+        length between two rows in m, by default 0.15
+    plant_density : dict, optional
+        number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}
+    xy_plane : tuple of tuple, optional
+        Forced input dimensions of soil domain, ((xmin, ymin), (xmax, ymax)), by default None
+    xy_square_length : float, optional
+        Side length of the soil domain for "random" generation type, by default 0.5
+    translate : dict, optional
+        Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None
+    noise_plant_positions : float, optional
+        noise around generated positions in m, by default 0.0
+    save_wheat_positions : bool, optional
+        avoid to regenerate wheat positions at each timestep, by default False
+    seed : int, optional
+        seed for random and numpy, by default None
+
     """    
     def __init__(
         self,
@@ -49,32 +76,6 @@ class Planter:
     ) -> None:
         """Constructor, computes a global soil domain for the simulation
 
-        Parameters
-        ----------
-        generation_type : str, optional
-            choose between "default", "random" or "row", by default "default"
-        indexer : Indexer, optional
-            indexer for listing FSPM in the simulation, by default Indexer()
-        legume_cote : dict, optional
-            precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}
-        legume_number_of_plants : dict, optional
-            number of plants for each l-egume instances. An entry is {wrapper.name : number of plants}, by default {}
-        inter_rows : float, optional
-            length between two rows in m, by default 0.15
-        plant_density : dict, optional
-            number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}
-        xy_plane : tuple of tuple, optional
-            Forced input dimensions of soil domain, ((xmin, ymin), (xmax, ymax)), by default None
-        xy_square_length : float, optional
-            Side length of the soil domain for "random" generation type, by default 0.5
-        translate : dict, optional
-            Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None
-        noise_plant_positions : float, optional
-            noise around generated positions in m, by default 0.0
-        save_wheat_positions : bool, optional
-            avoid to regenerate wheat positions at each timestep, by default False
-        seed : int, optional
-            seed for random and numpy, by default None
         """        
         self.generation_type = generation_type
         self.plant_density = plant_density
@@ -106,6 +107,8 @@ class Planter:
     def __random(self, plant_density, xy_square_length):
         """Parameters for random generation type
 
+        Note
+        ----
         - l-egume: must have 64 plants so it rescale the soil size according to its plant density. Rewrite the cote, nbcote, typearrangement and optdamier options
         - other fspm: compute number of plants according to its plant density
 
@@ -146,6 +149,8 @@ class Planter:
     def __row(self, plant_density, inter_rows):
         """Parameters for row generation type
 
+        Note
+        ----
         - l-egume: use "row4_sp1" arrangement. Rewrite the cote, nbcote, typearrangement and optdamier options
         - other fspm: compute number of plants according to its plant density
 
@@ -213,15 +218,13 @@ class Planter:
     ):
         """Parameters for default generation type
 
+        Note
+        ----
         An attribute self.type_domain is created which can be:
-
-        - "create_heterogeneous_canopy": only WheatFspm instance(s) in the simulation, the domain is from AgronomicStand
-
-        - "l-egume": only l-egume instance(s) in the simulation, the domain is from usm configurations
-
-        - "mix": mix of different fspm, we compute global soil domain
-
-        - "input": soil domain == xy_plane
+            - "create_heterogeneous_canopy": only WheatFspm instance(s) in the simulation, the domain is from AgronomicStand
+            - "l-egume": only l-egume instance(s) in the simulation, the domain is from usm configurations
+            - "mix": mix of different fspm, we compute global soil domain
+            - "input": soil domain == xy_plane
 
         Parameters
         ----------

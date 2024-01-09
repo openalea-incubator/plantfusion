@@ -14,8 +14,45 @@ from plantfusion.indexer import Indexer
 
 class Light_wrapper(object):
     """Wrapper for LightVegeManager
-
+    
     Sets pre-configured parameters following the inputs
+
+    Parameters
+    ----------
+    planter : Planter, optional
+        Object containing plant positions and/or number of plants and/or soil domain, by default Planter()
+    indexer : Indexer, optional
+        indexer for listing FSPM in the simulation, by default Indexer()
+    lightmodel : str, optional
+        select the light model, choose between "caribu", "ratp" or "riri5", by default ""
+    sky : str, optional
+        sky type, see sky in LightVegeManager for more info, by default "turtle46"
+    direct : bool, optional
+        activate direct radiation (sun), by default False
+    diffuse : bool, optional
+        activate diffuse radiation (sky), by default True
+    reflected : bool, optional
+        activate reflected radiation between plants, by default False
+    coordinates : list, optional
+        [latitude, longitude, timezone], by default [46.4, 0.0, 1.0]
+    infinite : bool, optional
+        activate infinite scene replication, by default True
+    legume_wrapper : L_egume_wrapper or list of L_egume_wrapper, optional
+        instance(s) of L_egume_wrapper in the simulation, by default None
+    caribu_opt : dict, optional
+        optical parameters for CARIBU, by default {"par": (0.10, 0.07)}
+    voxels_size : list, optional
+        input voxels size in m for each direction [dx, dy, dz], by default [1.0, 1.0, 1.0]
+    angle_distrib_algo : str, optional
+        computation type for leaf angle distribution, by default "compute global"
+    nb_angle_class : int, optional
+        number of leaf angle classes between 0 and 90°, by default 9
+    mu : float, optional
+        dispersion coefficient in voxels, by default 1.0
+    writegeo : bool, optional
+        activate write the scene in VTK and bgeom files, by default False
+    out_folder : str, optional
+        outputs folder path where to write geometric files if writegeo == True, by default ""
 
     """    
     def __init__(
@@ -40,42 +77,6 @@ class Light_wrapper(object):
     ):
         """Constructor, create an instance of LightVegeManager
 
-        Parameters
-        ----------
-        planter : Planter, optional
-            Object containing plant positions and/or number of plants and/or soil domain, by default Planter()
-        indexer : Indexer, optional
-            indexer for listing FSPM in the simulation, by default Indexer()
-        lightmodel : str, optional
-            select the light model, choose between "caribu", "ratp" or "riri5", by default ""
-        sky : str, optional
-            sky type, see sky in LightVegeManager for more info, by default "turtle46"
-        direct : bool, optional
-            activate direct radiation (sun), by default False
-        diffuse : bool, optional
-            activate diffuse radiation (sky), by default True
-        reflected : bool, optional
-            activate reflected radiation between plants, by default False
-        coordinates : list, optional
-            [latitude, longitude, timezone], by default [46.4, 0.0, 1.0]
-        infinite : bool, optional
-            activate infinite scene replication, by default True
-        legume_wrapper : L_egume_wrapper or list of L_egume_wrapper, optional
-            instance(s) of L_egume_wrapper in the simulation, by default None
-        caribu_opt : dict, optional
-            optical parameters for CARIBU, by default {"par": (0.10, 0.07)}
-        voxels_size : list, optional
-            input voxels size in m for each direction [dx, dy, dz], by default [1.0, 1.0, 1.0]
-        angle_distrib_algo : str, optional
-            computation type for leaf angle distribution, by default "compute global"
-        nb_angle_class : int, optional
-            number of leaf angle classes between 0 and 90°, by default 9
-        mu : float, optional
-            dispersion coefficient in voxels, by default 1.0
-        writegeo : bool, optional
-            activate write the scene in VTK and bgeom files, by default False
-        out_folder : str, optional
-            outputs folder path where to write geometric files if writegeo == True, by default ""
         """        
         self.transformations = planter.transformations
         self.indexer = indexer

@@ -21,6 +21,44 @@ from plantfusion.utils import create_child_folder
 class Soil_wrapper(object):
     """Wrapper of soil3ds model
 
+    Note
+    ----
+    two ways for getting a soil3ds instance:
+        - creates an soil3ds instance from an usm config file
+        - copy soil3ds instance from l-egume
+        
+    Parameters
+    ----------
+    in_folder : str, optional
+        folder containing input files, by default ""
+    out_folder : str, optional
+        outputs folder path. Writes a table with soil values during the simulation, by default ""
+    IDusm : int, optional
+        usm ID with soil file info, by default 1
+    nameconfigfile : str, optional
+        usm config file in excel format, by default "liste_usms_exemple.xls"
+    ongletconfigfile : str, optional
+        sheet in nameconfigfile where to find the usm, by default "exemple"
+    opt_residu : int, optional
+        activate residu computing, by default 0
+    opt_Nuptake : int, optional
+        activate N uptake computing, by default 1
+    planter : Planter, optional
+        Object containing plant positions and/or number of plants and/or soil domain, by default Planter()
+    legume_pattern : bool, optional
+        if you want to copy soil instance from l-egume, by default False
+    legume_wrapper : L_egume_wrapper, optional
+        instance of legume wrapper, by default None
+    only_water_balance : bool, optional
+        compute only water balance instead of all water and N, by default False
+    save_results : bool, optional
+        saves soil values during simulation, by default False
+
+    Raises
+    ------
+    AttributeError
+        l-egume needs N soil results
+
     """    
     def __init__(
         self,
@@ -37,43 +75,8 @@ class Soil_wrapper(object):
         only_water_balance=False,
         save_results=False,
     ) -> None:
-        """Constructor, two ways for getting a soil3ds instance:
+        """Constructor
 
-            - creates an soil3ds instance from an usm config file
-
-            - copy soil3ds instance from l-egume
-
-        Parameters
-        ----------
-        in_folder : str, optional
-            folder containing input files, by default ""
-        out_folder : str, optional
-            outputs folder path. Writes a table with soil values during the simulation, by default ""
-        IDusm : int, optional
-            usm ID with soil file info, by default 1
-        nameconfigfile : str, optional
-            usm config file in excel format, by default "liste_usms_exemple.xls"
-        ongletconfigfile : str, optional
-            sheet in nameconfigfile where to find the usm, by default "exemple"
-        opt_residu : int, optional
-            activate residu computing, by default 0
-        opt_Nuptake : int, optional
-            activate N uptake computing, by default 1
-        planter : Planter, optional
-            Object containing plant positions and/or number of plants and/or soil domain, by default Planter()
-        legume_pattern : bool, optional
-            if you want to copy soil instance from l-egume, by default False
-        legume_wrapper : L_egume_wrapper, optional
-            instance of legume wrapper, by default None
-        only_water_balance : bool, optional
-            compute only water balance instead of all water and N, by default False
-        save_results : bool, optional
-            saves soil values during simulation, by default False
-
-        Raises
-        ------
-        AttributeError
-            l-egume needs N soil results
         """    
 
         self.only_water_balance = only_water_balance
@@ -203,6 +206,8 @@ class Soil_wrapper(object):
     ):
         """Compute soil iteration
 
+        Note
+        ----
         Each input lists correspond to the concatenated plants of all fspm instances
 
         Parameters
@@ -361,6 +366,8 @@ class Soil_wrapper(object):
     def whichvoxel_xy(self, p):
         """Compute the voxel id where p is located
 
+        Note
+        ----
         soil.dxyz : [dx, dy, dz]
 
         Parameters

@@ -30,7 +30,30 @@ from plantfusion.indexer import Indexer
 class L_egume_wrapper(object):
     """Wrapper for l-egume model
 
-    ..note:: only one lsystem per wrapper instance
+    Note
+    ---- 
+    Only one lsystem per wrapper instance
+
+    Parameters
+    ----------
+    name : str, optional
+        name of the fspm instance, by default "legume"
+    indexer : Indexer, optional
+        indexer for listing FSPM in the simulation, by default Indexer()
+    in_folder : str, optional
+        input folder path, by default ""
+    out_folder : str, optional
+        output folder path if writing outputs is activated, by default None
+    nameconfigfile : str, optional
+        excel file name which contains the usm to run, by default "liste_usms_exemple.xls"
+    ongletconfigfile : str, optional
+        sheet containing the usm to run in ``nameconfigfile`` file, by default "exemple"
+    IDusm : int, optional
+        ID of the usm to run. Needed if you want to bypass the "torun" column in the usms config file, by default None
+    planter : Planter, optional
+        Object containing plant positions and/or number of plants and/or soil domain, by default None
+    caribu_scene : bool, optional
+        if you want to force the rendered interpretation scene to leaves only, by default False
 
     """
 
@@ -48,26 +71,6 @@ class L_egume_wrapper(object):
     ) -> None:
         """Constructor, creates the lsystem
 
-        Parameters
-        ----------
-        name : str, optional
-            name of the fspm instance, by default "legume"
-        indexer : Indexer, optional
-            indexer for listing FSPM in the simulation, by default Indexer()
-        in_folder : str, optional
-            input folder path, by default ""
-        out_folder : str, optional
-            output folder path if writing outputs is activated, by default None
-        nameconfigfile : str, optional
-            excel file name which contains the usm to run, by default "liste_usms_exemple.xls"
-        ongletconfigfile : str, optional
-            sheet containing the usm to run in ``nameconfigfile`` file, by default "exemple"
-        IDusm : int, optional
-            ID of the usm to run. Needed if you want to bypass the "torun" column in the usms config file, by default None
-        planter : Planter, optional
-            Object containing plant positions and/or number of plants and/or soil domain, by default None
-        caribu_scene : bool, optional
-            if you want to force the rendered interpretation scene to leaves only, by default False
         """        
         if out_folder is not None:
             try:
@@ -236,7 +239,9 @@ class L_egume_wrapper(object):
 
     def light_results(self, energy, lighting: Light_wrapper, selective_global_index=None) -> None:
         """Interpret the lighting results
-
+        
+        Note
+        ----
         Steps :
             1) transfer absorbed lighing to plant data
             2) create local transmitted lighting following l-egume internal grid of voxels

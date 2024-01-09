@@ -36,9 +36,101 @@ from plantfusion.indexer import Indexer
 class Wheat_wrapper(object):
     """Wrapper for WheatFspm model
 
-    This FSPM is composed with many submodels, this wrapper create instances of:
+    This FSPM is composed with many submodels.
 
+    It creates and stores an instance of
+    * AdelDyn
+    * openalea.MTG
+    * fspmwheat_facade
+    * caribu_facade
+    * cnwheat_facade
+    * elongwheat_facade
+    * farquharwheat_facade
+    * growthwheat_facade
+    * senescwheat_facade
 
+    It also stores all file path names. There is the possibility to restart simulation from previous data.
+
+    Parameters
+    ----------
+    name : str, optional
+        name of the fspm instance, by default "wheat"
+    in_folder : str, optional
+        input folder path, by default ""
+    out_folder : str, optional
+        output folder path if writing outputs is activated, by default None
+    N_fertilizations : dict, optional
+        when to fertilize and how many quantity, {timestep : mol N}, by default {}
+    tillers_replications : dict, optional
+        triggers tillers replication {tiller tag : length}, by default {}
+    planter : Planter, optional
+        Object containing plant positions and/or number of plants and/or soil domain, by default None
+    indexer : Indexer, optional
+        indexer for listing FSPM in the simulation, by default Indexer()
+    run_from_outputs : bool, optional
+        if you want to start simulation from previous results, by default False
+    external_soil_model : bool, optional
+        deactivate internal soil process in cn-wheat, by default False
+    nitrates_uptake_forced : bool, optional
+        forced nitrates uptake data, only external_soil_model is True, by default False
+    initialize_nitrates_uptake : float, optional
+        N uptake before the simulation start, by default 0.25
+    update_parameters_all_models : dict, optional
+        forced model parameters, by default None
+    stored_times : str or list or None, optional
+        stored all or specific simulation timestep, by default None
+    option_static : bool, optional
+        _description_, by default False
+    LIGHT_TIMESTEP : int, optional
+        number of iteration between two lighting step, by default 4
+    SENESCWHEAT_TIMESTEP : int, optional
+        number of iteration between two senescence step, by default 1
+    FARQUHARWHEAT_TIMESTEP : int, optional
+        number of iteration between two farquhar step, by default 1
+    ELONGWHEAT_TIMESTEP : int, optional
+        number of iteration between two elongwheat step, by default 1
+    GROWTHWHEAT_TIMESTEP : int, optional
+        number of iteration between two growthwheat step, by default 1
+    CNWHEAT_TIMESTEP : int, optional
+        number of iteration between two cnwheat step, by default 1
+    AXES_INITIAL_STATE_FILENAME : str, optional
+        initialization file name for axes, by default "axes_initial_state.csv"
+    ORGANS_INITIAL_STATE_FILENAME : str, optional
+        initialization file name for organs, by default "organs_initial_state.csv"
+    HIDDENZONES_INITIAL_STATE_FILENAME : str, optional
+        initialization file name for hiddenzones, by default "hiddenzones_initial_state.csv"
+    ELEMENTS_INITIAL_STATE_FILENAME : str, optional
+        initialization file name for elements, by default "elements_initial_state.csv"
+    SOILS_INITIAL_STATE_FILENAME : str, optional
+        initialization file name for soil, by default "soils_initial_state.csv"
+    METEO_FILENAME : str, optional
+        meteo file name, by default "meteo_Ljutovac2002.csv"
+    NITRATES_UPTAKE_FORCINGS_FILENAME : str, optional
+        forced nitrates uptake file name, by default "nitrates_uptake_forcings.csv"
+    SOIL_PARAMETERS_FILENAME : str, optional
+        WheatFspm soil parameters for soil3ds, by default ""
+    SOIL_PARAMETERS_SHEETNAME : str, optional
+        sheet in SOIL_PARAMETERS_FILENAME corresponding current plant specy parameters, by default "cnwheat"
+    AXES_OUTPUTS_FILENAME : str, optional
+        brut outputs file name for axes, by default "axes_outputs.csv"
+    ORGANS_OUTPUTS_FILENAME : str, optional
+        brut outputs file name for organs, by default "organs_outputs.csv"
+    HIDDENZONES_OUTPUTS_FILENAME : str, optional
+        brut outputs file name for hiddenzones, by default "hiddenzones_outputs.csv"
+    ELEMENTS_OUTPUTS_FILENAME : str, optional
+        brut outputs file name for elements, by default "elements_outputs.csv"
+    SOILS_OUTPUTS_FILENAME : str, optional
+        brut outputs file name for soil, by default "soils_outputs.csv"
+    AXES_POSTPROCESSING_FILENAME : str, optional
+        postprocessing outputs file name for axes, by default "axes_postprocessing.csv"
+    ORGANS_POSTPROCESSING_FILENAME : str, optional
+        postprocessing outputs file name for organs, by default "organs_postprocessing.csv"
+    HIDDENZONES_POSTPROCESSING_FILENAME : str, optional
+        postprocessing outputs file name for hiddenzones, by default "hiddenzones_postprocessing.csv"
+    ELEMENTS_POSTPROCESSING_FILENAME : str, optional
+        postprocessing outputs file name for elements, by default "elements_postprocessing.csv"
+    SOILS_POSTPROCESSING_FILENAME : str, optional
+        postprocessing outputs file name for soil, by default "soils_postprocessing.csv"
 
     """    
 
@@ -93,100 +185,7 @@ class Wheat_wrapper(object):
         SOILS_POSTPROCESSING_FILENAME="soils_postprocessing.csv",
     ) -> None:
         """Constructor, 
-        
-        It creates and stores an instance of
-        * AdelDyn
-        * openalea.MTG
-        * fspmwheat_facade
-        * caribu_facade
-        * cnwheat_facade
-        * elongwheat_facade
-        * farquharwheat_facade
-        * growthwheat_facade
-        * senescwheat_facade
-
-        It also stores all file path names. There is the possibility to restart simulation from previous data.
-
-        Parameters
-        ----------
-        name : str, optional
-            name of the fspm instance, by default "wheat"
-        in_folder : str, optional
-            input folder path, by default ""
-        out_folder : str, optional
-            output folder path if writing outputs is activated, by default None
-        N_fertilizations : dict, optional
-            when to fertilize and how many quantity, {timestep : mol N}, by default {}
-        tillers_replications : dict, optional
-            triggers tillers replication {tiller tag : length}, by default {}
-        planter : Planter, optional
-            Object containing plant positions and/or number of plants and/or soil domain, by default None
-        indexer : Indexer, optional
-            indexer for listing FSPM in the simulation, by default Indexer()
-        run_from_outputs : bool, optional
-            if you want to start simulation from previous results, by default False
-        external_soil_model : bool, optional
-            deactivate internal soil process in cn-wheat, by default False
-        nitrates_uptake_forced : bool, optional
-            forced nitrates uptake data, only external_soil_model is True, by default False
-        initialize_nitrates_uptake : float, optional
-            N uptake before the simulation start, by default 0.25
-        update_parameters_all_models : dict, optional
-            forced model parameters, by default None
-        stored_times : str or list or None, optional
-            stored all or specific simulation timestep, by default None
-        option_static : bool, optional
-            _description_, by default False
-        LIGHT_TIMESTEP : int, optional
-            number of iteration between two lighting step, by default 4
-        SENESCWHEAT_TIMESTEP : int, optional
-            number of iteration between two senescence step, by default 1
-        FARQUHARWHEAT_TIMESTEP : int, optional
-            number of iteration between two farquhar step, by default 1
-        ELONGWHEAT_TIMESTEP : int, optional
-            number of iteration between two elongwheat step, by default 1
-        GROWTHWHEAT_TIMESTEP : int, optional
-            number of iteration between two growthwheat step, by default 1
-        CNWHEAT_TIMESTEP : int, optional
-            number of iteration between two cnwheat step, by default 1
-        AXES_INITIAL_STATE_FILENAME : str, optional
-            initialization file name for axes, by default "axes_initial_state.csv"
-        ORGANS_INITIAL_STATE_FILENAME : str, optional
-            initialization file name for organs, by default "organs_initial_state.csv"
-        HIDDENZONES_INITIAL_STATE_FILENAME : str, optional
-            initialization file name for hiddenzones, by default "hiddenzones_initial_state.csv"
-        ELEMENTS_INITIAL_STATE_FILENAME : str, optional
-            initialization file name for elements, by default "elements_initial_state.csv"
-        SOILS_INITIAL_STATE_FILENAME : str, optional
-            initialization file name for soil, by default "soils_initial_state.csv"
-        METEO_FILENAME : str, optional
-            meteo file name, by default "meteo_Ljutovac2002.csv"
-        NITRATES_UPTAKE_FORCINGS_FILENAME : str, optional
-            forced nitrates uptake file name, by default "nitrates_uptake_forcings.csv"
-        SOIL_PARAMETERS_FILENAME : str, optional
-            WheatFspm soil parameters for soil3ds, by default ""
-        SOIL_PARAMETERS_SHEETNAME : str, optional
-            sheet in SOIL_PARAMETERS_FILENAME corresponding current plant specy parameters, by default "cnwheat"
-        AXES_OUTPUTS_FILENAME : str, optional
-            brut outputs file name for axes, by default "axes_outputs.csv"
-        ORGANS_OUTPUTS_FILENAME : str, optional
-            brut outputs file name for organs, by default "organs_outputs.csv"
-        HIDDENZONES_OUTPUTS_FILENAME : str, optional
-            brut outputs file name for hiddenzones, by default "hiddenzones_outputs.csv"
-        ELEMENTS_OUTPUTS_FILENAME : str, optional
-            brut outputs file name for elements, by default "elements_outputs.csv"
-        SOILS_OUTPUTS_FILENAME : str, optional
-            brut outputs file name for soil, by default "soils_outputs.csv"
-        AXES_POSTPROCESSING_FILENAME : str, optional
-            postprocessing outputs file name for axes, by default "axes_postprocessing.csv"
-        ORGANS_POSTPROCESSING_FILENAME : str, optional
-            postprocessing outputs file name for organs, by default "organs_postprocessing.csv"
-        HIDDENZONES_POSTPROCESSING_FILENAME : str, optional
-            postprocessing outputs file name for hiddenzones, by default "hiddenzones_postprocessing.csv"
-        ELEMENTS_POSTPROCESSING_FILENAME : str, optional
-            postprocessing outputs file name for elements, by default "elements_postprocessing.csv"
-        SOILS_POSTPROCESSING_FILENAME : str, optional
-            postprocessing outputs file name for soil, by default "soils_postprocessing.csv"
+    
         """ 
 
         self.N_fertilizations = N_fertilizations
@@ -654,6 +653,8 @@ class Wheat_wrapper(object):
     def light_inputs(self, planter):
         """Wheats geometric scene for lighting
 
+        Note
+        ----
         It creates a canopy from one wheat geometry with variabilities on each plant
 
         Parameters
@@ -1147,6 +1148,8 @@ class Wheat_wrapper(object):
     def compute_roots_length(self, soil_wrapper, planter:Planter):
         """Compute roots length from roots mass
 
+        Note
+        ----
         soil_dimensions : [z, x, y]
 
         Parameters
@@ -1185,6 +1188,8 @@ class Wheat_wrapper(object):
     def rootsdistribution(self, roots_mass, ix, iy, soil_wrapper, distribtype="homogeneous"):
         """Distributes roots length in soil voxels.
 
+        Note
+        ----
         Currently only homogeneous repartition from ground to deep layers
 
         Parameters

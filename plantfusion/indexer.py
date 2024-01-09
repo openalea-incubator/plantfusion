@@ -7,24 +7,26 @@
 class Indexer:
     """Index management tool between the FSPM wrappers
 
+    Note
+    ----
+    Each list is list of strings where each element is an FSPM instance name
+    exemple: ``global_order = ["fspm1", "fspm2", "fspm3"]``
+
+    Parameters
+    ----------
+    global_order : list, optional
+        ordered list of all FSPM in your simulation, by default []
+    wheat_names : list, optional
+        ordered list of all instances of wheat wrappers in your simulation, by default []
+    legume_names : list, optional
+        ordered list of all instances of l-egume wrappers in your simulation, by default []
+    other_names : list, optional
+        ordered list of all instances of custom wrappers not in plantfusion in your simulation, by default []
+
     """
 
     def __init__(self, global_order=[], wheat_names=[], legume_names=[], other_names=[]) -> None:
         """Constructor, initialize simulation lists of FSPM
-
-        Each list is list of strings where each element is an FSPM instance name
-        exemple: ``global_order = ["fspm1", "fspm2", "fspm3"]``
-
-        Parameters
-        ----------
-        global_order : list, optional
-            ordered list of all FSPM in your simulation, by default []
-        wheat_names : list, optional
-            ordered list of all instances of wheat wrappers in your simulation, by default []
-        legume_names : list, optional
-            ordered list of all instances of l-egume wrappers in your simulation, by default []
-        other_names : list, optional
-            ordered list of all instances of custom wrappers not in plantfusion in your simulation, by default []
         """        
         self.global_order: list = global_order
         self.wheat_names: list = wheat_names

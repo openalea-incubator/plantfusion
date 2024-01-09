@@ -1,50 +1,7 @@
-# Plant Fusion: API for mixed crop modelling
+.. _installation:
 
-![](doc/img/row_planter.png)
-
-**Authors** : Maurane Woussen, Romain Barillot, Didier Combes, Gaëtan Louarn
-
-**Institutes** : INRAE
-
-**Status** : Python package 
-
-**License** : [Cecill-C](https://cecill.info/licences/Licence_CeCILL-C_V1-en.html)
-
-**URL** : https://github.com/openalea-incubator/plantfusion
-
-**Documentation** : https://plantfusion.readthedocs.io/en/latest/
-
-## Overview
-
-This package provides an API for modelling mixing crops involving several functional-structural plant models (FSPM). Its aim is to simplify the building of such simulations. 
-It takes place through the [MobiDiv](https://www6.inrae.fr/mobidiv/) research project, especially in the modelling of mixed crops with wheat and alfafa. 
-
-Currently, this API recognizes two FSPM, [CN-Wheat](https://github.com/openalea-incubator/WheatFspm) and [l-egume](https://github.com/glouarn/l-egume).
-
-## Modules required
-
-Main packages used for the simulations:
-- [CN-Wheat](https://github.com/openalea-incubator/WheatFspm): wheat modelling
-- [l-egume](https://github.com/glouarn/l-egume): legume modelling
-- [CARIBU](https://github.com/openalea-incubator/caribu): light modelling through surfacic meshes*
-- [PyRATP](https://github.com/mwoussen/PyRATP): light modelling through volumic meshes
-- [RiRi5](https://github.com/glouarn/riri5): compact version of RATP
-- [LightVegeManager](https://github.com/mwoussen/lightvegemanager): Tool for managing lighting for plant modelling
-- [soil3ds](https://github.com/glouarn/soil3ds)
-
-Their dependencies:
-- openalea.mtg
-- openalea.plantgl
-- openalea.lpy
-- Adel wheat
-- numpy
-- pandas
-- scipy
-- gcc
-- gfortran
-- make
-
-## Installation
+Installation
+============
 
 We use [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/index.html) for managing our python environment. 
 
@@ -131,27 +88,3 @@ del C:\Users\username\AppData\Local\miniconda3\envs\myenvname\Lib\site-packages\
     1. Download the package: `git clone https://github.com/glouarn/riri5`
     
     2. Install: `python setup.py develop`
-
-
-## Simulation Examples
-
-- copy of l-egume default simulation with the API
-- copy of fspmwheat default simulation with the API
-- compare l-egume default with l-egume + RATP
-- compare l-egume default with l-egume + CARIBU
-- compare fspmwheat default with fspmwheat + RATP
-- soil coupling fspmwheat + soil3ds
-- light coupling l-egume + fspmwheat + CARIBU
-- full coupling l-egume + fspmwheat + CARIBU + soil3ds
-
-## Usage
-
-In your conda environment run one the simulation scripts in `simulations`:
-
-```python
-python simulations/simulation_name.py
-```
-## Licence
-
-This project is licensed under the CeCILL-C License - see file [LICENSE](LICENSE) for details
-
