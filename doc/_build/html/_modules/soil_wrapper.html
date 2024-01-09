@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>soil_wrapper &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials with jupyter notebooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">soil_wrapper</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for soil_wrapper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    contains Soil_wrapper</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">soil3ds</span> <span class="kn">import</span> <span class="n">soil_moduleN</span> <span class="k">as</span> <span class="n">solN</span>
+<span class="kn">import</span> <span class="nn">soil3ds.IOxls</span> <span class="k">as</span> <span class="nn">IOxls</span>
+<span class="kn">import</span> <span class="nn">soil3ds.IOtable</span> <span class="k">as</span> <span class="nn">IOtable</span>
+<span class="kn">import</span> <span class="nn">legume.initialisation</span> <span class="k">as</span> <span class="nn">initial</span>
+
+<span class="kn">from</span> <span class="nn">plantfusion.planter</span> <span class="kn">import</span> <span class="n">Planter</span>
+<span class="kn">from</span> <span class="nn">plantfusion.utils</span> <span class="kn">import</span> <span class="n">create_child_folder</span>
+
+
+<div class="viewcode-block" id="Soil_wrapper"><a class="viewcode-back" href="../reference.html#soil_wrapper.Soil_wrapper">[docs]</a><span class="k">class</span> <span class="nc">Soil_wrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper of soil3ds model</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ----</span>
+<span class="sd">    two ways for getting a soil3ds instance:</span>
+<span class="sd">        - creates an soil3ds instance from an usm config file</span>
+<span class="sd">        - copy soil3ds instance from l-egume</span>
+<span class="sd">        </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    in_folder : str, optional</span>
+<span class="sd">        folder containing input files, by default &quot;&quot;</span>
+<span class="sd">    out_folder : str, optional</span>
+<span class="sd">        outputs folder path. Writes a table with soil values during the simulation, by default &quot;&quot;</span>
+<span class="sd">    IDusm : int, optional</span>
+<span class="sd">        usm ID with soil file info, by default 1</span>
+<span class="sd">    nameconfigfile : str, optional</span>
+<span class="sd">        usm config file in excel format, by default &quot;liste_usms_exemple.xls&quot;</span>
+<span class="sd">    ongletconfigfile : str, optional</span>
+<span class="sd">        sheet in nameconfigfile where to find the usm, by default &quot;exemple&quot;</span>
+<span class="sd">    opt_residu : int, optional</span>
+<span class="sd">        activate residu computing, by default 0</span>
+<span class="sd">    opt_Nuptake : int, optional</span>
+<span class="sd">        activate N uptake computing, by default 1</span>
+<span class="sd">    planter : Planter, optional</span>
+<span class="sd">        Object containing plant positions and/or number of plants and/or soil domain, by default Planter()</span>
+<span class="sd">    legume_pattern : bool, optional</span>
+<span class="sd">        if you want to copy soil instance from l-egume, by default False</span>
+<span class="sd">    legume_wrapper : L_egume_wrapper, optional</span>
+<span class="sd">        instance of legume wrapper, by default None</span>
+<span class="sd">    only_water_balance : bool, optional</span>
+<span class="sd">        compute only water balance instead of all water and N, by default False</span>
+<span class="sd">    save_results : bool, optional</span>
+<span class="sd">        saves soil values during simulation, by default False</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AttributeError</span>
+<span class="sd">        l-egume needs N soil results</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">out_folder</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">IDusm</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">nameconfigfile</span><span class="o">=</span><span class="s2">&quot;liste_usms_exemple.xls&quot;</span><span class="p">,</span>
+        <span class="n">ongletconfigfile</span><span class="o">=</span><span class="s2">&quot;exemple&quot;</span><span class="p">,</span>
+        <span class="n">opt_residu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">opt_Nuptake</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">planter</span><span class="o">=</span><span class="n">Planter</span><span class="p">(),</span>
+        <span class="n">legume_pattern</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">legume_wrapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">only_water_balance</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">save_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>    
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">only_water_balance</span> <span class="o">=</span> <span class="n">only_water_balance</span>
+
+        <span class="c1"># creates a soil3ds instance</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legume_pattern</span><span class="p">:</span>  
+            <span class="bp">self</span><span class="o">.</span><span class="n">planter</span> <span class="o">=</span> <span class="n">planter</span>
+
+            <span class="c1"># lecture des parametre sol directement a partir d&#39;un fichier sol</span>
+
+            <span class="c1"># lecture meteo / mng journaliere = fixe</span>
+            <span class="n">usms_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">nameconfigfile</span><span class="p">)</span>
+            <span class="n">usms</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">usms_path</span><span class="p">)</span>
+            <span class="n">ls_usms</span> <span class="o">=</span> <span class="n">IOtable</span><span class="o">.</span><span class="n">conv_dataframe</span><span class="p">(</span><span class="n">IOxls</span><span class="o">.</span><span class="n">get_xls_col</span><span class="p">(</span><span class="n">usms</span><span class="o">.</span><span class="n">sheet_by_name</span><span class="p">(</span><span class="n">ongletconfigfile</span><span class="p">)))</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;ID_usm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">IDusm</span><span class="p">))</span>
+
+            <span class="n">fxls_sol</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;sol&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">ongletS</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;ongletS&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">path_sol</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">fxls_sol</span><span class="p">)</span>
+            <span class="n">par_SN</span><span class="p">,</span> <span class="n">par_sol</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">read_sol_param</span><span class="p">(</span><span class="n">path_sol</span><span class="p">,</span> <span class="n">ongletS</span><span class="p">)</span>
+
+            <span class="n">fxls_mng</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;mng&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">ongletMn</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;ongletMn&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">fxls_Met</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;meteo&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">ongletMet</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;ongletM&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">path_met</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">fxls_Met</span><span class="p">)</span>
+            <span class="n">path_mng</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">fxls_mng</span><span class="p">)</span>
+            <span class="n">fxls_ini</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;inis&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">ongletIn</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;ongletIn&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">path_inis</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">fxls_ini</span><span class="p">)</span>
+            <span class="n">inis</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">read_plant_param</span><span class="p">(</span><span class="n">path_inis</span><span class="p">,</span> <span class="n">ongletIn</span><span class="p">)</span>
+            <span class="n">met</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">read_met_file</span><span class="p">(</span><span class="n">path_met</span><span class="p">,</span> <span class="n">ongletMet</span><span class="p">)</span>
+            <span class="n">mng</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">read_met_file</span><span class="p">(</span><span class="n">path_mng</span><span class="p">,</span> <span class="n">ongletMn</span><span class="p">)</span>
+
+            <span class="n">dz_sol</span> <span class="o">=</span> <span class="n">inis</span><span class="p">[</span><span class="s2">&quot;dz_sol&quot;</span><span class="p">]</span>
+            <span class="n">pattern8</span> <span class="o">=</span> <span class="p">[[</span><span class="n">v</span> <span class="o">*</span> <span class="mi">100</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">planter</span><span class="o">.</span><span class="n">domain</span><span class="p">]</span>  <span class="c1"># conversion m en cm</span>
+            <span class="n">discret_solXY</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">inis</span><span class="p">[</span><span class="s2">&quot;discret_solXY&quot;</span><span class="p">]))</span>  <span class="c1"># nb de discretisation du sol en X et en Y</span>
+
+            <span class="c1"># meteo / mng journalier</span>
+            <span class="n">meteo_j</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">extract_dataframe</span><span class="p">(</span>
+                <span class="n">met</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;TmoyDay&quot;</span><span class="p">,</span> <span class="s2">&quot;RG&quot;</span><span class="p">,</span> <span class="s2">&quot;Et0&quot;</span><span class="p">,</span> <span class="s2">&quot;Precip&quot;</span><span class="p">,</span> <span class="s2">&quot;Tmin&quot;</span><span class="p">,</span> <span class="s2">&quot;Tmax&quot;</span><span class="p">,</span> <span class="s2">&quot;Tsol&quot;</span><span class="p">],</span> <span class="s2">&quot;DOY&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;DOYdeb&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">meteo_j</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">meteo_j</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">meteo_j</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="c1"># initialisation du sol avec fonction pour Lpy (sans residus)</span>
+            <span class="n">soil</span><span class="p">,</span> <span class="n">Tsol</span> <span class="o">=</span> <span class="n">initial</span><span class="o">.</span><span class="n">init_sol_fromLpy</span><span class="p">(</span>
+                <span class="n">inis</span><span class="p">,</span> <span class="n">meteo_j</span><span class="p">,</span> <span class="n">par_sol</span><span class="p">,</span> <span class="n">par_SN</span><span class="p">,</span> <span class="n">discret_solXY</span><span class="p">,</span> <span class="n">dz_sol</span><span class="p">,</span> <span class="n">pattern8</span><span class="p">,</span> <span class="n">opt_residu</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters_SN</span> <span class="o">=</span> <span class="n">par_SN</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meteo</span> <span class="o">=</span> <span class="n">met</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">management</span> <span class="o">=</span> <span class="n">mng</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soil</span> <span class="o">=</span> <span class="n">soil</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">option_residu</span> <span class="o">=</span> <span class="n">opt_residu</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">option_Nuptake</span> <span class="o">=</span> <span class="n">opt_Nuptake</span>
+
+            <span class="n">plant_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;plante&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soil_plants_parameters_bare_soil</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">read_plant_param</span><span class="p">(</span><span class="n">plant_path</span><span class="p">,</span> <span class="s2">&quot;solnu&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">legume_wrapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="n">soil</span>
+        
+        <span class="c1"># copy soil3ds in l-egume instance</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">only_water_balance</span> <span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;l-egume soil computes N balance&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soil</span> <span class="o">=</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">option_residu</span> <span class="o">=</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">option_Nuptake</span> <span class="o">=</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_Nuptake</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meteo</span> <span class="o">=</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">meteo</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">management</span> <span class="o">=</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">mng</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parameters_SN</span> <span class="o">=</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">par_SN</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">soil_plants_parameters_bare_soil</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">read_plant_param</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">path_plante</span><span class="p">,</span> <span class="s2">&quot;solnu&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">soil_dimensions</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">dxyz</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_results</span> <span class="o">=</span> <span class="n">save_results</span>
+        <span class="k">if</span> <span class="n">save_results</span><span class="p">:</span>
+            <span class="n">create_child_folder</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;soil&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;soil&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="c1"># clé ajouté</span>
+                <span class="s2">&quot;DOY&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;kgNO3solHa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;kgNH4solHa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;kgNsolHa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;uptNO3PltHa&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;lix&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;cumMinN_j&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;Lix_j&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;cumUptakePlt_j&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;azomes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;transp&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;tsw&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="c1"># clé dans soil_moduleN.CloseNbalance (soil3ds)</span>
+                <span class="s2">&quot;FinalInertN&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;FinalActiveN&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;finalNZygo&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;finalNres&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;ResidueMinNtot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;NminfromNresCum&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;HumusMinNtot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;MinNtot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;InputNtot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;OutputNtot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;TotNRain&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;TotNIrrig&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;TotFertNO3&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;TotFertNH4&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;InputNmintot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;FinalNO3&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;FinalNH4&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;Lixtot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;N2Otot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;TotUptPlt&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;OutputNmintot&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+
+<div class="viewcode-block" id="Soil_wrapper.run"><a class="viewcode-back" href="../reference.html#soil_wrapper.Soil_wrapper.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">N_content_roots_per_plant</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">roots_length_per_plant_per_soil_layer</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">soil_plants_parameters</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">plants_light_interception</span><span class="o">=</span><span class="p">[],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute soil iteration</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Each input lists correspond to the concatenated plants of all fspm instances</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        day : int, optional</span>
+<span class="sd">            day of the year (according to meteo file input), by default 1</span>
+<span class="sd">        N_content_roots_per_plant : list, optional</span>
+<span class="sd">            one value per plant, by default []</span>
+<span class="sd">        roots_length_per_plant_per_soil_layer : list, optional</span>
+<span class="sd">            4 dimensions array [plant, iz, ix, iy], by default []</span>
+<span class="sd">        soil_plants_parameters : list, optional</span>
+<span class="sd">            one value per plant, by default []</span>
+<span class="sd">        plants_light_interception : list, optional</span>
+<span class="sd">            plant interception capacity, one value per plant, by default []</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">meteo_j</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">extract_dataframe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">meteo</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;TmoyDay&quot;</span><span class="p">,</span> <span class="s2">&quot;RG&quot;</span><span class="p">,</span> <span class="s2">&quot;Et0&quot;</span><span class="p">,</span> <span class="s2">&quot;Precip&quot;</span><span class="p">,</span> <span class="s2">&quot;Tmin&quot;</span><span class="p">,</span> <span class="s2">&quot;Tmax&quot;</span><span class="p">,</span> <span class="s2">&quot;Tsol&quot;</span><span class="p">],</span> <span class="s2">&quot;DOY&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">day</span>
+        <span class="p">)</span>
+        <span class="n">mng_j</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">extract_dataframe</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">management</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Coupe&quot;</span><span class="p">,</span> <span class="s2">&quot;Irrig&quot;</span><span class="p">,</span> <span class="s2">&quot;FertNO3&quot;</span><span class="p">,</span> <span class="s2">&quot;FertNH4&quot;</span><span class="p">,</span> <span class="s2">&quot;Hcut&quot;</span><span class="p">],</span> <span class="s2">&quot;DOY&quot;</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">day</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">meteo_j</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">meteo_j</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">meteo_j</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">mng_j</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">mng_j</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">mng_j</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_water_balance</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters_SN</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meteo_j</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mng_j</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">soil_plants_parameters</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">plants_light_interception</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">roots_length_per_plant_per_soil_layer</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">N_content_roots_per_plant</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">option_residu</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">option_Nuptake</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">nb_plants</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">solN</span><span class="o">.</span><span class="n">step_bilanWN_solVGL</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_results</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">append_results</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meteo_j</span><span class="p">[</span><span class="s1">&#39;Et0&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">surfsolref</span><span class="p">)</span>
+
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">roots_length_per_plant_per_soil_layer</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">plants_light_interception</span><span class="p">:</span>
+                <span class="n">v</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">meteo_j</span><span class="p">[</span><span class="s1">&#39;Precip&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">surfsolref</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mng_j</span><span class="p">[</span><span class="s1">&#39;Irrig&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">surfsolref</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">stateEV</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nb_plants</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">stepWBmc</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Soil_wrapper.bare_soil_inputs"><a class="viewcode-back" href="../reference.html#soil_wrapper.Soil_wrapper.bare_soil_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">bare_soil_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Input lists for a bare soil iteration</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        epsilon : float, optional</span>
+<span class="sd">            FTSW needs a strict positive value, by default 1e-10</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        4 lists</span>
+<span class="sd">            soil inputs</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">R1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">m_1</span> <span class="o">*</span> <span class="n">epsilon</span>  <span class="c1"># pas zero sinon bug FTSW</span>
+        <span class="n">ls_roots</span> <span class="o">=</span> <span class="p">[</span><span class="n">R1</span><span class="p">]</span>
+        <span class="n">ls_epsi</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+        <span class="n">ls_N</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]</span>
+        <span class="n">ls_paramP</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">soil_plants_parameters_bare_soil</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ls_N</span><span class="p">,</span> <span class="n">ls_roots</span><span class="p">,</span> <span class="n">ls_paramP</span><span class="p">,</span> <span class="n">ls_epsi</span></div>
+
+<div class="viewcode-block" id="Soil_wrapper.append_results"><a class="viewcode-back" href="../reference.html#soil_wrapper.Soil_wrapper.append_results">[docs]</a>    <span class="k">def</span> <span class="nf">append_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">day</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append soil values at iteration day</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        day : int</span>
+<span class="sd">            day of the year</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">Nuptake_1plant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">soil</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># calcul le bilan</span>
+        <span class="n">soil</span><span class="o">.</span><span class="n">CloseNbalance</span><span class="p">()</span>
+
+        <span class="c1"># append les valeurs copiées dans le bilan soil3ds</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+
+        <span class="c1"># calcul des valeurs custom</span>
+        <span class="n">kgNO3solHa</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">m_NO3</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">soil</span><span class="o">.</span><span class="n">surfsolref</span> <span class="o">*</span> <span class="mi">10000</span>
+        <span class="n">kgNH4solHa</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">m_NH4</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">soil</span><span class="o">.</span><span class="n">surfsolref</span> <span class="o">*</span> <span class="mi">10000</span>
+        <span class="n">kgNsolHa</span> <span class="o">=</span> <span class="n">kgNO3solHa</span> <span class="o">+</span> <span class="n">kgNH4solHa</span>
+        <span class="n">uptNO3PltHa</span> <span class="o">=</span> <span class="n">Nuptake_1plant</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_plants</span> <span class="o">/</span> <span class="n">soil</span><span class="o">.</span><span class="n">surfsolref</span> <span class="o">*</span> <span class="mi">10000</span>
+        <span class="n">lix</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">lixiNO3</span>
+
+        <span class="n">cumMinN_j</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="p">[</span><span class="s2">&quot;cumMinN&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">Lix_j</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="p">[</span><span class="s2">&quot;cumLix&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">cumUptakePlt_j</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">bilanN</span><span class="p">[</span><span class="s2">&quot;cumUptakePlt&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">transp</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="n">tsw</span> <span class="o">=</span> <span class="n">soil</span><span class="o">.</span><span class="n">tsw_t</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="c1"># append ces valeurs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;DOY&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">day</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;kgNO3solHa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kgNO3solHa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;kgNH4solHa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kgNH4solHa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;kgNsolHa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">kgNsolHa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;uptNO3PltHa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uptNO3PltHa</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;lix&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lix</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;cumMinN_j&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cumMinN_j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Lix_j&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Lix_j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;cumUptakePlt_j&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cumUptakePlt_j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;transp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tsw&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tsw</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Soil_wrapper.end"><a class="viewcode-back" href="../reference.html#soil_wrapper.Soil_wrapper.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes the self.data in a csv file in self.out_folder</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;outputs_soil3ds.csv&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Soil save results not activated&quot;</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Soil_wrapper.whichvoxel_xy"><a class="viewcode-back" href="../reference.html#soil_wrapper.Soil_wrapper.whichvoxel_xy">[docs]</a>    <span class="k">def</span> <span class="nf">whichvoxel_xy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the voxel id where p is located</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        soil.dxyz : [dx, dy, dz]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        p : list or tuple</span>
+<span class="sd">            point (x, y, z)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int, int</span>
+<span class="sd">            voxel x id and voxel y id</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+
+        <span class="n">ix</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">origin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">dxyz</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">iy</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">origin</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">soil</span><span class="o">.</span><span class="n">dxyz</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">ix</span><span class="p">,</span> <span class="n">iy</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
