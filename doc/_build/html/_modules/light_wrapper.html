@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>light_wrapper &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials with jupyter notebooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">light_wrapper</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for light_wrapper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    contains Light_wrapper class</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">lightvegemanager.LVM</span> <span class="kn">import</span> <span class="n">LightVegeManager</span>
+<span class="kn">from</span> <span class="nn">plantfusion.utils</span> <span class="kn">import</span> <span class="n">create_child_folder</span>
+<span class="kn">from</span> <span class="nn">plantfusion.planter</span> <span class="kn">import</span> <span class="n">Planter</span>
+<span class="kn">from</span> <span class="nn">plantfusion.indexer</span> <span class="kn">import</span> <span class="n">Indexer</span>
+
+
+<div class="viewcode-block" id="Light_wrapper"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper">[docs]</a><span class="k">class</span> <span class="nc">Light_wrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for LightVegeManager</span>
+<span class="sd">    </span>
+<span class="sd">    Sets pre-configured parameters following the inputs</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    planter : Planter, optional</span>
+<span class="sd">        Object containing plant positions and/or number of plants and/or soil domain, by default Planter()</span>
+<span class="sd">    indexer : Indexer, optional</span>
+<span class="sd">        indexer for listing FSPM in the simulation, by default Indexer()</span>
+<span class="sd">    lightmodel : str, optional</span>
+<span class="sd">        select the light model, choose between &quot;caribu&quot;, &quot;ratp&quot; or &quot;riri5&quot;, by default &quot;&quot;</span>
+<span class="sd">    sky : str, optional</span>
+<span class="sd">        sky type, see sky in LightVegeManager for more info, by default &quot;turtle46&quot;</span>
+<span class="sd">    direct : bool, optional</span>
+<span class="sd">        activate direct radiation (sun), by default False</span>
+<span class="sd">    diffuse : bool, optional</span>
+<span class="sd">        activate diffuse radiation (sky), by default True</span>
+<span class="sd">    reflected : bool, optional</span>
+<span class="sd">        activate reflected radiation between plants, by default False</span>
+<span class="sd">    coordinates : list, optional</span>
+<span class="sd">        [latitude, longitude, timezone], by default [46.4, 0.0, 1.0]</span>
+<span class="sd">    infinite : bool, optional</span>
+<span class="sd">        activate infinite scene replication, by default True</span>
+<span class="sd">    legume_wrapper : L_egume_wrapper or list of L_egume_wrapper, optional</span>
+<span class="sd">        instance(s) of L_egume_wrapper in the simulation, by default None</span>
+<span class="sd">    caribu_opt : dict, optional</span>
+<span class="sd">        optical parameters for CARIBU, by default {&quot;par&quot;: (0.10, 0.07)}</span>
+<span class="sd">    voxels_size : list, optional</span>
+<span class="sd">        input voxels size in m for each direction [dx, dy, dz], by default [1.0, 1.0, 1.0]</span>
+<span class="sd">    angle_distrib_algo : str, optional</span>
+<span class="sd">        computation type for leaf angle distribution, by default &quot;compute global&quot;</span>
+<span class="sd">    nb_angle_class : int, optional</span>
+<span class="sd">        number of leaf angle classes between 0 and 90°, by default 9</span>
+<span class="sd">    mu : float, optional</span>
+<span class="sd">        dispersion coefficient in voxels, by default 1.0</span>
+<span class="sd">    writegeo : bool, optional</span>
+<span class="sd">        activate write the scene in VTK and bgeom files, by default False</span>
+<span class="sd">    out_folder : str, optional</span>
+<span class="sd">        outputs folder path where to write geometric files if writegeo == True, by default &quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">planter</span><span class="o">=</span><span class="n">Planter</span><span class="p">(),</span>
+        <span class="n">indexer</span><span class="o">=</span><span class="n">Indexer</span><span class="p">(),</span>
+        <span class="n">lightmodel</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">sky</span><span class="o">=</span><span class="s2">&quot;turtle46&quot;</span><span class="p">,</span>
+        <span class="n">direct</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">diffuse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">reflected</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">coordinates</span><span class="o">=</span><span class="p">[</span><span class="mf">46.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+        <span class="n">infinite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">legume_wrapper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">caribu_opt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;par&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.10</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">)},</span>
+        <span class="n">voxels_size</span><span class="o">=</span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+        <span class="n">angle_distrib_algo</span><span class="o">=</span><span class="s2">&quot;compute global&quot;</span><span class="p">,</span>
+        <span class="n">nb_angle_class</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">mu</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">writegeo</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">out_folder</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor, create an instance of LightVegeManager</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writegeo</span> <span class="o">=</span> <span class="n">writegeo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_sensors</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direct</span><span class="o">=</span><span class="n">direct</span>
+        <span class="k">if</span> <span class="n">writegeo</span><span class="p">:</span>
+            <span class="n">create_child_folder</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">out_folder</span><span class="p">),</span> <span class="s2">&quot;light&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">out_folder</span><span class="p">),</span> <span class="s2">&quot;light&quot;</span><span class="p">)</span>
+            <span class="n">create_child_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;vtk&quot;</span><span class="p">)</span>
+            <span class="n">create_child_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;plantgl&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">=</span> <span class="n">lightmodel</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">type_domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">domain</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="n">coordinates</span><span class="p">,</span>
+            <span class="s2">&quot;sky&quot;</span><span class="p">:</span> <span class="n">sky</span><span class="p">,</span>
+            <span class="s2">&quot;direct&quot;</span><span class="p">:</span> <span class="n">direct</span><span class="p">,</span>
+            <span class="s2">&quot;diffus&quot;</span><span class="p">:</span> <span class="n">diffuse</span><span class="p">,</span>
+            <span class="s2">&quot;reflected&quot;</span><span class="p">:</span> <span class="n">reflected</span><span class="p">,</span>
+            <span class="s2">&quot;infinite&quot;</span><span class="p">:</span> <span class="n">infinite</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">)</span>
+
+        <span class="c1"># get grid dimensions of l-egume instances</span>
+        <span class="n">dxyz_legume</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="n">nxyz_legume</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="k">if</span> <span class="n">legume_wrapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">nxyz_legume</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">wrap</span> <span class="ow">in</span> <span class="n">legume_wrapper</span><span class="p">:</span>
+                    <span class="n">nxyz_legume</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                        <span class="n">wrap</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">3</span><span class="p">],</span>
+                        <span class="n">wrap</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="n">wrap</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="p">])</span>
+                <span class="n">nxyz_legume</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">nxyz_legume</span><span class="p">)]</span>
+                <span class="n">dxyz_legume</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mf">0.01</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">legume_wrapper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">voxels_size</span><span class="p">()]</span>  <span class="c1"># conversion de cm à m</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">nxyz_legume</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">3</span><span class="p">],</span>
+                    <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">]</span>
+                <span class="n">dxyz_legume</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mf">0.01</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">voxels_size</span><span class="p">()]</span>  <span class="c1"># conversion de cm à m</span>
+
+        <span class="n">lightmodel_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># CARIBU parameters</span>
+        <span class="k">if</span> <span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;caribu&quot;</span><span class="p">:</span>
+            <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;caribu opt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">caribu_opt</span>
+            <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;sun algo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;caribu&quot;</span>
+            <span class="c1"># creates grids of virtual sensors if l-egume + CARIBU</span>
+            <span class="k">if</span> <span class="n">legume_wrapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">compute_sensors</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">x_trans</span><span class="p">,</span> <span class="n">y_trans</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;sensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="k">for</span> <span class="n">wrap</span> <span class="ow">in</span> <span class="n">legume_wrapper</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="s2">&quot;translate&quot;</span> <span class="ow">in</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">wrap</span><span class="o">.</span><span class="n">global_index</span> <span class="ow">in</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]:</span>
+                                <span class="n">x_trans</span><span class="p">,</span> <span class="n">y_trans</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">wrap</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span>
+                        <span class="n">orig</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">x_trans</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">y_trans</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+                        <span class="n">nxyz_legume</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="n">wrap</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">3</span><span class="p">],</span>
+                            <span class="n">wrap</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">2</span><span class="p">],</span>
+                            <span class="n">wrap</span><span class="o">.</span><span class="n">number_of_voxels</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="p">]</span>
+                        <span class="n">dxyz_legume</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mf">0.01</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">wrap</span><span class="o">.</span><span class="n">voxels_size</span><span class="p">()]</span>  <span class="c1"># conversion de cm à m</span>
+                        <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;sensors&quot;</span><span class="p">][</span><span class="n">wrap</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="n">dxyz_legume</span><span class="p">,</span> <span class="n">nxyz_legume</span><span class="p">,</span> <span class="n">orig</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>                
+                    <span class="k">if</span> <span class="s2">&quot;translate&quot;</span> <span class="ow">in</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">i</span> <span class="ow">in</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">global_index</span><span class="p">])</span> <span class="p">:</span>
+                                <span class="n">x_trans</span><span class="p">,</span> <span class="n">y_trans</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">global_index</span> <span class="ow">in</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]</span> <span class="p">:</span>
+                                <span class="n">x_trans</span><span class="p">,</span> <span class="n">y_trans</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span>
+                    <span class="n">orig</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="n">x_trans</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="n">y_trans</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>   
+                    <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;sensors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="n">dxyz_legume</span><span class="p">,</span> <span class="n">nxyz_legume</span><span class="p">,</span> <span class="n">orig</span><span class="p">]</span>
+
+            <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;debug&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;soil mesh&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># RATP/RiRi5 parameters</span>
+        <span class="k">elif</span> <span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;ratp&quot;</span> <span class="ow">or</span> <span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;riri5&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">legume_wrapper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;voxel size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dxyz_legume</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;origin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;full grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;voxel size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxels_size</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;full grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;mu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">mu</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span>
+            <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;reflectance coefficients&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span>
+
+            <span class="k">if</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">angle_distrib_algo</span> <span class="ow">or</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">angle_distrib_algo</span><span class="p">:</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;angle distrib algo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;file&quot;</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;angle distrib file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle_distrib_algo</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;angle distrib algo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle_distrib_algo</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;nb angle classes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nb_angle_class</span>
+                <span class="n">lightmodel_parameters</span><span class="p">[</span><span class="s2">&quot;soil reflectance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;lightmodel not recognize&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+        
+        <span class="c1"># instance create of LightVegeManager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">light</span> <span class="o">=</span> <span class="n">LightVegeManager</span><span class="p">(</span>
+            <span class="n">environment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span>
+            <span class="n">lightmodel</span><span class="o">=</span><span class="n">lightmodel</span><span class="p">,</span>
+            <span class="n">lightmodel_parameters</span><span class="o">=</span><span class="n">lightmodel_parameters</span><span class="p">,</span>
+            <span class="n">main_unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">i_vtk</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Light_wrapper.run"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">scenes</span><span class="o">=</span><span class="p">[],</span> <span class="n">day</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">hour</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">parunit</span><span class="o">=</span><span class="s2">&quot;RG&quot;</span><span class="p">,</span> <span class="n">stems</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the lighting computation</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        energy : float, optional</span>
+<span class="sd">            radiation input from meteo in W/m², by default 1.0</span>
+<span class="sd">        scenes : list, optional</span>
+<span class="sd">            lits of geometric scenes available with LightVegeManager, by default []</span>
+<span class="sd">        day : int, optional</span>
+<span class="sd">            day of the year, by default 1</span>
+<span class="sd">        hour : int, optional</span>
+<span class="sd">            timestep hour, by default 12</span>
+<span class="sd">        parunit : str, optional</span>
+<span class="sd">            possibility to precise the radiation unit, by default &quot;RG&quot;</span>
+<span class="sd">        stems : list of tuple, optional</span>
+<span class="sd">            precise if stems are among the input scenes. An element of the list is (specy ID, organ ID), by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">geometry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;scenes&quot;</span><span class="p">:</span> <span class="n">scenes</span><span class="p">,</span> <span class="s2">&quot;domain&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="s2">&quot;transformations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">,</span> <span class="s2">&quot;stems id&quot;</span><span class="p">:</span> <span class="n">stems</span><span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span>
+            <span class="n">day</span><span class="o">=</span><span class="n">day</span><span class="p">,</span>
+            <span class="n">hour</span><span class="o">=</span><span class="n">hour</span><span class="p">,</span>
+            <span class="n">truesolartime</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">parunit</span><span class="o">=</span><span class="n">parunit</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">writegeo</span><span class="p">:</span>
+            <span class="n">file_project_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">),</span> <span class="s2">&quot;vtk&quot;</span><span class="p">,</span> <span class="s2">&quot;plantfusion_&quot;</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;ratp&quot;</span><span class="p">:</span>
+                <span class="n">printvoxels</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;caribu&quot;</span><span class="p">:</span>
+                <span class="n">printvoxels</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">to_VTK</span><span class="p">(</span><span class="n">lighting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                <span class="n">path</span><span class="o">=</span><span class="n">file_project_name</span><span class="p">,</span> 
+                                <span class="n">i</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">i_vtk</span><span class="p">,</span> 
+                                <span class="n">printtriangles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                <span class="n">printvoxels</span><span class="o">=</span><span class="n">printvoxels</span><span class="p">,</span> 
+                                <span class="n">virtual_sensors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_sensors</span><span class="p">,</span> 
+                                <span class="n">sun</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">direct</span><span class="p">)</span>
+            <span class="n">scene_plantgl</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">to_plantGL</span><span class="p">(</span><span class="n">lighting</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                                    <span class="n">printtriangles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+                                                    <span class="n">printvoxels</span><span class="o">=</span><span class="n">printvoxels</span><span class="p">,</span> 
+                                                    <span class="n">virtual_sensors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_sensors</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_sensors</span><span class="p">:</span>
+                <span class="n">scene_plantgl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;plantgl&quot;</span><span class="p">,</span> <span class="s2">&quot;scene_light_plantgl_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i_vtk</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;.bgeom&quot;</span>
+                <span class="p">)</span>
+                <span class="n">scene_plantgl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;plantgl&quot;</span><span class="p">,</span> <span class="s2">&quot;sensors_plantgl_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i_vtk</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;.bgeom&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scene_plantgl</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;plantgl&quot;</span><span class="p">,</span> <span class="s2">&quot;scene_light_plantgl_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i_vtk</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;.bgeom&quot;</span>
+                <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">i_vtk</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.results_organs"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.results_organs">[docs]</a>    <span class="k">def</span> <span class="nf">results_organs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return lighting results at organ scale</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.Dataframe</span>
+<span class="sd">            lighting results at organ scale</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">elements_outputs</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.results_voxels"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.results_voxels">[docs]</a>    <span class="k">def</span> <span class="nf">results_voxels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return lighting results at voxels scale</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.Dataframe</span>
+<span class="sd">            lighting results at voxels scale</span>
+<span class="sd">        &quot;&quot;&quot;</span>         
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">voxels_outputs</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.results_triangles"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.results_triangles">[docs]</a>    <span class="k">def</span> <span class="nf">results_triangles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return lighting results at triangles scale</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.Dataframe</span>
+<span class="sd">            lighting results at triangles scale</span>
+<span class="sd">        &quot;&quot;&quot;</span>         
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">triangles_outputs</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.results_sensors"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.results_sensors">[docs]</a>    <span class="k">def</span> <span class="nf">results_sensors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return lighting results of virtual sensors</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.Dataframe</span>
+<span class="sd">            lighting results of virtual sensors</span>
+<span class="sd">        &quot;&quot;&quot;</span>         
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">sensors_outputs</span><span class="p">(</span><span class="n">dataframe</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.res_trans"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.res_trans">[docs]</a>    <span class="k">def</span> <span class="nf">res_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return transmitted energy per voxel</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.array</span>
+<span class="sd">            transmitted energy per voxel dimensions [iz, iy, ix]</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">riri5_transmitted_light</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.res_abs_i"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.res_abs_i">[docs]</a>    <span class="k">def</span> <span class="nf">res_abs_i</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return absorbed energy per voxel per specy</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.array</span>
+<span class="sd">            absorbed energy per voxel dimensions [specy id, iz, iy, ix]</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">riri5_intercepted_light</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.soil_energy"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.soil_energy">[docs]</a>    <span class="k">def</span> <span class="nf">soil_energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Relative energy intercepted by soil</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Relative energy intercepted by soil [0-1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">soilenergy</span><span class="p">[</span><span class="s2">&quot;Qi&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.nb_empty_z_layers"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.nb_empty_z_layers">[docs]</a>    <span class="k">def</span> <span class="nf">nb_empty_z_layers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of empty z layers in voxel grid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Number of empty z layers in voxel grid</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">legume_empty_layers</span></div>
+
+<div class="viewcode-block" id="Light_wrapper.xydomain_lightvegemanager"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.xydomain_lightvegemanager">[docs]</a>    <span class="k">def</span> <span class="nf">xydomain_lightvegemanager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return soil domain computed by lightvegemanager</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple of tuple</span>
+<span class="sd">            ((xmin, ymin), (xmax, ymax))</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">domain</span></div>
+    
+<div class="viewcode-block" id="Light_wrapper.plantgl"><a class="viewcode-back" href="../reference.html#light_wrapper.Light_wrapper.plantgl">[docs]</a>    <span class="k">def</span> <span class="nf">plantgl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lighting</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">printtriangles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">printvoxels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return plantGL scene of LightVegeManager mesh</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lighting : bool, optional</span>
+<span class="sd">            activate lighting results or only geometry, by default False</span>
+<span class="sd">        printtriangles : bool, optional</span>
+<span class="sd">            print triangles in returned scene, by default True</span>
+<span class="sd">        printvoxels : bool, optional</span>
+<span class="sd">            print voxels in returned scene, by default False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plantgl.Scene</span>
+<span class="sd">            plantgl scene of the current timestep</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">light</span><span class="o">.</span><span class="n">to_plantGL</span><span class="p">(</span><span class="n">lighting</span><span class="o">=</span><span class="n">lighting</span><span class="p">,</span> 
+                                        <span class="n">printtriangles</span><span class="o">=</span><span class="n">printtriangles</span><span class="p">,</span> 
+                                        <span class="n">printvoxels</span><span class="o">=</span><span class="n">printvoxels</span><span class="p">,</span> 
+                                        <span class="n">virtual_sensors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compute_sensors</span><span class="p">)</span> </div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

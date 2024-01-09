@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials with jupyter notebooks" href="tutorials.html" />
+    <link rel="prev" title="Welcome to PlantFusion’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials with jupyter notebooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/installation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
+<p>We use [conda](<a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/index.html">https://docs.conda.io/projects/conda/en/latest/user-guide/index.html</a>) for managing our python environment.</p>
+<p>Note: <cite>git</cite> commands must be run in a git bash terminal (or linux terminal) and <cite>python</cite>, <cite>conda</cite>, <cite>mamba</cite>, in a powershell terminal (or linux terminal).</p>
+<ol class="arabic simple" start="0">
+<li><p>Recommended step: install mamba in your <cite>base</cite> conda environment:</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">conda</span> <span class="pre">install</span> <span class="pre">mamba</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple">
+<li><p>Create your conda environment (replace conda with mamba if installed):</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">`python</span>
+<span class="pre">conda</span> <span class="pre">create</span> <span class="pre">-n</span> <span class="pre">myenvname</span> <span class="pre">openalea.mtg</span> <span class="pre">openalea.plantgl</span> <span class="pre">openalea.deploy</span> <span class="pre">openalea.lpy</span> <span class="pre">openalea.sconsx</span> <span class="pre">alinea.caribu</span> <span class="pre">alinea.astk</span> <span class="pre">numpy=1.22.4</span> <span class="pre">pandas</span> <span class="pre">pytest</span> <span class="pre">sphinx</span> <span class="pre">sphinx-rtd-theme</span> <span class="pre">xlrd</span> <span class="pre">coverage</span> <span class="pre">nose</span> <span class="pre">statsmodels</span> <span class="pre">scipy=1.7.3</span> <span class="pre">scons</span> <span class="pre">zipp=3.15.0</span> <span class="pre">m2w64-gcc-fortran</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">-c</span> <span class="pre">openalea3</span>
+<span class="pre">`</span></code></p>
+<ol class="arabic simple" start="2">
+<li><p>Convert CARIBU and Astk namespace in PEP 420. This step is required for installing other packages in the <cite>alinea</cite> namespace. To do so, you need to delete the <cite>__init__.py</cite> file in the <cite>alinea</cite> folder. For example, on a Windows computer, you could use this command:</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">del</span> <span class="pre">C:\Users\username\AppData\Local\miniconda3\envs\myenvname\Lib\site-packages\alinea.astk-2.3.2-py3.9.egg\alinea\__init__.py</span>
+<span class="pre">del</span> <span class="pre">C:\Users\username\AppData\Local\miniconda3\envs\myenvname\Lib\site-packages\alinea.caribu-8.0.10-py3.9-win-amd64.egg\alinea\__init__.py</span>
+<span class="pre">`</span></code></p>
+<p>/!For all the following steps, run the commands inside the downloaded folders (commands after <cite>git clone</cite>).</p>
+<ol class="arabic" start="3">
+<li><p>Installation of Adel</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p><cite>git clone -b python3 https://github.com/rbarillot/adel</cite></p></li>
+<li><p>Convert the namespace package to PEP 420:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Delete the <cite>__init__.py</cite> in alinea folder</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">del</span> <span class="pre">src/alinea/__init__.py</span>
+<span class="pre">`</span></code></p>
+</div></blockquote>
+</li>
+<li><p>Replace the <cite>setup.py</cite> with <cite>setup_adel.py</cite> in <cite>plantfusion/installation_ressources</cite>. Rename it <cite>setup.py</cite>.</p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Installation : <cite>python setup.py develop</cite></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Installation of PyRATP. For this step, you need to have <cite>gcc</cite>, <cite>gfortran</cite> and <cite>make</cite> installed</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Download the package: <cite>git clone -b update_mobidiv https://github.com/mwoussen/PyRATP</cite></p></li>
+<li><p>Installation:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">`bash</span>
+<span class="pre">make</span> <span class="pre">mode=develop</span>
+<span class="pre">make</span> <span class="pre">clean</span>
+<span class="pre">`</span></code></p>
+</div></blockquote>
+</li>
+</ol>
+<p>Note: <cite>make</cite> will compile the fortran part, then run the package installation with pip.</p>
+</div></blockquote>
+</li>
+<li><p>Installation of WheatFspm</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Create a WheatFspm folder and copy the <cite>clone_wheatfspm.sh</cite> and <cite>setup_wheatfspm.py</cite> files in it.</p></li>
+<li><p>Run <cite>clone_wheatfspm.sh</cite> in a git bash terminal. This step will download all the wheatfspm submodules.</p></li>
+<li><p>Rename <cite>setup_wheatfspm.py</cite> to <cite>setup.py</cite> and install the package with <cite>python setup.py develop</cite></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Installation of l-egume</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Download the package: <cite>git clone -b Develop https://github.com/glouarn/l-egume</cite></p></li>
+<li><p>Install: <cite>python setup.py develop</cite></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Installation of LightVegeManager</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Download the package: <cite>git clone https://github.com/mwoussen/lightvegemanager</cite></p></li>
+<li><p>Install: <cite>python setup.py develop</cite></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Installation of soil3ds</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Download the package: <cite>git clone https://github.com/glouarn/soil3ds</cite></p></li>
+<li><p>Install: <cite>python setup.py develop</cite></p></li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>Installation of riri5</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Download the package: <cite>git clone https://github.com/glouarn/riri5</cite></p></li>
+<li><p>Install: <cite>python setup.py develop</cite></p></li>
+</ol>
+</div></blockquote>
+</li>
+</ol>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to PlantFusion’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials with jupyter notebooks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

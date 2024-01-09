@@ -1,0 +1,158 @@
+from openalea.plantgl.all import *
+from alinea.caribu.CaribuScene import CaribuScene
+from soil3ds import soil_moduleN as solN
+import numpy
+
+from plante_rampante_functions import *
+
+#parametres plante
+Lfeuille = 0.9
+Lpetiole = 0.9
+Len = 1
+Dtige = 0.07
+phyllochron = 20 
+a = 0.05
+delaiF = 50
+delaiE = 0
+delaiLbud = 2*phyllochron
+treshPAR = 0.02
+RUE = 2. # gMS.MJ-1
+AllocRoot = 0.2
+
+#Plant variables
+MS = 0.001
+FTSW = 1. # fraction of transpirable soil water
+dMSRoot = MS*AllocRoot
+
+# Meteo
+nb_jours=1000
+IncomingLight = 0.001 # MJ.m-2-degredays-1 (jour cumulant 10 degres days)
+Et0 = [0.1]*nb_jours #ETP (mm)
+Rain = [0.]*nb_jours
+Tsol = [25.]*nb_jours #degresC
+Irrig = [0.]*nb_jours #0.2.
+FertNO3 = [0.]*nb_jours #kg N.ha-1
+FertNH4 = [0.]*nb_jours #kg N.ha-1
+epsi = [0.9999]*nb_jours #efficience d'interceptio plante ; 1: voit que effet transpi
+IDj = 0 #ID du jour
+
+# Init light
+Dico_Par = {}
+calcpar = 0
+
+#carto positions plantes
+nb_plt = 1
+carto = [[0.,0.,0.]] #cm
+
+# initialisation d'un sol
+pattern8 = [[-15.,-15.], [15.,15.]] # cm
+dz = 3. # cm
+size = [10,10,30] # discretisation
+properties_3ds = ['asw_t', 'tsw_t', 'Corg', 'Norg', 'm_NO3', 'm_NH4', 'm_soil_vol', 'm_Tsol', 'm_DA', 'ftsw_t']
+stateEV = [0.,0.,0.]
+soil, stateEV, intsoil = initiatisation_soil_default(pattern8, dz, size, stateEV, properties_3ds)
+soilsurf = (pattern8[1][0] - pattern8[0][0])**2
+
+# paramètre pour eau et azote par défaut des plantes
+ParamPN = [solN.default_paramp()] * nb_plt
+ls_N = [1.] * nb_plt
+par_SN = solN.default_parSN()
+roots_length = 1. # m
+
+#option
+opt_external_coupling=0
+view_leaves = False
+
+def StartEach():
+    global dotest
+    dotest = ((getIterationNb()/phyllochron % 2) == 0)
+    pass
+
+
+def EndEach(lstring,lscene):
+    global calcpar, Dico_Par, MS, dMSRoot
+    global roots_length, soilsurf, soil, carto, nb_plt
+    global Et0, Rain, Tsol, Irrig, FertNO3, FertNH4, ParamPN, par_SN, IDj
+    
+    if opt_external_coupling==1:
+        pass
+    else:
+        # Calculs de caribu et sortie du Dico contenant les valeurs de rayonnement
+        cc_scene = CaribuScene(scene = lscene)
+        raw, aggregated_out = cc_scene.run(direct = True, infinite = False)
+        lstring, cumlight, ls_par = update_light_lstring(lstring, aggregated_out)
+        
+        #Carbon assimilation and allocation
+        dMS = CarbonAssimilation(cumlight, IncomingLight, RUE, FTSW, Soilsurf=soilsurf)
+        MS += dMS
+        dMSRoot = dMS*AllocRoot
+
+        # Longueurs de racines       
+        soil_dimensions = [len(soil.dxyz[i]) for i in [2, 0, 1]]
+        ls_roots = roots_length_repartition(roots_length, carto, soil.dxyz[0][0], soil.origin, soil_dimensions)
+        
+        # update daily variables
+        epsi =  cumlight/soilsurf
+        ls_epsi = [epsi]*nb_plt # partage identique entre plantes
+        meteo_j = {'Et0': Et0[IDj], 'Precip': Rain[IDj], 'Tsol': Tsol[IDj]}
+        mng_j = {'Irrig': Irrig[IDj], 'FertNO3':FertNO3[IDj], 'FertNH4':FertNH4[IDj]}
+        
+        # step water et N balance avec 1 seule entite (ls_roots et epsi)
+        tag_inputs_soil_step = [soil, par_SN, meteo_j,  mng_j, ParamPN, ls_epsi, ls_roots, ls_N, 0, 1] #input tag
+        res_soil_step = solN.step_bilanWN_solVGL(*tag_inputs_soil_step)
+        soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol = res_soil_step
+        
+        roots_length = growth_roots(roots_length, numpy.sum(ls_Act_Nuptake_plt[0]), dMS)
+
+        print("t:", IDj, "dMS:", dMS, "roots length:", roots_length, "N uptake:",numpy.sum(ls_Act_Nuptake_plt[0]))
+
+        IDj = IDj+1
+
+        
+
+module plante(nump) #partie aerienne de plante
+module A(age, PAR,rank) # Apex primaire
+module En(age) # Entre-noeud
+module Pet(age) # Petiole
+module Leaf(age) # Feuille
+module B(age, PAR) # Apex d'axe secondaire
+
+Axiom: [plante(0)A(0, 1.,0)]
+
+derivation length: 20*phyllochron
+production:
+A(age, PAR,rank):
+    if age >= phyllochron and PAR>treshPAR and rank%2==0: #branche a +45
+        produce En(0)[Pet(0)Leaf(0)][+(45)B(-delaiLbud, 1.)]A(0, 1., rank+1)
+    elif age >= phyllochron and PAR>treshPAR and rank%2!=0 : #branche a -45
+        produce En(0)[Pet(0)Leaf(0)][-(45)B(-delaiLbud, 1.)]A(0, 1., rank+1)
+    else:        
+        produce A(age+1, PAR, rank)
+
+En(age) --> En(age+1)
+Pet(age) --> Pet(age+1)
+Leaf(age) --> Leaf(age+1)
+
+B(age, PAR):
+    if age >= phyllochron and PAR>treshPAR:
+      produce En(0)[Pet(0)Leaf(0)]B(0, 1.)
+    else:
+      produce B(age+1, PAR)
+
+
+interpretation:
+# place au point initial carto
+plante(nump) --> @M(carto[nump][0], carto[nump][1], carto[nump][2])&(90) 
+
+En(age) --> SetColor(2)F(Len*expansion(age, a, delaiE),Dtige)
+A(age, PAR,rank) --> SetColor(3)f(0.2)Sphere(1.3*Dtige)
+B(age, PAR) --> SetColor(4)f(0.2)Sphere(1.3*Dtige)
+
+Pet(age) --> SetColor(2)^(90)F(Lpetiole*expansion(age, a, delaiF),0.75*Dtige)
+Leaf(age) :
+    l = Lfeuille*expansion(age, a, delaiF)
+    produce SetColor(2)^(90)f(l/2)@o(l/2)
+
+
+
+endlsystem

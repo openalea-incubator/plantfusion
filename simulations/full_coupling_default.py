@@ -1,24 +1,48 @@
-from plantfusion.l_egume_facade import L_egume_facade
-from plantfusion.wheat_facade import Wheat_facade
-from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.wheat_wrapper import Wheat_wrapper
+from plantfusion.l_egume_wrapper import L_egume_wrapper
+from plantfusion.light_wrapper import Light_wrapper
+from plantfusion.soil_wrapper import Soil_wrapper
+from plantfusion.indexer import Indexer
 from plantfusion.planter import Planter
 
 import time
 import datetime
+import os
 
 
 def simulation(
-    in_folder_legume, in_folder_wheat, out_folder, simulation_length, run_postprocessing=False, writegeo=False
+    in_folder_legume, in_folder_wheat, out_folder, simulation_length, id_usm, run_postprocessing=False, writegeo=False
 ):
+    try:
+        # Create target Directory
+        os.mkdir(os.path.normpath(out_folder))
+        print("Directory ", os.path.normpath(out_folder), " Created ")
+    except FileExistsError:
+        print("Directory ", os.path.normpath(out_folder), " already exists")
+
     ######################
     ### INITIALIZATION ###
     ######################
 
-    tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
+    wheat_name = "wheat"
+    legume_name = "legume"
+    indexer = Indexer(global_order=[legume_name, wheat_name], wheat_names=[wheat_name], legume_names=[legume_name])
+
+    translate = { legume_name : (-0.21, -0.21, 0.) }
     plant_density = {1: 250}
-    sky = "turtle46"
+    planter = Planter(generation_type="default", 
+                      indexer=indexer, 
+                      inter_rows=0.15, 
+                      plant_density=plant_density, 
+                      legume_cote={legume_name : 40.}, 
+                      legume_number_of_plants={legume_name : 32}, 
+                      translate=translate)
+
+    legume = L_egume_wrapper(
+        name=legume_name, indexer=indexer, planter=planter, in_folder=in_folder_legume, out_folder=out_folder, IDusm=id_usm, caribu_scene=True
+    )
+
+    tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     RERmax_vegetative_stages_example = {
         "elongwheat": {
             "RERmax": {5: 3.35e-06, 6: 2.1e-06, 7: 2.0e-06, 8: 1.83e-06, 9: 1.8e-06, 10: 1.65e-06, 11: 1.56e-06}
@@ -26,74 +50,38 @@ def simulation(
     }
     senescwheat_timestep = 1
     light_timestep = 4
-
-    environment = Environment(sky=sky, tillers_replications=tillers_replications, external_soil=True)
-
-    wheat = Wheat_facade(
+    wheat = Wheat_wrapper(
         in_folder=in_folder_wheat,
         out_folder=out_folder,
-        environment=environment,
-        plant_density=plant_density,
+        planter=planter,
+        indexer=indexer,
         external_soil_model=True,
         nitrates_uptake_forced=False,
+        tillers_replications=tillers_replications,
         update_parameters_all_models=RERmax_vegetative_stages_example,
         SENESCWHEAT_TIMESTEP=senescwheat_timestep,
         LIGHT_TIMESTEP=light_timestep,
-        SOIL_PARAMETERS_FILENAME="inputs_soil_legume/Parametres_plante_exemple.xls",
+        SOIL_PARAMETERS_FILENAME="inputs_soil_legume/Parametres_plante_exemple.xls"
     )
 
-    legume = L_egume_facade(in_folder=in_folder_legume, out_folder=out_folder, IDusm=[9, 10])
-
-    translate = (-0.21, -0.21)
-    plants_positions = Planter(
-        generation_type="default",
-        plantmodels=[wheat, legume], 
-        inter_rows=0.15, 
-        plant_density=plant_density, 
-        xy_translate=translate, 
-        noise_plant_positions=0.03
+    sky = "turtle46"
+    lighting = Light_wrapper(
+        lightmodel="caribu", 
+        out_folder=out_folder, 
+        sky=sky,
+        planter=planter, 
+        indexer=indexer,
+        legume_wrapper=legume,
+        writegeo=writegeo
     )
 
-    soil = Soil_facade(
-        in_folder=in_folder_legume,
-        out_folder=out_folder,
-        IDusm=9,
-        legume_facade=legume,
-        position=plants_positions,
-        save_results=True,
-    )
-    soil_dimensions = [len(soil.soil.dxyz[i]) for i in [2, 0, 1]]
-
-    lighting = Light(
-        lightmodel="caribu",
-        out_folder=out_folder,
-        position=plants_positions,
-        environment=environment,
-        wheat_facade=wheat,
-        legume_facade=legume,
-        writegeo=writegeo,
-    )
-
-    # pour legume seul
-    plants_positions_legume = Planter(
-        plantmodels=[legume]
-    )
-    lighting_legume = Light(
-        lightmodel="caribu",
-        out_folder=out_folder,
-        position=plants_positions_legume,
-        environment=environment,
-        legume_facade=legume,
-        writegeo=writegeo,
-    )
-    soil_legume = Soil_facade(
-        in_folder=in_folder_legume,
-        out_folder=out_folder,
-        IDusm=9,
-        legume_facade=legume,
-        position=plants_positions_legume,
-        save_results=True,
-    )
+    soil = Soil_wrapper(in_folder=in_folder_legume, 
+                        out_folder=out_folder, 
+                        IDusm=id_usm, 
+                        legume_wrapper=legume, 
+                        planter=planter, 
+                        opt_residu=0, 
+                        save_results=True)
     
     ##################
     ### SIMULATION ###
@@ -101,23 +89,42 @@ def simulation(
 
     current_time_of_the_system = time.time()
     t_legume = 0
-    nb_iter = int(wheat.meteo.loc[0, ["DOY"]].iloc[0] - legume.lsystems[legume.idsimu[0]].DOYdeb)
+    nb_iter = int(wheat.meteo.loc[0, ["DOY"]].iloc[0] - legume.lsystem.DOYdeb)
+
+    # onlylegume_index = 0
+    # save_planter_nb_plants = planter.number_of_plants
+    # planter.number_of_plants[onlylegume_index] = planter.number_of_plants[legume.global_index]
+    
     for t in range(nb_iter):
+
         legume.derive(t)
 
-        scene_legume = legume.light_inputs(lightmodel="caribu")
-        lighting_legume.run(scenes_l_egume=scene_legume, day=legume.doy(), parunit="RG")
-        legume.light_results(legume.energy(), lighting_legume)
+        scene_legume = legume.light_inputs(elements="triangles")
+        lighting.run(scenes=[scene_legume], day=legume.doy(), parunit="RG")
+        legume.light_results(legume.energy(), lighting)
 
-        soil_legume_inputs = legume.soil_inputs()
-        soil_legume.run(legume.doy(), legume_inputs=soil_legume_inputs)
-        legume.soil_results(soil_legume.inputs, soil_legume.results)
+        (
+            N_content_roots_per_plant,
+            roots_length_per_plant_per_soil_layer,
+            plants_soil_parameters,
+            plants_light_interception,
+        ) = legume.soil_inputs()
+        soil.run(
+            legume.doy(),
+            [N_content_roots_per_plant],
+            [roots_length_per_plant_per_soil_layer],
+            [plants_soil_parameters],
+            [plants_light_interception],
+        )
+        legume.soil_results(soil.results, planter)
 
         legume.run()
+
         t_legume += 1
 
+    # planter.number_of_plants = save_planter_nb_plants
 
-    lighting.i_vtk = lighting_legume.i_vtk
+    lighting.i_vtk = lighting.i_vtk
     for t_wheat in range(wheat.start_time, simulation_length, wheat.SENESCWHEAT_TIMESTEP):
         activate_legume = wheat.doy(t_wheat) != wheat.next_day_next_hour(t_wheat)
         daylight = (t_wheat % light_timestep == 0) and (wheat.PARi_next_hours(t_wheat) > 0)
@@ -126,14 +133,16 @@ def simulation(
             if activate_legume:
                 legume.derive(t_legume)
 
-            wheat_input = wheat.light_inputs(plants_positions)
-            legume_input = legume.light_inputs("caribu")
+            wheat_input, stems = wheat.light_inputs(planter)
+            legume_input = legume.light_inputs(elements="triangles")
+            scenes = indexer.light_scenes_mgmt({wheat_name : wheat_input, legume_name : legume_input})
+
             lighting.run(
-                scenes_wheat=[wheat_input],
-                scenes_l_egume=legume_input,
+                scenes=scenes,
                 day=wheat.doy(t_wheat),
                 hour=wheat.hour(t_wheat),
                 parunit="RG",
+                stems=stems
             )
             if daylight:
                 wheat.light_results(energy=wheat.energy(t_wheat), lighting=lighting)
@@ -141,23 +150,24 @@ def simulation(
             if activate_legume:
                 legume.light_results(legume.energy(), lighting)
 
+                soil_wheat_inputs = wheat.soil_inputs(soil, planter, lighting)
+                soil_legume_inputs = legume.soil_inputs()
                 (
                     N_content_roots_per_plant,
                     roots_length_per_plant_per_soil_layer,
-                    wheat_soil_parameters,
+                    plants_soil_parameters,
                     plants_light_interception,
-                ) = wheat.soil_inputs(soil_dimensions, lighting)
-                soil_legume_inputs = legume.soil_inputs()
+                ) = indexer.soil_inputs({legume_name : soil_legume_inputs, wheat_name : soil_wheat_inputs})
+                
                 soil.run(
                     legume.doy(),
-                    [N_content_roots_per_plant],
-                    [roots_length_per_plant_per_soil_layer],
-                    [wheat_soil_parameters],
-                    [plants_light_interception],
-                    legume_inputs=soil_legume_inputs,
+                    N_content_roots_per_plant,
+                    roots_length_per_plant_per_soil_layer,
+                    plants_soil_parameters,
+                    plants_light_interception
                 )
-                wheat.soil_results(soil.results[4])
-                legume.soil_results(soil.inputs, soil.results)
+                wheat.soil_results(soil.results[4], planter=planter)
+                legume.soil_results(soil.results)
 
                 legume.run()
                 t_legume += 1
@@ -178,6 +188,7 @@ if __name__ == "__main__":
     in_folder_wheat = "inputs_fspmwheat"
     out_folder = "outputs/full_coupling_default"
     simulation_length = 2500
+    id_usm = 9
     writegeo = True
 
-    simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length, writegeo=writegeo)
+    simulation(in_folder_legume, in_folder_wheat, out_folder, simulation_length, id_usm, writegeo=writegeo)

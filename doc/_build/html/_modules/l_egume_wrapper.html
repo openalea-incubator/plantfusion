@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>l_egume_wrapper &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials with jupyter notebooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">l_egume_wrapper</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for l_egume_wrapper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    contains L_egume_wrapper class</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">from</span> <span class="nn">plantfusion.indexer</span> <span class="kn">import</span> <span class="n">Indexer</span>
+<span class="kn">import</span> <span class="nn">scipy</span>
+
+<span class="kn">from</span> <span class="nn">openalea.lpy</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">import</span> <span class="nn">legume.IOxls</span> <span class="k">as</span> <span class="nn">IOxls</span>
+<span class="kn">import</span> <span class="nn">legume.IOtable</span> <span class="k">as</span> <span class="nn">IOtable</span>
+<span class="kn">import</span> <span class="nn">legume.run_legume_usm</span> <span class="k">as</span> <span class="nn">runl</span>
+<span class="kn">import</span> <span class="nn">legume.ShootMorpho</span> <span class="k">as</span> <span class="nn">sh</span>
+<span class="kn">import</span> <span class="nn">legume.daily_loop</span> <span class="k">as</span> <span class="nn">loop</span>
+<span class="kn">from</span> <span class="nn">legume.initialisation</span> <span class="kn">import</span> <span class="n">init_plant_residues_fromParamP</span>
+
+<span class="kn">import</span> <span class="nn">riri5.RIRI5</span> <span class="k">as</span> <span class="nn">riri</span>
+
+<span class="kn">from</span> <span class="nn">plantfusion.utils</span> <span class="kn">import</span> <span class="n">create_child_folder</span>
+<span class="kn">from</span> <span class="nn">plantfusion.light_wrapper</span> <span class="kn">import</span> <span class="n">Light_wrapper</span>
+<span class="kn">from</span> <span class="nn">plantfusion.indexer</span> <span class="kn">import</span> <span class="n">Indexer</span>
+
+
+<div class="viewcode-block" id="L_egume_wrapper"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper">[docs]</a><span class="k">class</span> <span class="nc">L_egume_wrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrapper for l-egume model</span>
+
+<span class="sd">    Note</span>
+<span class="sd">    ---- </span>
+<span class="sd">    Only one lsystem per wrapper instance</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        name of the fspm instance, by default &quot;legume&quot;</span>
+<span class="sd">    indexer : Indexer, optional</span>
+<span class="sd">        indexer for listing FSPM in the simulation, by default Indexer()</span>
+<span class="sd">    in_folder : str, optional</span>
+<span class="sd">        input folder path, by default &quot;&quot;</span>
+<span class="sd">    out_folder : str, optional</span>
+<span class="sd">        output folder path if writing outputs is activated, by default None</span>
+<span class="sd">    nameconfigfile : str, optional</span>
+<span class="sd">        excel file name which contains the usm to run, by default &quot;liste_usms_exemple.xls&quot;</span>
+<span class="sd">    ongletconfigfile : str, optional</span>
+<span class="sd">        sheet containing the usm to run in ``nameconfigfile`` file, by default &quot;exemple&quot;</span>
+<span class="sd">    IDusm : int, optional</span>
+<span class="sd">        ID of the usm to run. Needed if you want to bypass the &quot;torun&quot; column in the usms config file, by default None</span>
+<span class="sd">    planter : Planter, optional</span>
+<span class="sd">        Object containing plant positions and/or number of plants and/or soil domain, by default None</span>
+<span class="sd">    caribu_scene : bool, optional</span>
+<span class="sd">        if you want to force the rendered interpretation scene to leaves only, by default False</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;legume&quot;</span><span class="p">,</span>
+        <span class="n">indexer</span><span class="o">=</span><span class="n">Indexer</span><span class="p">(),</span>
+        <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">out_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">nameconfigfile</span><span class="o">=</span><span class="s2">&quot;liste_usms_exemple.xls&quot;</span><span class="p">,</span>
+        <span class="n">ongletconfigfile</span><span class="o">=</span><span class="s2">&quot;exemple&quot;</span><span class="p">,</span>
+        <span class="n">IDusm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">planter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">caribu_scene</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor, creates the lsystem</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="n">out_folder</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">out_folder</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Directory &quot;</span><span class="p">,</span> <span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot; Created &quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="c1"># output folder for l-egume</span>
+            <span class="n">out_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">out_folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_folder</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Directory &quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot; Created &quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">create_child_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;brut&quot;</span><span class="p">)</span>
+            <span class="n">create_child_folder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;graphs&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legume_index</span> <span class="o">=</span> <span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># read l-egume configuration files</span>
+        <span class="n">mn_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">in_folder</span><span class="p">,</span> <span class="n">nameconfigfile</span><span class="p">)</span>
+        <span class="n">usms</span> <span class="o">=</span> <span class="n">IOxls</span><span class="o">.</span><span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">mn_path</span><span class="p">)</span>
+        <span class="n">ls_usms</span> <span class="o">=</span> <span class="n">IOtable</span><span class="o">.</span><span class="n">conv_dataframe</span><span class="p">(</span><span class="n">IOxls</span><span class="o">.</span><span class="n">get_xls_col</span><span class="p">(</span><span class="n">usms</span><span class="o">.</span><span class="n">sheet_by_name</span><span class="p">(</span><span class="n">ongletconfigfile</span><span class="p">)))</span>
+
+        <span class="c1"># create list of lsystem from config file</span>
+        <span class="k">if</span> <span class="n">planter</span><span class="o">.</span><span class="n">generation_type</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="n">planter</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">IDusm</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">([</span><span class="n">i</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;torun&quot;</span><span class="p">]]):</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;torun&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__load_lsystem</span><span class="p">(</span>
+                <span class="n">nameconfigfile</span><span class="p">,</span> <span class="n">in_folder</span><span class="p">,</span> <span class="n">ongletconfigfile</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;brut&quot;</span><span class="p">),</span> <span class="n">planter</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__load_lsystem</span><span class="p">(</span>
+                <span class="n">nameconfigfile</span><span class="p">,</span>
+                <span class="n">in_folder</span><span class="p">,</span>
+                <span class="n">ongletconfigfile</span><span class="p">,</span>
+                <span class="n">ls_usms</span><span class="p">[</span><span class="s2">&quot;ID_usm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">IDusm</span><span class="p">),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">out_folder</span><span class="p">,</span> <span class="s2">&quot;brut&quot;</span><span class="p">),</span>
+                <span class="n">planter</span><span class="p">,</span>
+            <span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lstring</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">axiom</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_external_coupling</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_Nuptake</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="n">caribu_scene</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">visu_leaf</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">visu_root</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">visu_shoot</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">visu_sol</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">visu_solsurf</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># in order to compute tag_inputs_loop</span>
+        <span class="n">lstrings_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lstring</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">17</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_number_of_species</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">legume_index</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_number_of_species</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">legume_index</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_species</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">update_legume_several_species</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">legume_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+
+        <span class="k">if</span> <span class="n">planter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]),</span>
+                                                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">]),</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__load_lsystem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nameconfigfile</span><span class="p">,</span> <span class="n">in_folder</span><span class="p">,</span> <span class="n">ongletconfigfile</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">path_OUT</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare and run the ``lsystemInputOutput_usm`` function in order to create the lsystem</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nameconfigfile : str</span>
+<span class="sd">            excel file name which contains the usm to run</span>
+<span class="sd">        in_folder : str</span>
+<span class="sd">            input folder path</span>
+<span class="sd">        ongletconfigfile : str</span>
+<span class="sd">            sheet containing the usm to run in ``nameconfigfile`` file</span>
+<span class="sd">        i : int</span>
+<span class="sd">            ID of the usm to load</span>
+<span class="sd">        path_OUT : str</span>
+<span class="sd">            outputs folder path</span>
+<span class="sd">        planter : Planter, optional</span>
+<span class="sd">            Object containing plant positions and/or number of plants and/or soil domain, by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">update_parameters</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">planter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">update_parameters</span><span class="p">[</span><span class="s2">&quot;typearrangement&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">legume_typearrangement</span>
+            <span class="n">update_parameters</span><span class="p">[</span><span class="s2">&quot;nbcote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">legume_nbcote</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">legume_index</span><span class="p">]</span>
+            <span class="n">update_parameters</span><span class="p">[</span><span class="s2">&quot;cote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">legume_cote</span>
+            <span class="n">update_parameters</span><span class="p">[</span><span class="s2">&quot;optdamier&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planter</span><span class="o">.</span><span class="n">legume_optdamier</span>
+
+        <span class="n">mylsys</span> <span class="o">=</span> <span class="n">runl</span><span class="o">.</span><span class="n">lsystemInputOutput_usm</span><span class="p">(</span>
+            <span class="n">nameconfigfile</span><span class="p">,</span>
+            <span class="n">foldin</span><span class="o">=</span><span class="n">in_folder</span><span class="p">,</span>
+            <span class="n">ongletBatch</span><span class="o">=</span><span class="n">ongletconfigfile</span><span class="p">,</span>
+            <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+            <span class="n">path_OUT</span><span class="o">=</span><span class="n">path_OUT</span><span class="p">,</span>
+            <span class="n">update_usm_parameters</span><span class="o">=</span><span class="n">update_parameters</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mylsys</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simulation_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">mylsys</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span> <span class="o">=</span> <span class="n">mylsys</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+<div class="viewcode-block" id="L_egume_wrapper.derive"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.derive">[docs]</a>    <span class="k">def</span> <span class="nf">derive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Derive the lsystem</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        t : int</span>
+<span class="sd">            timestep</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lstring</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lstring</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.light_inputs"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.light_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">light_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="s2">&quot;triangles&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a geometric scene of plant leaves</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        elements : str, optional</span>
+<span class="sd">            &quot;triangles&quot; or &quot;voxels&quot;, precise the returned scene type , by default &quot;triangles&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plantgl.Scene or dict,</span>
+<span class="sd">            if elements == &quot;triangles&quot;, it returns a plantgl.Scene of leaves </span>
+<span class="sd">            if elements == &quot;voxels&quot;, it returns a dict with a leaf area entry and distribution of leaf angles entry</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="n">elements</span> <span class="o">==</span> <span class="s2">&quot;triangles&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">sceneInterpretation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lstring</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">elements</span> <span class="o">==</span> <span class="s2">&quot;voxels&quot;</span><span class="p">:</span>
+            <span class="n">leaf_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+            <span class="n">angle_distrib</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span>
+            <span class="n">legume_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;LA&quot;</span><span class="p">:</span> <span class="n">leaf_area</span><span class="p">,</span> <span class="s2">&quot;distrib&quot;</span><span class="p">:</span> <span class="n">angle_distrib</span><span class="p">}</span>
+            <span class="k">return</span> <span class="n">legume_grid</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Unknown light model&quot;</span><span class="p">)</span>
+            <span class="k">raise</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.light_results"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.light_results">[docs]</a>    <span class="k">def</span> <span class="nf">light_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">lighting</span><span class="p">:</span> <span class="n">Light_wrapper</span><span class="p">,</span> <span class="n">selective_global_index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpret the lighting results</span>
+<span class="sd">        </span>
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        Steps :</span>
+<span class="sd">            1) transfer absorbed lighing to plant data</span>
+<span class="sd">            2) create local transmitted lighting following l-egume internal grid of voxels</span>
+<span class="sd">            3) compute relative intercepted lighting per plant (epsi variable)</span>
+<span class="sd">            4) compute potential plant growth</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            meteo radiation input in W/m²</span>
+<span class="sd">        lighting : Light_wrapper</span>
+<span class="sd">            lighting results and parameters</span>
+<span class="sd">        selective_global_index : int, optional</span>
+<span class="sd">            if specy ID in lighting results is different from self.global_index, by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="n">selective_global_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">saved_global_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="n">selective_global_index</span>
+
+        <span class="k">if</span> <span class="n">lighting</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;caribu&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_caribu_legume</span><span class="p">(</span>
+                <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span>
+                <span class="n">nb0</span><span class="o">=</span><span class="n">lighting</span><span class="o">.</span><span class="n">nb_empty_z_layers</span><span class="p">(),</span>
+                <span class="n">elements_outputs</span><span class="o">=</span><span class="n">lighting</span><span class="o">.</span><span class="n">results_organs</span><span class="p">(),</span>
+                <span class="n">sensors_outputs</span><span class="o">=</span><span class="n">lighting</span><span class="o">.</span><span class="n">results_sensors</span><span class="p">(),</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">lighting</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;ratp&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transfer_ratp_legume</span><span class="p">(</span>
+                <span class="n">energy</span><span class="p">,</span> <span class="n">lighting</span><span class="o">.</span><span class="n">results_voxels</span><span class="p">(),</span> <span class="n">lighting</span><span class="o">.</span><span class="n">nb_empty_z_layers</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">lighting</span><span class="o">.</span><span class="n">lightmodel</span> <span class="o">==</span> <span class="s2">&quot;riri5&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span> <span class="o">=</span> <span class="n">lighting</span><span class="o">.</span><span class="n">res_trans</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span> <span class="o">=</span> <span class="n">lighting</span><span class="o">.</span><span class="n">res_abs_i</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_plants_interception</span><span class="p">(</span><span class="n">lighting</span><span class="o">.</span><span class="n">results_organs</span><span class="p">(),</span> <span class="n">energy</span><span class="p">,</span> <span class="n">lighting</span><span class="o">.</span><span class="n">soil_energy</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_potential_plant_growth</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">selective_global_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="n">saved_global_index</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.soil_inputs"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.soil_inputs">[docs]</a>    <span class="k">def</span> <span class="nf">soil_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a 4-tuple with soil inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        4-tuple</span>
+<span class="sd">            * N content in roots per plant [0-1]</span>
+<span class="sd">            * roots length per plant per voxel in m</span>
+<span class="sd">            * plant parameters per plant (KMAX, VMAX, N content thresholds)</span>
+<span class="sd">            * light interception capability per plant [0-1]</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">ls_roots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span>
+        <span class="n">ParamP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">par_SN</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span>
+        <span class="n">meteo_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">mng_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+        <span class="n">opt_residu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">opt_Nuptake</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_Nuptake</span>
+        <span class="n">soil</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span>
+
+        <span class="n">ls_N</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">opt_Nuptake</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">opt_Nuptake</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># &#39;STICS&#39; or &#39;old&#39;:</span>
+            <span class="n">ls_N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">demandeN</span>
+
+        <span class="k">elif</span> <span class="n">opt_Nuptake</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ls_N</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;NNI&quot;</span><span class="p">])</span>
+
+        <span class="c1"># gere l&#39;aggregation des entrees par plante</span>
+        <span class="n">ls_epsi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epsi</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">ls_N</span> <span class="o">=</span> <span class="n">ls_N</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># step soil en commun</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inputs_soil</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">soil</span><span class="p">,</span>
+            <span class="n">par_SN</span><span class="p">,</span>
+            <span class="n">meteo_j</span><span class="p">,</span>
+            <span class="n">mng_j</span><span class="p">,</span>
+            <span class="n">ParamP</span><span class="p">,</span>
+            <span class="n">ls_epsi</span><span class="p">,</span>
+            <span class="n">ls_roots</span><span class="p">,</span>
+            <span class="n">ls_N</span><span class="p">,</span>
+            <span class="n">opt_residu</span><span class="p">,</span>
+            <span class="n">opt_Nuptake</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">N_content_roots_per_plant</span> <span class="o">=</span> <span class="n">ls_N</span>
+        <span class="n">roots_length_per_plant_per_soil_layer</span> <span class="o">=</span> <span class="n">ls_roots</span>
+        <span class="n">plants_soil_parameters</span> <span class="o">=</span> <span class="n">ParamP</span>
+        <span class="n">plants_light_interception</span> <span class="o">=</span> <span class="n">ls_epsi</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">N_content_roots_per_plant</span><span class="p">,</span>
+            <span class="n">roots_length_per_plant_per_soil_layer</span><span class="p">,</span>
+            <span class="n">plants_soil_parameters</span><span class="p">,</span>
+            <span class="n">plants_light_interception</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.soil_results"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.soil_results">[docs]</a>    <span class="k">def</span> <span class="nf">soil_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_soil</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">selective_global_index</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interprets soil results for l-egume</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        results_soil : list</span>
+<span class="sd">            a list containing : ``soil, stateEV, ls_ftsw, ls_transp, ls_Act_Nuptake_plt, temps_sol`` from soil3ds results</span>
+<span class="sd">        planter : Planter, optional</span>
+<span class="sd">            _description_, by default None</span>
+<span class="sd">        selective_global_index : int, optional</span>
+<span class="sd">            if specy ID in lighting results is different from self.global_index, by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="n">selective_global_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">saved_global_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="n">selective_global_index</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]),</span>
+                                                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">]),</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="n">saved_global_index</span>
+
+        <span class="k">if</span> <span class="n">planter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span> <span class="o">=</span> <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="mi">0</span><span class="p">]]),</span>
+                                                        <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">]),</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">planter</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="p">]</span>
+            
+        <span class="n">soil</span><span class="p">,</span> <span class="n">stateEV</span><span class="p">,</span> <span class="n">ls_ftsw</span><span class="p">,</span> <span class="n">ls_transp</span><span class="p">,</span> <span class="n">ls_Act_Nuptake_plt</span><span class="p">,</span> <span class="n">temps_sol</span> <span class="o">=</span> <span class="n">results_soil</span>
+
+        <span class="n">ls_ftsw</span> <span class="o">=</span> <span class="n">ls_ftsw</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">ls_transp</span> <span class="o">=</span> <span class="n">ls_transp</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">ls_Act_Nuptake_plt_leg</span> <span class="o">=</span> <span class="n">ls_Act_Nuptake_plt</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="n">temps_sol</span> <span class="o">=</span> <span class="n">temps_sol</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_in_global_plants</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">results_soil</span> <span class="o">=</span> <span class="p">[</span><span class="n">soil</span><span class="p">,</span> <span class="n">stateEV</span><span class="p">,</span> <span class="n">ls_ftsw</span><span class="p">,</span> <span class="n">ls_transp</span><span class="p">,</span> <span class="n">ls_Act_Nuptake_plt_leg</span><span class="p">,</span> <span class="n">temps_sol</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.compute_plants_interception"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.compute_plants_interception">[docs]</a>    <span class="k">def</span> <span class="nf">compute_plants_interception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">organs_results</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">energy</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">pari_soil_in</span><span class="o">=-</span><span class="mf">1.</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute light interception capacity per plant</span>
+
+<span class="sd">        Lighting must have be done before this step</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        organs_results : pandas.Dataframe, optional</span>
+<span class="sd">            lighting results per organs from the light wrapper, by default None</span>
+<span class="sd">        energy : float, optional</span>
+<span class="sd">            meteo ray input in W/m², by default 1</span>
+<span class="sd">        pari_soil_in : float, optional</span>
+<span class="sd">            forced input of intercepted light on soil, if it&#39;s &lt; 0, this value is computed, by default -1</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">surf_refVOX</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>
+        <span class="n">dicFeuilBilanR</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+        <span class="n">leaf_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surfsolref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">surfsolref</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># R_FR voxel (calcul de zeta)</span>
+        <span class="n">tag_light_inputs2</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span> <span class="o">/</span> <span class="p">(</span><span class="n">energy</span> <span class="o">*</span> <span class="n">surf_refVOX</span><span class="p">)]</span>  <span class="c1"># input tag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rfr</span> <span class="o">=</span> <span class="n">riri</span><span class="o">.</span><span class="n">rfr_calc_relatif</span><span class="p">(</span><span class="o">*</span><span class="n">tag_light_inputs2</span><span class="p">)</span>
+
+        <span class="c1"># soil interception</span>
+        <span class="k">if</span> <span class="n">pari_soil_in</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">transmi_sol</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][:][:])</span> <span class="o">/</span> <span class="p">(</span><span class="n">energy</span> <span class="o">*</span> <span class="n">surfsolref</span><span class="p">)</span>
+            <span class="n">pari_soil</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">transmi_sol</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pari_soil</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">pari_soil_in</span>
+
+        <span class="c1"># plants interception</span>
+        <span class="c1"># res_abs_i existe donc on est passé soit par ratp soit riri, il faut màj invar[&#39;parip&#39;]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dicFeuilBilanR</span> <span class="o">=</span> <span class="n">sh</span><span class="o">.</span><span class="n">calc_paraF</span><span class="p">(</span><span class="n">dicFeuilBilanR</span><span class="p">,</span> <span class="n">leaf_area</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span><span class="p">)</span>
+            <span class="n">sh</span><span class="o">.</span><span class="n">calc_para_Plt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">,</span> <span class="n">dicFeuilBilanR</span><span class="p">)</span>
+
+        <span class="n">pari_canopy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">])</span>
+        
+        <span class="c1"># we add radiations from other fspm in the simulation</span>
+        <span class="k">if</span> <span class="n">organs_results</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">organs_results</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">species_not_legume</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">organs_results</span><span class="p">[</span><span class="s2">&quot;VegetationType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">species_not_legume</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">organs_results</span><span class="p">[</span><span class="s2">&quot;VegetationType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span>
+            <span class="n">filtered_data</span> <span class="o">=</span> <span class="n">organs_results</span><span class="p">[(</span><span class="n">organs_results</span><span class="o">.</span><span class="n">VegetationType</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">species_not_legume</span><span class="p">))]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filtered_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">pari_canopy</span> <span class="o">+=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">filtered_data</span><span class="p">[</span><span class="s2">&quot;par Ei&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">energy</span>
+
+        <span class="n">ratio_pari_plante</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">pari_canopy</span> <span class="o">+</span> <span class="mf">10e-15</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epsi</span> <span class="o">=</span> <span class="n">pari_soil</span> <span class="o">*</span> <span class="n">ratio_pari_plante</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_name</span><span class="p">,</span> <span class="s2">&quot;epsi = &quot;</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epsi</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.compute_potential_plant_growth"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.compute_potential_plant_growth">[docs]</a>    <span class="k">def</span> <span class="nf">compute_potential_plant_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute potential plant growth</span>
+
+<span class="sd">        Lighting must have be done before this step</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">outvar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">ParamP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">meteo_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">mng_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+        <span class="n">nbplantes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+        <span class="n">ls_ftswStress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span>
+        <span class="n">ls_NNIStress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span>
+        <span class="n">ls_TStress</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span>
+        <span class="n">lsApex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">27</span><span class="p">]</span>
+        <span class="n">lsApexAll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">28</span><span class="p">]</span>
+        <span class="n">opt_stressW</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">38</span><span class="p">]</span>
+        <span class="n">opt_stressN</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">39</span><span class="p">]</span>
+        <span class="n">opt_stressGel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surfsolref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">surfsolref</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">demandeN</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">,</span> <span class="n">outvar</span><span class="p">,</span> <span class="n">ls_demandeN_bis</span><span class="p">,</span> <span class="n">temps</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">daily_growth_loop</span><span class="p">(</span>
+            <span class="n">ParamP</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">,</span>
+            <span class="n">outvar</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsi</span><span class="p">,</span>
+            <span class="n">meteo_j</span><span class="p">,</span>
+            <span class="n">mng_j</span><span class="p">,</span>
+            <span class="n">nbplantes</span><span class="p">,</span>
+            <span class="n">surfsolref</span><span class="p">,</span>
+            <span class="n">ls_ftswStress</span><span class="p">,</span>
+            <span class="n">ls_NNIStress</span><span class="p">,</span>
+            <span class="n">ls_TStress</span><span class="p">,</span>
+            <span class="n">lsApex</span><span class="p">,</span>
+            <span class="n">lsApexAll</span><span class="p">,</span>
+            <span class="n">opt_stressW</span><span class="p">,</span>
+            <span class="n">opt_stressN</span><span class="p">,</span>
+            <span class="n">opt_stressGel</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">demandeN</span> <span class="o">=</span> <span class="n">ls_demandeN_bis</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temps</span> <span class="o">=</span> <span class="n">temps</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.run"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Time step computing of l-egume. Independant from other fspm in the simulation</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="c1"># pour les variables communes</span>
+        <span class="p">(</span>
+            <span class="n">invar0</span><span class="p">,</span>
+            <span class="n">outvar</span><span class="p">,</span>
+            <span class="n">invar_sc</span><span class="p">,</span>
+            <span class="n">ParamP</span><span class="p">,</span>
+            <span class="n">station</span><span class="p">,</span>
+            <span class="n">carto</span><span class="p">,</span>
+            <span class="n">meteo_j</span><span class="p">,</span>
+            <span class="n">mng_j</span><span class="p">,</span>
+            <span class="n">DOY</span><span class="p">,</span>
+            <span class="n">cutNB</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="p">,</span>
+            <span class="n">nbplantes</span><span class="p">,</span>
+            <span class="n">surfsolref0</span><span class="p">,</span>
+            <span class="n">m_lais</span><span class="p">,</span>
+            <span class="n">dicFeuilBilanR</span><span class="p">,</span>
+            <span class="n">surf_refVOX</span><span class="p">,</span>
+            <span class="n">triplets</span><span class="p">,</span>
+            <span class="n">ls_dif</span><span class="p">,</span>
+            <span class="n">S0</span><span class="p">,</span>
+            <span class="n">par_SN</span><span class="p">,</span>
+            <span class="n">lims_sol</span><span class="p">,</span>
+            <span class="n">ls_roots</span><span class="p">,</span>
+            <span class="n">ls_mat_res</span><span class="p">,</span>
+            <span class="n">vCC</span><span class="p">,</span>
+            <span class="n">ls_ftswStress</span><span class="p">,</span>
+            <span class="n">ls_NNIStress</span><span class="p">,</span>
+            <span class="n">ls_TStress</span><span class="p">,</span>
+            <span class="n">lsApex</span><span class="p">,</span>
+            <span class="n">lsApexAll</span><span class="p">,</span>
+            <span class="n">dicOrgans</span><span class="p">,</span>
+            <span class="n">deltaI_I0</span><span class="p">,</span>
+            <span class="n">nbI_I0</span><span class="p">,</span>
+            <span class="n">I_I0profilLfPlant</span><span class="p">,</span>
+            <span class="n">I_I0profilPetPlant</span><span class="p">,</span>
+            <span class="n">I_I0profilInPlant</span><span class="p">,</span>
+            <span class="n">NlClasses</span><span class="p">,</span>
+            <span class="n">NaClasses</span><span class="p">,</span>
+            <span class="n">NlinClasses</span><span class="p">,</span>
+            <span class="n">opt_stressW</span><span class="p">,</span>
+            <span class="n">opt_stressN</span><span class="p">,</span>
+            <span class="n">opt_stressGel</span><span class="p">,</span>
+            <span class="n">opt_residu</span><span class="p">,</span>
+            <span class="n">dxyz</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surfsolref</span> <span class="o">=</span> <span class="n">surfsolref0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">surfsolref</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="p">[</span><span class="n">soil</span><span class="p">,</span> <span class="n">stateEV</span><span class="p">,</span> <span class="n">ls_ftsw</span><span class="p">,</span> <span class="n">ls_transp</span><span class="p">,</span> <span class="n">ls_Act_Nuptake_plt</span><span class="p">,</span> <span class="n">temps_sol</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">results_soil</span>
+
+        <span class="c1">##########</span>
+        <span class="c1"># setp update plant stress variables</span>
+        <span class="c1">##########</span>
+        <span class="n">tag_inputs_stress</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ParamP</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">,</span>
+            <span class="n">invar_sc</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">temps</span><span class="p">,</span>
+            <span class="n">DOY</span><span class="p">,</span>
+            <span class="n">nbplantes</span><span class="p">,</span>
+            <span class="n">surfsolref</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epsi</span><span class="p">,</span>
+            <span class="n">ls_ftsw</span><span class="p">,</span>
+            <span class="n">ls_transp</span><span class="p">,</span>
+            <span class="n">ls_Act_Nuptake_plt</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">demandeN</span><span class="p">,</span>
+            <span class="n">ls_ftswStress</span><span class="p">,</span>
+            <span class="n">ls_TStress</span><span class="p">,</span>
+            <span class="n">dicOrgans</span><span class="p">,</span>
+            <span class="n">dicFeuilBilanR</span><span class="p">,</span>
+            <span class="n">lsApex</span><span class="p">,</span>
+            <span class="n">start_time</span><span class="p">,</span>
+            <span class="n">cutNB</span><span class="p">,</span>
+            <span class="n">deltaI_I0</span><span class="p">,</span>
+            <span class="n">nbI_I0</span><span class="p">,</span>
+            <span class="n">I_I0profilLfPlant</span><span class="p">,</span>
+            <span class="n">I_I0profilPetPlant</span><span class="p">,</span>
+            <span class="n">I_I0profilInPlant</span><span class="p">,</span>
+            <span class="n">NlClasses</span><span class="p">,</span>
+            <span class="n">NaClasses</span><span class="p">,</span>
+            <span class="n">NlinClasses</span><span class="p">,</span>
+            <span class="n">outvar</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">,</span>
+            <span class="n">invar_sc</span><span class="p">,</span>
+            <span class="n">outvar</span><span class="p">,</span>
+            <span class="n">I_I0profilInPlant</span><span class="p">,</span>
+            <span class="n">ls_ftswStress</span><span class="p">,</span>
+            <span class="n">ls_NNIStress</span><span class="p">,</span>
+            <span class="n">ls_TStress</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">Update_stress_loop</span><span class="p">(</span><span class="o">*</span><span class="n">tag_inputs_stress</span><span class="p">)</span>
+
+        <span class="c1">##########</span>
+        <span class="c1"># step update soil residues senescence</span>
+        <span class="c1">##########</span>
+
+        <span class="c1"># refait initialisation des residues au step 1 avec ensemble des plante (ParamP commun)</span>
+        <span class="n">current_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doy</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">DOYdeb</span>
+        <span class="k">if</span> <span class="n">current_iter</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">opt_residu</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">CC</span> <span class="o">=</span> <span class="n">init_plant_residues_fromParamP</span><span class="p">(</span><span class="n">soil</span><span class="p">,</span> <span class="n">opt_residu</span><span class="p">,</span> <span class="n">ParamP</span><span class="p">,</span> <span class="n">par_SN</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">opt_residu</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># option residu activee: mise a jour des cres</span>
+            <span class="n">invar_merge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invar</span>
+
+            <span class="n">tag_inputs_residue_updt</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">ls_mat_res</span><span class="p">,</span>
+                <span class="n">soil</span><span class="p">,</span>
+                <span class="n">ls_roots</span><span class="p">,</span>
+                <span class="n">par_SN</span><span class="p">[</span><span class="s2">&quot;PROFHUMs&quot;</span><span class="p">],</span>
+                <span class="n">ParamP</span><span class="p">,</span>
+                <span class="n">invar_merge</span><span class="p">,</span>
+                <span class="n">opt_stressGel</span><span class="p">,</span>
+            <span class="p">]</span>
+            <span class="n">ls_mat_res</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">distrib_residue_mat_frominvar</span><span class="p">(</span>
+                <span class="o">*</span><span class="n">tag_inputs_residue_updt</span>
+            <span class="p">)</span>  <span class="c1"># update la matrice des residus (propre a l-egume/VGL)</span>
+            <span class="n">soil</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">merge_residue_mat</span><span class="p">(</span><span class="n">ls_mat_res</span><span class="p">,</span> <span class="n">vCC</span><span class="p">,</span> <span class="n">soil</span><span class="p">)</span>  <span class="c1"># update du sol</span>
+
+        <span class="c1">#########</span>
+        <span class="c1"># reinjecte les sorties midiee dans le lsystem</span>
+        <span class="c1">#########</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">invar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outvar</span> <span class="o">=</span> <span class="n">outvar</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">invar_sc</span> <span class="o">=</span> <span class="n">invar_sc</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">S</span> <span class="o">=</span> <span class="n">soil</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">stateEV</span> <span class="o">=</span> <span class="n">stateEV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">ls_mat_res</span> <span class="o">=</span> <span class="n">ls_mat_res</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">res_trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_trans</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">res_abs_i</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">res_abs_i</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">res_rfr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rfr</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">ls_ftswStress</span> <span class="o">=</span> <span class="n">ls_ftswStress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">ls_NNIStress</span> <span class="o">=</span> <span class="n">ls_NNIStress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">ls_TStress</span> <span class="o">=</span> <span class="n">ls_TStress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">I_I0profilInPlant</span> <span class="o">=</span> <span class="n">I_I0profilInPlant</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.end"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.end">[docs]</a>    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Writes outputs and close the instance in the simulation</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">DOYend</span> <span class="p">:</span>
+            <span class="c1">#fermeture des bilans sol -&gt; dicout</span>
+            <span class="n">dicout</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">sol_dicout_endsim</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">S</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outvar</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">DOYdeb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">DOYend</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_residu</span><span class="p">)</span>
+            
+            <span class="c1">#rasemble noms et objets pour ecritures sorties</span>
+            <span class="n">ls_outf_names</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outvarfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outBilanNfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outHRfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">resrootfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">lsorgfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outMngfile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outsdfile</span><span class="p">]</span> <span class="c1">#noms des fichiers de sorties</span>
+            <span class="n">ls_objw</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outvar</span><span class="p">,</span> <span class="n">dicout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">out_HR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">res_root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">savelsOrgans</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">mng</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">res_sd</span><span class="p">]</span> <span class="c1">#objets de donnees</span>
+            
+            <span class="c1"># liste de cle a verifier pour ecriture des sorties journaliere</span>
+            <span class="n">ls_keyvar_pot</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;colnames&#39;</span><span class="p">,</span><span class="s1">&#39;pattern&#39;</span><span class="p">,</span><span class="s1">&#39;TT&#39;</span><span class="p">,</span><span class="s1">&#39;time&#39;</span><span class="p">,</span><span class="s1">&#39;cutNB&#39;</span><span class="p">,</span><span class="s1">&#39;SurfPlante&#39;</span><span class="p">,</span> <span class="s1">&#39;PARaPlante&#39;</span><span class="p">,</span> <span class="s1">&#39;PARiPlante&#39;</span><span class="p">,</span> <span class="s1">&#39;epsi&#39;</span><span class="p">,</span> <span class="s1">&#39;dMSaer&#39;</span><span class="p">,</span> <span class="s1">&#39;Hplante&#39;</span><span class="p">,</span> <span class="s1">&#39;Dplante&#39;</span><span class="p">,</span><span class="s1">&#39;RLTot&#39;</span><span class="p">,</span><span class="s1">&#39;RDepth&#39;</span><span class="p">,</span><span class="s1">&#39;MS_aerien&#39;</span><span class="p">,</span><span class="s1">&#39;MS_feuil&#39;</span><span class="p">,</span><span class="s1">&#39;MS_tot&#39;</span><span class="p">,</span><span class="s1">&#39;countSh&#39;</span><span class="p">,</span><span class="s1">&#39;countShExp&#39;</span><span class="p">,</span><span class="s1">&#39;demandC&#39;</span><span class="p">,</span><span class="s1">&#39;Leaf_Stem&#39;</span><span class="p">,</span><span class="s1">&#39;NBsh&#39;</span><span class="p">,</span><span class="s1">&#39;NBI&#39;</span><span class="p">,</span><span class="s1">&#39;NBD1&#39;</span><span class="p">,</span><span class="s1">&#39;NBB&#39;</span><span class="p">,</span><span class="s1">&#39;FTSW&#39;</span><span class="p">,</span><span class="s1">&#39;Etransp&#39;</span><span class="p">,</span><span class="s1">&#39;DemandN_Feuil&#39;</span><span class="p">,</span><span class="s1">&#39;DemandN_Pet&#39;</span><span class="p">,</span> <span class="s1">&#39;DemandN_Stem&#39;</span><span class="p">,</span><span class="s1">&#39;DemandN_Tot&#39;</span><span class="p">,</span> <span class="s1">&#39;DemandN_Tot_Aer&#39;</span><span class="p">,</span> <span class="s1">&#39;Npc&#39;</span><span class="p">,</span> <span class="s1">&#39;Npc_aer&#39;</span><span class="p">,</span> <span class="s1">&#39;NNI&#39;</span><span class="p">,</span><span class="s1">&#39;Ndfa&#39;</span><span class="p">,</span> <span class="s1">&#39;Qfix&#39;</span><span class="p">,</span><span class="s1">&#39;Naerien&#39;</span><span class="p">,</span><span class="s1">&#39;Nuptake_sol&#39;</span><span class="p">,</span><span class="s1">&#39;R_DemandC_Root&#39;</span><span class="p">,</span> <span class="s1">&#39;SRL&#39;</span><span class="p">,</span><span class="s1">&#39;dMSenFeuil&#39;</span><span class="p">,</span><span class="s1">&#39;dMSenTige&#39;</span><span class="p">,</span> <span class="s1">&#39;MS_pivot&#39;</span><span class="p">,</span> <span class="s1">&#39;MS_rac_fine&#39;</span><span class="p">,</span><span class="s1">&#39;R_DemandC_Shoot&#39;</span><span class="p">,</span><span class="s1">&#39;RUEpot&#39;</span><span class="p">,</span><span class="s1">&#39;RUE&#39;</span><span class="p">,</span><span class="s1">&#39;Npc_piv&#39;</span><span class="p">,</span><span class="s1">&#39;Npc_rac_fine&#39;</span><span class="p">,</span><span class="s1">&#39;dRLenSentot&#39;</span><span class="p">,</span><span class="s1">&#39;dMSenRoot&#39;</span><span class="p">,</span><span class="s1">&#39;RLTotNet&#39;</span><span class="p">,</span><span class="s1">&#39;MS_rac_fineNet&#39;</span><span class="p">,</span><span class="s1">&#39;perteN_rac_fine&#39;</span><span class="p">,</span><span class="s1">&#39;NBphyto&#39;</span><span class="p">,</span><span class="s1">&#39;NBapexAct&#39;</span><span class="p">,</span><span class="s1">&#39;transpi&#39;</span><span class="p">,</span><span class="s1">&#39;cumtranspi&#39;</span><span class="p">,</span><span class="s1">&#39;aliveB&#39;</span><span class="p">,</span><span class="s1">&#39;dMSmortGel&#39;</span><span class="p">,</span><span class="s1">&#39;dNmortGel&#39;</span><span class="p">,</span><span class="s1">&#39;TTphyllo&#39;</span><span class="p">,</span><span class="s1">&#39;DemCp&#39;</span><span class="p">,</span><span class="s1">&#39;dTT&#39;</span><span class="p">,</span><span class="s1">&#39;Udev&#39;</span><span class="p">,</span><span class="s1">&#39;Udevstress&#39;</span><span class="p">,</span><span class="s1">&#39;TTudev&#39;</span><span class="p">,</span><span class="s1">&#39;MS_aerienNonRec&#39;</span><span class="p">,</span> <span class="s1">&#39;MS_aerienRec&#39;</span><span class="p">,</span> <span class="s1">&#39;NaerienNonRec&#39;</span><span class="p">,</span><span class="s1">&#39;NaerienRec&#39;</span><span class="p">,</span><span class="s1">&#39;Ncoty&#39;</span><span class="p">,</span><span class="s1">&#39;MS_tige&#39;</span><span class="p">,</span><span class="s1">&#39;graineC&#39;</span><span class="p">,</span><span class="s1">&#39;graineN&#39;</span><span class="p">,</span><span class="s1">&#39;CreservPiv&#39;</span><span class="p">,</span><span class="s1">&#39;NreservPiv&#39;</span><span class="p">,</span><span class="s1">&#39;dMSenPiv&#39;</span><span class="p">,</span><span class="s1">&#39;dMSenNonRec&#39;</span><span class="p">,</span> <span class="s1">&#39;perteN_NonRec&#39;</span><span class="p">,</span> <span class="s1">&#39;perteN_Piv&#39;</span><span class="p">,</span> <span class="s1">&#39;perteN_aerien&#39;</span><span class="p">,</span> <span class="s1">&#39;Npc_aerNonRec&#39;</span><span class="p">,</span><span class="s1">&#39;MS_senaerien&#39;</span><span class="p">,</span><span class="s1">&#39;dMSmortPlant_aer&#39;</span><span class="p">,</span><span class="s1">&#39;dMSmortPlant_pivot&#39;</span><span class="p">,</span><span class="s1">&#39;dMSmortPlant_racfine&#39;</span><span class="p">,</span><span class="s1">&#39;dNmortPlant_aer&#39;</span><span class="p">,</span><span class="s1">&#39;dNmortPlant_pivot&#39;</span><span class="p">,</span><span class="s1">&#39;dNmortPlant_racfine&#39;</span><span class="p">,</span><span class="s1">&#39;alivePiv&#39;</span><span class="p">,</span><span class="s1">&#39;alive&#39;</span><span class="p">,</span><span class="s1">&#39;ChangeRoot&#39;</span><span class="p">,</span><span class="s1">&#39;RLentotfromRootMass&#39;</span><span class="p">,</span><span class="s1">&#39;RLentotfromDev&#39;</span><span class="p">,</span><span class="s1">&#39;ConcNmoy&#39;</span><span class="p">]</span>
+            
+            <span class="c1"># ecriture + liste des fichiers ecrits en sortie et affichee en fin de simul</span>
+            <span class="n">ls_fileOUT</span> <span class="o">=</span> <span class="n">loop</span><span class="o">.</span><span class="n">write_vgl_outf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">path_out</span><span class="p">,</span> <span class="n">ls_outf_names</span><span class="p">,</span> <span class="n">ls_objw</span><span class="p">,</span> <span class="n">ls_keyvar_pot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outfvar</span><span class="p">)</span>
+    
+    
+            <span class="c1">#zippe les sorties si option opt_zip</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_zip</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">opt_verbose</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">ls_fileOUT</span><span class="p">)</span>
+        
+            <span class="n">nomzip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">outvarfile</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">IOtable</span><span class="o">.</span><span class="n">Outzip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">path_out</span><span class="p">,</span> <span class="n">nomzip</span><span class="o">+</span><span class="s1">&#39;.zip&#39;</span><span class="p">,</span> <span class="n">ls_fileOUT</span><span class="p">)</span>
+            <span class="n">IOtable</span><span class="o">.</span><span class="n">Outdel</span><span class="p">(</span><span class="n">ls_fileOUT</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">((</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">simulation_name</span><span class="p">,</span> <span class="s2">&quot; - done&quot;</span><span class="p">))))</span>
+        <span class="c1"># désallocation des lsystem</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.voxels_size"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.voxels_size">[docs]</a>    <span class="k">def</span> <span class="nf">voxels_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Size of the voxels in l-egume internal grid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of float</span>
+<span class="sd">            [dx, dy, dz] in cm</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.number_of_voxels"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.number_of_voxels">[docs]</a>    <span class="k">def</span> <span class="nf">number_of_voxels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of voxels in l-egume internal grid</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of int</span>
+<span class="sd">            [number of plant species, nz, ny, nx]</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">leaf_area_per_voxels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">leaf_area_per_voxels</span><span class="o">.</span><span class="n">shape</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.transfer_ratp_legume"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.transfer_ratp_legume">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_ratp_legume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">voxels_outputs</span><span class="p">,</span> <span class="n">nb0</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfers lightig outputs from RATP to l-egume</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            input energy</span>
+<span class="sd">        voxels_outputs : pandas.Dataframe</span>
+<span class="sd">            results at organ scale</span>
+<span class="sd">        nb0 : int</span>
+<span class="sd">            number of empty layers from top of the canopy and maximum z layers in m_lais</span>
+<span class="sd">        epsilon : float, optional</span>
+<span class="sd">            criteria of minimum intercepted portion of PAR in a non empty voxel, by default 1e-8</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.array, numpy.array</span>
+<span class="sd">            two array with lighting informations</span>
+
+<span class="sd">            * ``res_abs_i``: absorb PAR in each voxel for RATP grid of voxels. It has the same dimensions as ``m_lais``</span>
+
+<span class="sd">            * ``res_trans``: transmitted PAR in each voxel, i.e. the energy leaving the voxels from input rays. This value is not dependent on specy</span>
+
+<span class="sd">            dimensions are (number of z layers, number of y layers, number of x layers)</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">m_lais</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+        <span class="c1"># initialize absorb energy array</span>
+        <span class="n">res_abs_i</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+
+        <span class="n">ratpzlayers</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">voxels_outputs</span><span class="p">[</span><span class="s2">&quot;Nz&quot;</span><span class="p">])</span>
+
+        <span class="c1"># voxel top side area</span>
+        <span class="n">dS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>
+        <span class="n">res_trans</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+        <span class="c1"># maximum transmitted energy is total incoming energy per area</span>
+        <span class="n">res_trans</span> <span class="o">=</span> <span class="n">res_trans</span> <span class="o">*</span> <span class="p">(</span><span class="n">energy</span> <span class="o">*</span> <span class="n">dS</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">iy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">iz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ratpzlayers</span><span class="p">):</span>
+                    <span class="n">legume_iz</span> <span class="o">=</span> <span class="n">iz</span> <span class="o">+</span> <span class="n">nb0</span>
+
+                    <span class="n">condition_x</span> <span class="o">=</span> <span class="n">voxels_outputs</span><span class="o">.</span><span class="n">Nx</span> <span class="o">==</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">iy</span>
+                    <span class="n">vox_data</span> <span class="o">=</span> <span class="n">voxels_outputs</span><span class="p">[</span>
+                        <span class="n">condition_x</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">voxels_outputs</span><span class="o">.</span><span class="n">Ny</span> <span class="o">==</span> <span class="n">ix</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">voxels_outputs</span><span class="o">.</span><span class="n">Nz</span> <span class="o">==</span> <span class="n">iz</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">vox_data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">vox_data</span><span class="p">[</span><span class="s2">&quot;Transmitted&quot;</span><span class="p">]),</span> <span class="n">dS</span><span class="p">)</span>
+                        <span class="n">res_trans</span><span class="p">[</span><span class="n">legume_iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span> <span class="o">*</span> <span class="n">a</span>
+
+                    <span class="n">s_entity</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                        <span class="n">s_entity</span> <span class="o">+=</span> <span class="n">m_lais</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">legume_iz</span><span class="p">][</span><span class="n">iy</span><span class="p">][</span><span class="n">ix</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">s_entity</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                            <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span>
+                        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">id_legume</span><span class="p">,</span><span class="n">id_global</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">indices</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vox_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">v_dat</span> <span class="o">=</span> <span class="n">vox_data</span><span class="p">[</span><span class="n">vox_data</span><span class="o">.</span><span class="n">VegetationType</span> <span class="o">==</span> <span class="n">id_global</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                                <span class="n">v</span> <span class="o">=</span> <span class="n">v_dat</span><span class="p">[</span><span class="s2">&quot;Intercepted&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="n">epsilon</span><span class="p">:</span>
+                                    <span class="n">res_abs_i</span><span class="p">[</span><span class="n">id_legume</span><span class="p">,</span> <span class="n">legume_iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">energy</span> <span class="o">*</span> <span class="n">v</span>
+
+                                <span class="c1"># if a voxel has leaf area &gt; 0, it must have a minimum intercepted energy value</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">res_abs_i</span><span class="p">[</span><span class="n">id_legume</span><span class="p">,</span> <span class="n">legume_iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon</span>
+
+        <span class="k">return</span> <span class="n">res_abs_i</span><span class="p">,</span> <span class="n">res_trans</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.transfer_caribu_legume"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.transfer_caribu_legume">[docs]</a>    <span class="k">def</span> <span class="nf">transfer_caribu_legume</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">energy</span><span class="p">,</span>
+        <span class="n">nb0</span><span class="p">,</span>
+        <span class="n">elements_outputs</span><span class="p">,</span>
+        <span class="n">sensors_outputs</span><span class="p">,</span>
+        <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transfers lighting results from CARIBU to l-egume</span>
+<span class="sd">        We will update list_invar which stores the total intercepted energy for each plant, and return</span>
+<span class="sd">        an array storing transmitted energy following the intern grid of voxels in l-egume. To do so, we</span>
+<span class="sd">        used virtual sensors in CARIBU to get incoming radiations in selected locations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        energy : float</span>
+<span class="sd">            input energy</span>
+<span class="sd">        nb0 : int</span>
+<span class="sd">            number of empty layers from top of the canopy and maximum z layers in m_lais</span>
+<span class="sd">        elements_outputs : pandas.Dataframe</span>
+<span class="sd">            lighting results at triangle scale</span>
+<span class="sd">        sensors_outputs : pandas.Dataframe</span>
+<span class="sd">            intercepted light by virtual sensors following l-egume internal grid of voxels</span>
+<span class="sd">        epsilon : float, optional</span>
+<span class="sd">            criteria of minimum intercepted portion of PAR in a non empty voxel, by default 1e-8</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.array</span>
+<span class="sd">            </span>
+<span class="sd">            * it updates ``list_invar`` and its key entries ``&quot;parap&quot;`` and ``&quot;parip&quot;``, each element if the scipy.array is the sum of all intercepted energy for each plant. This process is a rewrite of ``calc_paraF`` in ShootMorpho.py module of l-egume, adapted to LightVegeManager numerotation of triangles</span>
+<span class="sd">            </span>
+<span class="sd">            * ``res_trans`` an array of transmitted energy for each voxel in a grid of dimensions ``sensors_dxyz * sensors_nxyz``</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="c1"># initialize absorb energy</span>
+        <span class="n">nplantes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;Hplante&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parap&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nplantes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">nplantes</span><span class="p">)</span>
+
+        <span class="n">ent_organs_outputs</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({})</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="nb">filter</span> <span class="o">=</span> <span class="n">elements_outputs</span><span class="p">[</span><span class="s2">&quot;VegetationType&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">global_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">filter</span> <span class="o">=</span> <span class="n">elements_outputs</span><span class="o">.</span><span class="n">VegetationType</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span>
+        <span class="n">ent_organs_outputs</span> <span class="o">=</span> <span class="n">elements_outputs</span><span class="p">[</span><span class="nb">filter</span><span class="p">]</span>
+
+        <span class="c1"># non empty scene</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ent_organs_outputs</span><span class="p">)):</span>
+            <span class="n">organe_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ent_organs_outputs</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;Organ&quot;</span><span class="p">])</span>
+
+            <span class="c1"># PAR in W/m²</span>
+            <span class="n">par_intercept</span> <span class="o">=</span> <span class="n">ent_organs_outputs</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;par Ei&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">energy</span>
+            <span class="n">S_leaf</span> <span class="o">=</span> <span class="n">ent_organs_outputs</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;Area&quot;</span><span class="p">]</span>
+
+            <span class="n">id_plante</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstring</span><span class="p">[</span><span class="n">organe_id</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">p_s</span> <span class="o">=</span> <span class="n">par_intercept</span> <span class="o">*</span> <span class="n">S_leaf</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">][</span><span class="n">id_plante</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">][</span><span class="n">id_plante</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">p_s</span>
+
+            <span class="c1"># we remove senescent leaves</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lstring</span><span class="p">[</span><span class="n">organe_id</span><span class="p">][</span><span class="mi">9</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;sen&quot;</span><span class="p">:</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parap&quot;</span><span class="p">][</span><span class="n">id_plante</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parap&quot;</span><span class="p">][</span><span class="n">id_plante</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">p_s</span>
+
+        <span class="c1"># all non empty plant must have a minimum intercepted energy</span>
+        <span class="n">plants_surface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">14</span><span class="p">][</span><span class="s2">&quot;surf&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">plants_surface</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">plants_surface</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">])):</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">plants_surface</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">][</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">epsilon</span>
+
+        <span class="c1"># conversion</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3600</span> <span class="o">*</span> <span class="mi">24</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parap&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="n">c</span>
+
+        <span class="c1">## Transmitted radiations throughout a grid of voxels</span>
+        <span class="n">m_lais</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+        <span class="n">res_trans</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span>
+
+        <span class="c1"># if non empty scene</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">elements_outputs</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]:</span>
+                <span class="n">sensors_specy_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sensors_specy_id</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">sensors</span> <span class="o">=</span> <span class="n">sensors_outputs</span><span class="p">[</span><span class="n">sensors_outputs</span><span class="o">.</span><span class="n">VegetationType</span><span class="o">==</span><span class="n">sensors_specy_id</span><span class="p">]</span>
+            <span class="n">ID_capt</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">iy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">iz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">nb0</span><span class="p">):</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sensors</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">ID_capt</span><span class="p">][</span><span class="s2">&quot;PAR&quot;</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">)</span>
+                        <span class="n">res_trans</span><span class="p">[((</span><span class="n">m_lais</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="n">iz</span><span class="p">][</span><span class="n">iy</span><span class="p">][</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span>
+                        <span class="n">ID_capt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># surface d&#39;une face d&#39;un voxel</span>
+        <span class="n">dS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>
+        <span class="c1"># gives maximum transmitted energy</span>
+        <span class="n">res_trans</span> <span class="o">=</span> <span class="n">res_trans</span> <span class="o">*</span> <span class="n">energy</span> <span class="o">*</span> <span class="n">dS</span>
+
+        <span class="k">return</span> <span class="n">res_trans</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.energy"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.energy">[docs]</a>    <span class="k">def</span> <span class="nf">energy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Radiation input from meteo data</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            radiation in W/m²/s-1</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">meteo_j</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="mf">0.48</span> <span class="o">*</span> <span class="n">meteo_j</span><span class="p">[</span><span class="s2">&quot;RG&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10000</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3600</span> <span class="o">*</span> <span class="mi">24</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">energy</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.doy"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.doy">[docs]</a>    <span class="k">def</span> <span class="nf">doy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Day of the year in the current lsystem timestep</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            day of the year</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">DOY</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lsystem</span><span class="o">.</span><span class="n">tag_loop_inputs</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">DOY</span></div>
+
+<div class="viewcode-block" id="L_egume_wrapper.set_domain"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.L_egume_wrapper.set_domain">[docs]</a>    <span class="k">def</span> <span class="nf">set_domain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setters of self.domain</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        domain : list</span>
+<span class="sd">            ((xmin, ymin), (xmax, ymax))</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span></div></div>
+
+<div class="viewcode-block" id="passive_lighting"><a class="viewcode-back" href="../reference.html#l_egume_wrapper.passive_lighting">[docs]</a><span class="k">def</span> <span class="nf">passive_lighting</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">DOY</span><span class="p">,</span> <span class="n">scene</span><span class="p">,</span> <span class="n">legume_wrapper</span><span class="p">,</span> <span class="n">lighting_wrapper</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the lighting computation step without saving</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : dict</span>
+<span class="sd">        l-egume lighting step results saved</span>
+<span class="sd">    energy : float</span>
+<span class="sd">        input meteo radiation</span>
+<span class="sd">    DOY : int</span>
+<span class="sd">        day of the year</span>
+<span class="sd">    scene : plantgl.Scene or dict</span>
+<span class="sd">        geometric scene of the plants</span>
+<span class="sd">    legume_wrapper : Legume_wrapper</span>
+<span class="sd">        l-egume instance which will compute the lighting step</span>
+<span class="sd">    lighting_wrapper : Light_wrapper</span>
+<span class="sd">        lighting management</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="n">invar_saved</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">invar</span><span class="p">)</span>
+    <span class="n">lighting_wrapper</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">scenes</span><span class="o">=</span><span class="p">[</span><span class="n">scene</span><span class="p">],</span> <span class="n">energy</span><span class="o">=</span><span class="n">energy</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="n">DOY</span><span class="p">,</span> <span class="n">parunit</span><span class="o">=</span><span class="s2">&quot;RG&quot;</span><span class="p">)</span>
+
+    <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">light_results</span><span class="p">(</span><span class="n">energy</span><span class="p">,</span> <span class="n">lighting_wrapper</span><span class="p">)</span>
+    <span class="n">legume_wrapper</span><span class="o">.</span><span class="n">invar</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">invar_saved</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;epsi&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">epsi</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">invar</span><span class="p">[</span><span class="s2">&quot;parip&quot;</span><span class="p">])</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">DOY</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">legume_wrapper</span><span class="o">.</span><span class="n">epsi</span><span class="p">))</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
