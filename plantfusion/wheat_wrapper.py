@@ -1,7 +1,12 @@
+"""
+
+    contains Wheat_wrapper
+
+"""
+
 import os
 import numpy
 import pandas
-import math
 
 from alinea.adel.adel_dynamic import AdelDyn
 from alinea.adel.echap_leaf import echap_leaves
@@ -19,8 +24,6 @@ from fspmwheat import fspmwheat_facade
 from cnwheat import (
     simulation as cnwheat_simulation,
     model as cnwheat_model,
-    parameters as cnwheat_parameters,
-    tools as cnwheat_tools,
 )
 
 from soil3ds.IOxls import read_plant_param
@@ -31,6 +34,15 @@ from plantfusion.indexer import Indexer
 
 
 class Wheat_wrapper(object):
+    """Wrapper for WheatFspm model
+
+    This FSPM is composed with many submodels, this wrapper create instances of:
+
+
+
+    """    
+
+    # constants in class
     HOUR_TO_SECOND_CONVERSION_FACTOR = 3600
     AXES_INDEX_COLUMNS = ["t", "plant", "axis"]
     ELEMENTS_INDEX_COLUMNS = ["t", "plant", "axis", "metamer", "organ", "element"]
@@ -80,6 +92,103 @@ class Wheat_wrapper(object):
         ELEMENTS_POSTPROCESSING_FILENAME="elements_postprocessing.csv",
         SOILS_POSTPROCESSING_FILENAME="soils_postprocessing.csv",
     ) -> None:
+        """Constructor, 
+        
+        It creates and stores an instance of
+        * AdelDyn
+        * openalea.MTG
+        * fspmwheat_facade
+        * caribu_facade
+        * cnwheat_facade
+        * elongwheat_facade
+        * farquharwheat_facade
+        * growthwheat_facade
+        * senescwheat_facade
+
+        It also stores all file path names. There is the possibility to restart simulation from previous data.
+
+        Parameters
+        ----------
+        name : str, optional
+            name of the fspm instance, by default "wheat"
+        in_folder : str, optional
+            input folder path, by default ""
+        out_folder : str, optional
+            output folder path if writing outputs is activated, by default None
+        N_fertilizations : dict, optional
+            when to fertilize and how many quantity, {timestep : mol N}, by default {}
+        tillers_replications : dict, optional
+            triggers tillers replication {tiller tag : length}, by default {}
+        planter : Planter, optional
+            Object containing plant positions and/or number of plants and/or soil domain, by default None
+        indexer : Indexer, optional
+            indexer for listing FSPM in the simulation, by default Indexer()
+        run_from_outputs : bool, optional
+            if you want to start simulation from previous results, by default False
+        external_soil_model : bool, optional
+            deactivate internal soil process in cn-wheat, by default False
+        nitrates_uptake_forced : bool, optional
+            forced nitrates uptake data, only external_soil_model is True, by default False
+        initialize_nitrates_uptake : float, optional
+            N uptake before the simulation start, by default 0.25
+        update_parameters_all_models : dict, optional
+            forced model parameters, by default None
+        stored_times : str or list or None, optional
+            stored all or specific simulation timestep, by default None
+        option_static : bool, optional
+            _description_, by default False
+        LIGHT_TIMESTEP : int, optional
+            number of iteration between two lighting step, by default 4
+        SENESCWHEAT_TIMESTEP : int, optional
+            number of iteration between two senescence step, by default 1
+        FARQUHARWHEAT_TIMESTEP : int, optional
+            number of iteration between two farquhar step, by default 1
+        ELONGWHEAT_TIMESTEP : int, optional
+            number of iteration between two elongwheat step, by default 1
+        GROWTHWHEAT_TIMESTEP : int, optional
+            number of iteration between two growthwheat step, by default 1
+        CNWHEAT_TIMESTEP : int, optional
+            number of iteration between two cnwheat step, by default 1
+        AXES_INITIAL_STATE_FILENAME : str, optional
+            initialization file name for axes, by default "axes_initial_state.csv"
+        ORGANS_INITIAL_STATE_FILENAME : str, optional
+            initialization file name for organs, by default "organs_initial_state.csv"
+        HIDDENZONES_INITIAL_STATE_FILENAME : str, optional
+            initialization file name for hiddenzones, by default "hiddenzones_initial_state.csv"
+        ELEMENTS_INITIAL_STATE_FILENAME : str, optional
+            initialization file name for elements, by default "elements_initial_state.csv"
+        SOILS_INITIAL_STATE_FILENAME : str, optional
+            initialization file name for soil, by default "soils_initial_state.csv"
+        METEO_FILENAME : str, optional
+            meteo file name, by default "meteo_Ljutovac2002.csv"
+        NITRATES_UPTAKE_FORCINGS_FILENAME : str, optional
+            forced nitrates uptake file name, by default "nitrates_uptake_forcings.csv"
+        SOIL_PARAMETERS_FILENAME : str, optional
+            WheatFspm soil parameters for soil3ds, by default ""
+        SOIL_PARAMETERS_SHEETNAME : str, optional
+            sheet in SOIL_PARAMETERS_FILENAME corresponding current plant specy parameters, by default "cnwheat"
+        AXES_OUTPUTS_FILENAME : str, optional
+            brut outputs file name for axes, by default "axes_outputs.csv"
+        ORGANS_OUTPUTS_FILENAME : str, optional
+            brut outputs file name for organs, by default "organs_outputs.csv"
+        HIDDENZONES_OUTPUTS_FILENAME : str, optional
+            brut outputs file name for hiddenzones, by default "hiddenzones_outputs.csv"
+        ELEMENTS_OUTPUTS_FILENAME : str, optional
+            brut outputs file name for elements, by default "elements_outputs.csv"
+        SOILS_OUTPUTS_FILENAME : str, optional
+            brut outputs file name for soil, by default "soils_outputs.csv"
+        AXES_POSTPROCESSING_FILENAME : str, optional
+            postprocessing outputs file name for axes, by default "axes_postprocessing.csv"
+        ORGANS_POSTPROCESSING_FILENAME : str, optional
+            postprocessing outputs file name for organs, by default "organs_postprocessing.csv"
+        HIDDENZONES_POSTPROCESSING_FILENAME : str, optional
+            postprocessing outputs file name for hiddenzones, by default "hiddenzones_postprocessing.csv"
+        ELEMENTS_POSTPROCESSING_FILENAME : str, optional
+            postprocessing outputs file name for elements, by default "elements_postprocessing.csv"
+        SOILS_POSTPROCESSING_FILENAME : str, optional
+            postprocessing outputs file name for soil, by default "soils_postprocessing.csv"
+        """ 
+
         self.N_fertilizations = N_fertilizations
         self.tillers_replications = tillers_replications
 
@@ -543,6 +652,23 @@ class Wheat_wrapper(object):
         self.adel_wheat.update_geometry(self.g)
 
     def light_inputs(self, planter):
+        """Wheats geometric scene for lighting
+
+        It creates a canopy from one wheat geometry with variabilities on each plant
+
+        Parameters
+        ----------
+        planter : Planter
+            provides plant positions and methods for creating the canopy
+
+        Returns
+        -------
+        plantgl.Scene, list
+            
+            * wheat canopy from one wheat
+            
+            * list of tuple precising stems id the plantgl scene. Elements are (specy id, organ id) 
+        """        
         if self.generation_type == "default":
             scene_wheat = planter.create_heterogeneous_canopy(
                 self.adel_wheat,
@@ -575,6 +701,17 @@ class Wheat_wrapper(object):
         return scene_wheat, stems
 
     def light_results(self, energy, lighting, selective_global_index=None):
+        """Interprets lighting results
+
+        Parameters
+        ----------
+        energy : float
+            meteo radiation in micromol.m-2.s-1
+        lighting : Light_wrapper
+            Contains lighting results in a pandas.Dataframe
+        selective_global_index : int, optional
+            if specy ID in lighting results is different from self.global_index, by default None
+        """        
         if selective_global_index is not None:
             saved_global_index = self.global_index
             self.global_index = selective_global_index
@@ -612,6 +749,32 @@ class Wheat_wrapper(object):
             self.global_index = saved_global_index
 
     def soil_inputs(self, soil, planter, lighting):
+        """Compute soil inputs for soil3ds
+
+        Roots length is computed from their mass (g) and a specific root length (m/g).
+
+        Parameters
+        ----------
+        soil : Soil_wrapper
+            for soil3ds dimensions and get plant positions in soil voxels grid
+        planter : Planter
+            for plant positions
+        lighting : Light_wrapper
+            for computing light interception capacity per plant
+
+        Returns
+        -------
+        4-tuple with soil input lists
+            
+            * (list of float) roots N content per plant [0-1]
+
+            * (numpy.array of 4 dimensions) roots length per plant and soil voxel in m
+
+            * (list of dict) soil parameters per plant (KMAX, VMAX, N content thresholds, ...)
+
+            * (list of float) light capacity interception per plant [0-1]
+
+        """        
         # ls_N
         N_content_roots = self.compute_N_content_roots()
         N_content_roots_per_plant = [N_content_roots] * self.nb_plants
@@ -633,6 +796,19 @@ class Wheat_wrapper(object):
         )
 
     def soil_results(self, uptakeN_per_plant, planter=None, selective_global_index=None):
+        """Interprets soil results
+
+        Compute a mean results among all plants.
+
+        Parameters
+        ----------
+        uptakeN_per_plant : list
+            numpy array of 4 dimensions [plant id, nz, nx, ny], N uptake for each plant in each soil voxel
+        planter : Planter, optional
+            gives index of wheat plants among the result lists, by default None
+        selective_global_index : int, optional
+            if specy ID in lighting results is different from self.global_index, by default None
+        """        
         if selective_global_index is not None:
             saved_global_index = self.global_index
             self.global_index = selective_global_index
@@ -657,6 +833,14 @@ class Wheat_wrapper(object):
             self.global_index = saved_global_index
 
     def run(self, t_light):
+        """Time step computing of WheatFspm. Independant from other fspm in the simulation
+
+        Parameters
+        ----------
+        t_light : int
+            meteo timestep
+        """     
+
         if not ((t_light % self.LIGHT_TIMESTEP == 0) and (self.PARi_next_hours(t_light) > 0)):
             Erel = self.g.property("Erel")
             PARa_output = {k: v * self.energy(t_light) for k, v in Erel.items()}
@@ -765,6 +949,13 @@ class Wheat_wrapper(object):
                                 self.soils_all_data_list.append(soils_outputs)
 
     def end(self, run_postprocessing=False):
+        """Write output files and close submodel instances
+
+        Parameters
+        ----------
+        run_postprocessing : bool, optional
+            activate postprocessing files writting, by default False
+        """        
         PRECISION = 4
 
         outputs_brut = os.path.join(self.out_folder, "brut")
@@ -842,6 +1033,8 @@ class Wheat_wrapper(object):
         self.outputs_df_dict = outputs_df_dict
 
     def update_Nitrates_cnwheat_mtg(self):
+        """Transfers N uptake result in model MTG
+        """        
         mtg_plants_iterator = self.g.components_iter(self.g.root)
         for plant in self.cnwheat_facade_.population.plants:
             cnwheat_plant_index = plant.index
@@ -864,6 +1057,13 @@ class Wheat_wrapper(object):
                 mtg_roots_properties["Uptake_Nitrates"] = self.uptake_nitrate_hour
 
     def compute_N_content_roots(self):
+        """Get and compute N content roots at current timestep
+
+        Returns
+        -------
+        float
+            N content in roots [0-1]
+        """        
         organs_df = self.organs_all_data_list[-1]
         hiddenzones_df = self.hiddenzones_all_data_list[-1]
         elements_df = self.elements_all_data_list[-1]
@@ -945,9 +1145,23 @@ class Wheat_wrapper(object):
         return N_content_roots.values[0]
 
     def compute_roots_length(self, soil_wrapper, planter:Planter):
-        """
+        """Compute roots length from roots mass
+
         soil_dimensions : [z, x, y]
-        """
+
+        Parameters
+        ----------
+        soil_wrapper : Soil_wrapper
+            for soil3ds dimensions and get plant positions in soil voxels grid
+        planter : Planter
+            for plant positions
+
+        Returns
+        -------
+        numpy.array
+            4-dimensions array of roots length per plant per soil voxel
+        """        
+
         # une seule plante dans cnwheat
         roots_mass = [0]
         for i, plant in enumerate(self.cnwheat_facade_.population.plants):
@@ -969,6 +1183,28 @@ class Wheat_wrapper(object):
         return ls_roots
 
     def rootsdistribution(self, roots_mass, ix, iy, soil_wrapper, distribtype="homogeneous"):
+        """Distributes roots length in soil voxels.
+
+        Currently only homogeneous repartition from ground to deep layers
+
+        Parameters
+        ----------
+        roots_mass : float
+            roots mass in g
+        ix : int
+            voxel index on x axis
+        iy : int
+            voxel index on y axis
+        soil_wrapper : Soil_wrapper
+            for soil voxels dimensions
+        distribtype : str, optional
+            for futur improvments and other distribution types, by default "homogeneous"
+
+        Returns
+        -------
+        numpy.array
+            3-dimensions array of roots length in each soil voxel
+        """        
         roots_length_per_voxel = numpy.zeros(soil_wrapper.soil_dimensions)
         if distribtype == "homogeneous":
             roots_length_per_voxel[:, ix, iy] = (roots_mass * self.SRL) / soil_wrapper.soil_dimensions[0]
@@ -976,6 +1212,15 @@ class Wheat_wrapper(object):
         return roots_length_per_voxel
 
     def compute_SRL_wheat(self, mass_roots):
+        """Dynamic specific root length according to roots mass
+
+        Here, SRL is linear following roots mass
+
+        Parameters
+        ----------
+        mass_roots : float
+            roots mass in g
+        """        
         if mass_roots < 0.6:
             a = 334
             self.SRL =  a * mass_roots + 60
@@ -985,6 +1230,20 @@ class Wheat_wrapper(object):
             self.SRL = 200
 
     def compute_plants_light_interception(self, plant_leaf_area, soil_energy):
+        """Computes light capacity interception for each plant
+
+        Parameters
+        ----------
+        plant_leaf_area : float
+            leaf area of one plant (each plant has the same leaf area as they come from the same mean geometric plant)
+        soil_energy : float
+            soil light interception [0-1]
+
+        Returns
+        -------
+        list of float
+            light capacity interception for each plant
+        """        
         # conversion
         c = (3600 * 24) / 1000000
         # portion au sol pour chaque plante
@@ -992,6 +1251,18 @@ class Wheat_wrapper(object):
 
     @staticmethod
     def convert_uptake_nitrate(uptake_nitrate):
+        """Unit conversion of N uptake from kg to µmol N
+
+        Parameters
+        ----------
+        uptake_nitrate : float
+            N uptake in kg per day
+
+        Returns
+        -------
+        float
+            N uptake in µmol N per hour
+        """        
         # masse atomic de l'azote 14.0067 g.mol-1
         atomic_mass_N = 14.0067
 
@@ -1008,6 +1279,13 @@ class Wheat_wrapper(object):
         return daily_uptake_nitrate
 
     def force_nitrates_uptake(self, t):
+        """Transfers forced input N uptake to wheat MTG at timestep t
+
+        Parameters
+        ----------
+        t : int
+            timestep
+        """        
         mtg_plants_iterator = self.g.components_iter(self.g.root)
         for plant in self.cnwheat_facade_.population.plants:
             cnwheat_plant_index = plant.index
@@ -1036,9 +1314,37 @@ class Wheat_wrapper(object):
                 mtg_roots_properties.update(nitrates_uptake_data_to_use)
 
     def energy(self, t):
+        """Returns meteo radiation at timestep t
+
+        Parameters
+        ----------
+        t : int
+            timestep
+
+        Returns
+        -------
+        float
+            meteo radiation in micromol.m-2.s-1
+        """      
+
         return self.meteo.loc[t, ["PARi"]].iloc[0]
 
     def doy(self, t, soil3ds=False):
+        """Day of the year
+
+        Parameters
+        ----------
+        t : int
+            timestep
+        soil3ds : bool, optional
+            doy in soil3ds meteo file don't reset at each year, it keeps increasing, by default False
+
+        Returns
+        -------
+        int
+            day of the year
+        """        
+
         if soil3ds:
             if t > 0:
                 if self.meteo.loc[t - 1, ["DOY"]].iloc[0] > self.meteo.loc[t, ["DOY"]].iloc[0]:
@@ -1049,24 +1355,73 @@ class Wheat_wrapper(object):
             return self.meteo.loc[t, ["DOY"]].iloc[0]
 
     def hour(self, t):
+        """Hour at timestep t
+
+        Parameters
+        ----------
+        t : int
+            timestep
+
+        Returns
+        -------
+        int
+            hour
+        """ 
+
         return self.meteo.loc[t, ["hour"]].iloc[0]
 
     def PARi_next_hours(self, t):
+        """Meteo PARi at t+1
+
+        Parameters
+        ----------
+        t : int
+            timestep
+
+        Returns
+        -------
+        float
+            meteo PAR at t+1
+        """      
+
         return self.meteo.loc[range(t, t + self.LIGHT_TIMESTEP), ["PARi"]].sum().values[0]
 
     def next_day_next_hour(self, t):
-        return self.meteo.loc[t + self.SENESCWHEAT_TIMESTEP, ["DOY"]].iloc[0]
+        """Day of the year at t+1. Used to check if we are at last iteration of the day
 
-    @staticmethod
-    def fake_scene():
-        epsilon = 1e-14
-        return {
-            19: [[(0.0, 0.0, 0.0), (0.0, epsilon, 0.0), (0.0, epsilon, epsilon)]],
-            34: [[(0.0, 0.0, 0.0), (epsilon, 0.0, 0.0), (epsilon, 0.0, epsilon)]],
-        }
+        Parameters
+        ----------
+        t : int
+            timestep
+
+        Returns
+        -------
+        int
+            day of the year
+        """     
+
+        return self.meteo.loc[t + self.SENESCWHEAT_TIMESTEP, ["DOY"]].iloc[0]
 
 
 def passive_lighting(data, t, DOY, scene, lighting_wrapper, stems=None):
+    """Run the lighting computation step without saving
+
+    Parameters
+    ----------
+    data : dict
+        WheatFspm lighting step results saved
+    t : int
+        timestep
+    DOY : int
+        day of the year
+    scene : plantgl.Scene
+        canopy plantgl scene
+    lighting_wrapper : Light_wrapper
+        which light model to run
+    stems : list, optional
+        lits of stems, (specy id, organ id), by default None
+    """    
+
     lighting_wrapper.run(scenes=[scene], day=DOY, parunit="micromol.m-2.s-1", stems=stems)
 
     results = lighting_wrapper.results_organs()

@@ -1,3 +1,9 @@
+"""
+
+    contains Planter class
+
+"""
+
 import numpy
 import math
 import pandas
@@ -9,6 +15,23 @@ from plantfusion.indexer import Indexer
 
 
 class Planter:
+    """Tool for handling the following in the simulation:
+        
+        * plant positions
+        
+        * number of plants 
+        
+        * soil domain
+
+    You can choose between 3 generation types:
+
+        * "default": each instance of fspm wrapper manages its plant positions, manages only soil domain
+
+        * "random": generates each plant in random positions in a squared soil
+
+        * "row": generates two rows for each plant specy in a squared soil
+
+    """    
     def __init__(
         self,
         generation_type="default",
@@ -24,6 +47,35 @@ class Planter:
         save_wheat_positions=False,
         seed=None,
     ) -> None:
+        """Constructor, computes a global soil domain for the simulation
+
+        Parameters
+        ----------
+        generation_type : str, optional
+            choose between "default", "random" or "row", by default "default"
+        indexer : Indexer, optional
+            indexer for listing FSPM in the simulation, by default Indexer()
+        legume_cote : dict, optional
+            precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}
+        legume_number_of_plants : dict, optional
+            number of plants for each l-egume instances. An entry is {wrapper.name : number of plants}, by default {}
+        inter_rows : float, optional
+            length between two rows in m, by default 0.15
+        plant_density : dict, optional
+            number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}
+        xy_plane : tuple of tuple, optional
+            Forced input dimensions of soil domain, ((xmin, ymin), (xmax, ymax)), by default None
+        xy_square_length : float, optional
+            Side length of the soil domain for "random" generation type, by default 0.5
+        translate : dict, optional
+            Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None
+        noise_plant_positions : float, optional
+            noise around generated positions in m, by default 0.0
+        save_wheat_positions : bool, optional
+            avoid to regenerate wheat positions at each timestep, by default False
+        seed : int, optional
+            seed for random and numpy, by default None
+        """        
         self.generation_type = generation_type
         self.plant_density = plant_density
         self.save_wheat_positions = save_wheat_positions
@@ -52,8 +104,19 @@ class Planter:
             self.type_domain = "mix"
 
     def __random(self, plant_density, xy_square_length):
-        # fait un carré à partir de (0,0)
-        # xy_plane = longueur d'un cote du carré du sol
+        """Parameters for random generation type
+
+        - l-egume: must have 64 plants so it rescale the soil size according to its plant density. Rewrite the cote, nbcote, typearrangement and optdamier options
+        - other fspm: compute number of plants according to its plant density
+
+        Parameters
+        ----------
+        plant_density : dict
+            each entry is { wrapper.name : number of plants/m²}
+        xy_square_length : float
+            soil side length in m
+        """        
+
         self.legume_nbcote = []
         self.wheat_positions = [[] for i in range(len(self.indexer.wheat_names))]
         self.other_positions = [[] for i in range(len(self.indexer.other_names))]
@@ -81,6 +144,18 @@ class Planter:
                 )
 
     def __row(self, plant_density, inter_rows):
+        """Parameters for row generation type
+
+        - l-egume: use "row4_sp1" arrangement. Rewrite the cote, nbcote, typearrangement and optdamier options
+        - other fspm: compute number of plants according to its plant density
+
+        Parameters
+        ----------
+        plant_density : dict
+            each entry is { wrapper.name : number of plants/m²}
+        inter_rows : float
+            length between two rows in m
+        """        
         self.total_n_rows = 2 * len(self.indexer.global_order)
 
         xy_square_length = inter_rows * self.total_n_rows
@@ -113,6 +188,7 @@ class Planter:
                     xy_square_length * xy_square_length * density
                 )
 
+        # each rows are generated on the same positions, we translate each plant specy scenes to create the final scene
         self.transformations["translate"] = {}
         if self.total_n_rows > 4:
             for i in self.indexer.legume_index:
@@ -122,7 +198,7 @@ class Planter:
             for i in self.indexer.other_index:
                 self.transformations["translate"][i] = (0.0, (i - 0.5) * inter_rows, 0.0)
 
-        # il y a que deux espèces
+        # only two species
         else:
             # 2 wheats ou combinaison avec 1 ou 2 autres FSPM
             if len(self.indexer.wheat_names) > 1  or len(self.indexer.other_names) > 1:
@@ -135,11 +211,40 @@ class Planter:
     def __default_preconfigured(
         self, legume_cote={}, inter_rows=0.15, plant_density={1: 250}, xy_plane=None, translate=None, seed=None
     ):
+        """Parameters for default generation type
+
+        An attribute self.type_domain is created which can be:
+
+        - "create_heterogeneous_canopy": only WheatFspm instance(s) in the simulation, the domain is from AgronomicStand
+
+        - "l-egume": only l-egume instance(s) in the simulation, the domain is from usm configurations
+
+        - "mix": mix of different fspm, we compute global soil domain
+
+        - "input": soil domain == xy_plane
+
+        Parameters
+        ----------
+        legume_cote : dict, optional
+            precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}
+        inter_rows : float
+            length between two rows in m, by default 0.15
+        plant_density : dict, optional
+            _description_, by default {1: 250}
+        plant_density : dict, optional
+            number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}
+        translate : dict, optional
+            Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None
+        seed : int, optional
+            seed for random and numpy, by default None
+        """        
         self.plant_density = plant_density
         self.inter_rows = inter_rows
 
         for i in self.indexer.wheat_index:
             self.number_of_plants[i] = 50
+        
+        # runs an iteration of Agronomic stand to get its soil domain
         if self.indexer.wheat_active:
             from alinea.adel.Stand import AgronomicStand
             
@@ -160,15 +265,14 @@ class Planter:
             _, domain, _, _ = stand.smart_stand(nplants=50, at=self.inter_rows, convunit=1)
             self.domain = domain
 
-        # temporaire : on applique les translations que aux instances l-egume
-        # xy_translate : dict {"name isntance" : (x,y,z)}
+        # translate each specy scenes if precised
         if translate is not None:
             self.transformations["translate"] = {}
             for name, vector in translate.items():
                 id = self.indexer.global_order.index(name)
                 self.transformations["translate"][id] = vector
 
-        # gestion du domain xy de définition
+        # soil domain management
         if xy_plane is None:
             # si recalcul le domain via create_heterogeneous_canopy
             if not self.indexer.legume_active:
@@ -222,6 +326,20 @@ class Planter:
 
 
     def generate_random_other(self, indice_instance=0, seed=None):
+        """Compute random plant positions for fspm other than l-egume and wheat
+
+        Parameters
+        ----------
+        indice_instance : int, optional
+            specy ID corresponding to plants to generate, by default 0
+        seed : int, optional
+            random seed, by default None
+
+        Returns
+        -------
+        list of tuple
+            list of plant positions (x, y, z)
+        """        
         if seed is not None:
             s = seed
         else:
@@ -247,6 +365,28 @@ class Planter:
     def generate_random_wheat(
         self, adel_wheat, mtg, indice_wheat_instance=0, stem_name="stem", leaf_name="leaf", seed=None
     ):
+        """Compute random plant positions for wheat fspm
+
+        Parameters
+        ----------
+        adel_wheat : AdelWheat
+            adel wheat object containing one wheat geometry
+        mtg : openalea.MTG
+            MTG of one wheat
+        indice_wheat_instance : int, optional
+            wheat ID in simulation (indexer.global_index), by default 0
+        stem_name : str, optional
+            stem tag in the plantgl.Scene, by default "stem"
+        leaf_name : str, optional
+            leaf tag in the plantgl.Scene, by default "leaf"
+        seed : int, optional
+            random seed, by default None
+
+        Returns
+        -------
+        list of tuple
+            list of plant positions (x, y, z)
+        """        
         var_leaf_inclination = 0.157
         var_leaf_azimut = 1.57
         var_stem_azimut = 0.157
@@ -279,7 +419,21 @@ class Planter:
 
         return generated_scene
 
-    def generate_row_wheat(self, indice_instance=0, seed=None):
+    def generate_row_other(self, indice_instance=0, seed=None):
+        """Compute row plant positions for fspm other than l-egume and wheat
+
+        Parameters
+        ----------
+        indice_instance : int, optional
+            specy ID corresponding to plants to generate, by default 0
+        seed : int, optional
+            random seed, by default None
+
+        Returns
+        -------
+        list of tuple
+            list of plant positions (x, y, z)
+        """        
 
         if seed is not None:
             s = seed
@@ -318,6 +472,28 @@ class Planter:
     def generate_row_wheat(
         self, adel_wheat, mtg, indice_wheat_instance=0, stem_name="stem", leaf_name="leaf", seed=None
     ):
+        """Compute row plant positions for wheat fspm
+
+        Parameters
+        ----------
+        adel_wheat : AdelWheat
+            adel wheat object containing one wheat geometry
+        mtg : openalea.MTG
+            MTG of one wheat
+        indice_wheat_instance : int, optional
+            wheat ID in simulation (indexer.global_index), by default 0
+        stem_name : str, optional
+            stem tag in the plantgl.Scene, by default "stem"
+        leaf_name : str, optional
+            leaf tag in the plantgl.Scene, by default "leaf"
+        seed : int, optional
+            random seed, by default None
+
+        Returns
+        -------
+        list of tuple
+            list of plant positions (x, y, z)
+        """        
         var_leaf_inclination = 0.157
         var_leaf_azimut = 1.57
         var_stem_azimut = 0.157
@@ -381,19 +557,35 @@ class Planter:
         indice_wheat_instance=0,
         seed=None,
     ):
-        """
-        Duplicate a plant in order to obtain a heterogeneous canopy.
+        """Generate wheat positions in default mode
 
-        :param int nplants: the desired number of duplicated plants
-        :param float var_plant_position: variability for plant position (m)
-        :param float var_leaf_inclination: variability for leaf inclination (rad)
-        :param float var_leaf_azimut: variability for leaf azimut (rad)
-        :param float var_stem_azimut: variability for stem azimut (rad)
-        :param string id_type: precise how to set the shape id of the elements : None, plant or organ
+        Parameters
+        ----------
+        geometrical_model : AdelWheat
+            adel wheat object the wheat
+        mtg : openalea.MTG, optional
+            MTG containing plantgl.Scene of one wheat, by default None
+        var_leaf_inclination : float, optional
+            variability for leaf inclination (rad), by default 0.157
+        var_leaf_azimut : float, optional
+            variability for leaf azimut (rad), by default 1.57
+        var_stem_azimut : float, optional
+            variability for stem azimut (rad), by default 0.157
+        stem_name : str, optional
+            stem tag in the plantgl.Scene, by default "stem"
+        leaf_name : str, optional
+            leaf tag in the plantgl.Scene, by default "leaf"
+        indice_wheat_instance : int, optional
+            wheat specy ID in simulation, by default 0
+        seed : int, optional
+            random seed, by default None
 
-        :return: duplicated heterogenous scene and its domain
-        :rtype: openalea.plantgl.all.Scene, (float)
-        """
+        Returns
+        -------
+        list of tuple
+            list of plant positions (x, y, z)
+        """        
+
         from alinea.adel.Stand import AgronomicStand
         
         if seed is not None:
@@ -443,6 +635,32 @@ class Planter:
         stem_name="stem",
         leaf_name="leaf",
     ):
+        """Generate complete wheats from their plant positions
+
+        Parameters
+        ----------
+        geometrical_model : AdelWheat
+            adel wheat object the wheat
+        mtg : openalea.MTG, optional
+            MTG containing plantgl.Scene of one wheat, by default None
+        positions : list, optional
+            list of plant positions as (x, y, z) in m, by default [(0.0, 0.0, 0.0)]
+        var_leaf_inclination : float, optional
+            variability for leaf inclination (rad), by default 0.157
+        var_leaf_azimut : float, optional
+            variability for leaf azimut (rad), by default 1.57
+        var_stem_azimut : float, optional
+            variability for stem azimut (rad), by default 0.157
+        stem_name : str, optional
+            stem tag in the plantgl.Scene, by default "stem"
+        leaf_name : str, optional
+            leaf tag in the plantgl.Scene, by default "leaf"
+
+        Returns
+        -------
+        plantgl.Scene
+            final scene of the generated wheats 
+        """        
         # Load scene
         if not isinstance(geometrical_model, plantgl.Scene):
             initial_scene = geometrical_model.scene(mtg)

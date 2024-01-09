@@ -246,7 +246,7 @@ class L_egume_wrapper(object):
         Parameters
         ----------
         energy : float
-            meteo ray input in W/m²
+            meteo radiation input in W/m²
         lighting : Light_wrapper
             lighting results and parameters
         selective_global_index : int, optional

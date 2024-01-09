@@ -1,3 +1,9 @@
+"""
+
+    contains Soil_wrapper
+
+"""
+
 import numpy
 import pandas
 import os
@@ -13,6 +19,9 @@ from plantfusion.utils import create_child_folder
 
 
 class Soil_wrapper(object):
+    """Wrapper of soil3ds model
+
+    """    
     def __init__(
         self,
         in_folder="",
@@ -28,14 +37,52 @@ class Soil_wrapper(object):
         only_water_balance=False,
         save_results=False,
     ) -> None:
+        """Constructor, two ways for getting a soil3ds instance:
+
+            - creates an soil3ds instance from an usm config file
+
+            - copy soil3ds instance from l-egume
+
+        Parameters
+        ----------
+        in_folder : str, optional
+            folder containing input files, by default ""
+        out_folder : str, optional
+            outputs folder path. Writes a table with soil values during the simulation, by default ""
+        IDusm : int, optional
+            usm ID with soil file info, by default 1
+        nameconfigfile : str, optional
+            usm config file in excel format, by default "liste_usms_exemple.xls"
+        ongletconfigfile : str, optional
+            sheet in nameconfigfile where to find the usm, by default "exemple"
+        opt_residu : int, optional
+            activate residu computing, by default 0
+        opt_Nuptake : int, optional
+            activate N uptake computing, by default 1
+        planter : Planter, optional
+            Object containing plant positions and/or number of plants and/or soil domain, by default Planter()
+        legume_pattern : bool, optional
+            if you want to copy soil instance from l-egume, by default False
+        legume_wrapper : L_egume_wrapper, optional
+            instance of legume wrapper, by default None
+        only_water_balance : bool, optional
+            compute only water balance instead of all water and N, by default False
+        save_results : bool, optional
+            saves soil values during simulation, by default False
+
+        Raises
+        ------
+        AttributeError
+            l-egume needs N soil results
+        """    
+
         self.only_water_balance = only_water_balance
 
+        # creates a soil3ds instance
         if not legume_pattern:  
             self.planter = planter
 
             # lecture des parametre sol directement a partir d'un fichier sol
-            # initialisation taille scene / discretisation (1D - homogene pour ttes les couches)
-            # initialisation d'une première scène pour avoir les côtés du domaine simulé
 
             # lecture meteo / mng journaliere = fixe
             usms_path = os.path.join(in_folder, nameconfigfile)
@@ -63,7 +110,7 @@ class Soil_wrapper(object):
 
             dz_sol = inis["dz_sol"]
             pattern8 = [[v * 100 for v in x] for x in planter.domain]  # conversion m en cm
-            discret_solXY = list(map(int, inis["discret_solXY"]))  # [10,10]# nb de discretisation du sol en X et en Y
+            discret_solXY = list(map(int, inis["discret_solXY"]))  # nb de discretisation du sol en X et en Y
 
             # meteo / mng journalier
             meteo_j = IOxls.extract_dataframe(
@@ -89,7 +136,8 @@ class Soil_wrapper(object):
 
             if legume_wrapper is not None:
                 legume_wrapper.lsystem.S = soil
-
+        
+        # copy soil3ds in l-egume instance
         else:
             if only_water_balance :
                 raise AttributeError("l-egume soil computes N balance")
@@ -153,6 +201,23 @@ class Soil_wrapper(object):
         soil_plants_parameters=[],
         plants_light_interception=[],
     ):
+        """Compute soil iteration
+
+        Each input lists correspond to the concatenated plants of all fspm instances
+
+        Parameters
+        ----------
+        day : int, optional
+            day of the year (according to meteo file input), by default 1
+        N_content_roots_per_plant : list, optional
+            one value per plant, by default []
+        roots_length_per_plant_per_soil_layer : list, optional
+            4 dimensions array [plant, iz, ix, iy], by default []
+        soil_plants_parameters : list, optional
+            one value per plant, by default []
+        plants_light_interception : list, optional
+            plant interception capacity, one value per plant, by default []
+        """        
         meteo_j = IOxls.extract_dataframe(
             self.meteo, ["TmoyDay", "RG", "Et0", "Precip", "Tmin", "Tmax", "Tsol"], "DOY", val=day
         )
@@ -214,6 +279,18 @@ class Soil_wrapper(object):
             self.results = self.soil.stepWBmc(*self.inputs)
 
     def bare_soil_inputs(self, epsilon=1e-10):
+        """Input lists for a bare soil iteration
+
+        Parameters
+        ----------
+        epsilon : float, optional
+            FTSW needs a strict positive value, by default 1e-10
+
+        Returns
+        -------
+        4 lists
+            soil inputs
+        """        
         R1 = self.soil.m_1 * epsilon  # pas zero sinon bug FTSW
         ls_roots = [R1]
         ls_epsi = [0.0]
@@ -223,6 +300,13 @@ class Soil_wrapper(object):
         return ls_N, ls_roots, ls_paramP, ls_epsi
 
     def append_results(self, day):
+        """Append soil values at iteration day
+
+        Parameters
+        ----------
+        day : int
+            day of the year
+        """        
         Nuptake_1plant = self.results[4][0].sum()
         soil = self.inputs[0]
 
@@ -265,6 +349,8 @@ class Soil_wrapper(object):
         self.data["tsw"].append(tsw)
 
     def end(self):
+        """Writes the self.data in a csv file in self.out_folder
+        """        
         try:
             pandas.DataFrame(self.data).to_csv(os.path.join(self.out_folder, "outputs_soil3ds.csv"))
         except AttributeError:
@@ -273,9 +359,21 @@ class Soil_wrapper(object):
             pass
 
     def whichvoxel_xy(self, p):
-        """
-        dxyz : [dx, dy, dz]
-        """
+        """Compute the voxel id where p is located
+
+        soil.dxyz : [dx, dy, dz]
+
+        Parameters
+        ----------
+        p : list or tuple
+            point (x, y, z)
+
+        Returns
+        -------
+        int, int
+            voxel x id and voxel y id
+        """        
+
         ix = math.floor((p[0] - self.soil.origin[0]) / self.soil.dxyz[0][0])
         iy = math.floor((p[1] - self.soil.origin[1]) / self.soil.dxyz[1][0])
 
