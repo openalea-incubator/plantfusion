@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reference Guide &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="1. Exploration Planter" href="planter_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials with jupyter notebooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-indexer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">indexer</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#indexer.Indexer"><code class="docutils literal notranslate"><span class="pre">Indexer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#indexer.Indexer.light_scenes_mgmt"><code class="docutils literal notranslate"><span class="pre">Indexer.light_scenes_mgmt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#indexer.Indexer.soil_inputs"><code class="docutils literal notranslate"><span class="pre">Indexer.soil_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#indexer.Indexer.update_legume_several_species"><code class="docutils literal notranslate"><span class="pre">Indexer.update_legume_several_species()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-l_egume_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">l_egume_wrapper</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.compute_plants_interception"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.compute_plants_interception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.compute_potential_plant_growth"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.compute_potential_plant_growth()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.derive"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.derive()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.doy"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.doy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.end"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.energy"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.light_inputs"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.light_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.light_results"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.light_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.number_of_voxels"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.number_of_voxels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.run"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.set_domain"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.set_domain()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.soil_inputs"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.soil_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.soil_results"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.soil_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.transfer_caribu_legume"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.transfer_caribu_legume()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.transfer_ratp_legume"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.transfer_ratp_legume()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper.voxels_size"><code class="docutils literal notranslate"><span class="pre">L_egume_wrapper.voxels_size()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#l_egume_wrapper.passive_lighting"><code class="docutils literal notranslate"><span class="pre">passive_lighting()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-light_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">light_wrapper</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#light_wrapper.Light_wrapper"><code class="docutils literal notranslate"><span class="pre">Light_wrapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.nb_empty_z_layers"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.nb_empty_z_layers()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.plantgl"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.plantgl()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.res_abs_i"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.res_abs_i()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.res_trans"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.res_trans()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.results_organs"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.results_organs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.results_sensors"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.results_sensors()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.results_triangles"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.results_triangles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.results_voxels"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.results_voxels()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.run"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.soil_energy"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.soil_energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#light_wrapper.Light_wrapper.xydomain_lightvegemanager"><code class="docutils literal notranslate"><span class="pre">Light_wrapper.xydomain_lightvegemanager()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-planter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">planter</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#planter.Planter"><code class="docutils literal notranslate"><span class="pre">Planter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#planter.Planter.create_heterogeneous_canopy"><code class="docutils literal notranslate"><span class="pre">Planter.create_heterogeneous_canopy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#planter.Planter.generate_random_other"><code class="docutils literal notranslate"><span class="pre">Planter.generate_random_other()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#planter.Planter.generate_random_wheat"><code class="docutils literal notranslate"><span class="pre">Planter.generate_random_wheat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#planter.Planter.generate_row_other"><code class="docutils literal notranslate"><span class="pre">Planter.generate_row_other()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#planter.Planter.generate_row_wheat"><code class="docutils literal notranslate"><span class="pre">Planter.generate_row_wheat()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-soil_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">soil_wrapper</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#soil_wrapper.Soil_wrapper"><code class="docutils literal notranslate"><span class="pre">Soil_wrapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#soil_wrapper.Soil_wrapper.append_results"><code class="docutils literal notranslate"><span class="pre">Soil_wrapper.append_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soil_wrapper.Soil_wrapper.bare_soil_inputs"><code class="docutils literal notranslate"><span class="pre">Soil_wrapper.bare_soil_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soil_wrapper.Soil_wrapper.end"><code class="docutils literal notranslate"><span class="pre">Soil_wrapper.end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soil_wrapper.Soil_wrapper.run"><code class="docutils literal notranslate"><span class="pre">Soil_wrapper.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#soil_wrapper.Soil_wrapper.whichvoxel_xy"><code class="docutils literal notranslate"><span class="pre">Soil_wrapper.whichvoxel_xy()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#utils.create_child_folder"><code class="docutils literal notranslate"><span class="pre">create_child_folder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.save_df_to_csv"><code class="docutils literal notranslate"><span class="pre">save_df_to_csv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-wheat_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wheat_wrapper</span></code> module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.AXES_INDEX_COLUMNS"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.AXES_INDEX_COLUMNS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.ELEMENTS_INDEX_COLUMNS"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.ELEMENTS_INDEX_COLUMNS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.HIDDENZONES_INDEX_COLUMNS"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.HIDDENZONES_INDEX_COLUMNS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.HOUR_TO_SECOND_CONVERSION_FACTOR"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.HOUR_TO_SECOND_CONVERSION_FACTOR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.ORGANS_INDEX_COLUMNS"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.ORGANS_INDEX_COLUMNS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.PARi_next_hours"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.PARi_next_hours()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.SOILS_INDEX_COLUMNS"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.SOILS_INDEX_COLUMNS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.compute_N_content_roots"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.compute_N_content_roots()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.compute_SRL_wheat"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.compute_SRL_wheat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.compute_plants_light_interception"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.compute_plants_light_interception()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.compute_roots_length"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.compute_roots_length()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.convert_uptake_nitrate"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.convert_uptake_nitrate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.doy"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.doy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.end"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.end()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.energy"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.energy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.force_nitrates_uptake"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.force_nitrates_uptake()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.hour"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.hour()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.light_inputs"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.light_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.light_results"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.light_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.next_day_next_hour"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.next_day_next_hour()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.rootsdistribution"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.rootsdistribution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.run"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.soil_inputs"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.soil_inputs()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.soil_results"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.soil_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#wheat_wrapper.Wheat_wrapper.update_Nitrates_cnwheat_mtg"><code class="docutils literal notranslate"><span class="pre">Wheat_wrapper.update_Nitrates_cnwheat_mtg()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#wheat_wrapper.passive_lighting"><code class="docutils literal notranslate"><span class="pre">passive_lighting()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Reference Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reference-guide">
+<span id="plantfusion-reference"></span><h1><a class="toc-backref" href="#id1" role="doc-backlink">Reference Guide</a><a class="headerlink" href="#reference-guide" title="Permalink to this heading"></a></h1>
+<p>This manual details, for each module of <a class="reference internal" href="index.html#module-plantfusion" title="plantfusion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">plantfusion</span></code></a>, the functions and objects included in <a class="reference internal" href="index.html#module-plantfusion" title="plantfusion"><code class="xref py py-mod docutils literal notranslate"><span class="pre">plantfusion</span></code></a>,
+describing what they are and what they do.</p>
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#reference-guide" id="id1">Reference Guide</a></p>
+<ul>
+<li><p><a class="reference internal" href="#module-indexer" id="id2"><a class="reference internal" href="#module-indexer" title="indexer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">indexer</span></code></a> module</a></p></li>
+<li><p><a class="reference internal" href="#module-l_egume_wrapper" id="id3"><a class="reference internal" href="#module-l_egume_wrapper" title="l_egume_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">l_egume_wrapper</span></code></a> module</a></p></li>
+<li><p><a class="reference internal" href="#module-light_wrapper" id="id4"><a class="reference internal" href="#module-light_wrapper" title="light_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">light_wrapper</span></code></a> module</a></p></li>
+<li><p><a class="reference internal" href="#module-planter" id="id5"><a class="reference internal" href="#module-planter" title="planter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">planter</span></code></a> module</a></p></li>
+<li><p><a class="reference internal" href="#module-soil_wrapper" id="id6"><a class="reference internal" href="#module-soil_wrapper" title="soil_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">soil_wrapper</span></code></a> module</a></p></li>
+<li><p><a class="reference internal" href="#module-utils" id="id7"><a class="reference internal" href="#module-utils" title="utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code></a> module</a></p></li>
+<li><p><a class="reference internal" href="#module-wheat_wrapper" id="id8"><a class="reference internal" href="#module-wheat_wrapper" title="wheat_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wheat_wrapper</span></code></a> module</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="module-indexer">
+<span id="indexer-module"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink"><a class="reference internal" href="#module-indexer" title="indexer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">indexer</span></code></a> module</a><a class="headerlink" href="#module-indexer" title="Permalink to this heading"></a></h2>
+<p>Contains class Indexer</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="indexer.Indexer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">indexer.</span></span><span class="sig-name descname"><span class="pre">Indexer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wheat_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legume_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">other_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/indexer.html#Indexer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#indexer.Indexer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Index management tool between the FSPM wrappers</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each list is list of strings where each element is an FSPM instance name
+exemple: <code class="docutils literal notranslate"><span class="pre">global_order</span> <span class="pre">=</span> <span class="pre">[&quot;fspm1&quot;,</span> <span class="pre">&quot;fspm2&quot;,</span> <span class="pre">&quot;fspm3&quot;]</span></code></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>global_order</strong> (<em>list</em><em>, </em><em>optional</em>) – ordered list of all FSPM in your simulation, by default []</p></li>
+<li><p><strong>wheat_names</strong> (<em>list</em><em>, </em><em>optional</em>) – ordered list of all instances of wheat wrappers in your simulation, by default []</p></li>
+<li><p><strong>legume_names</strong> (<em>list</em><em>, </em><em>optional</em>) – ordered list of all instances of l-egume wrappers in your simulation, by default []</p></li>
+<li><p><strong>other_names</strong> (<em>list</em><em>, </em><em>optional</em>) – ordered list of all instances of custom wrappers not in plantfusion in your simulation, by default []</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="indexer.Indexer.light_scenes_mgmt">
+<span class="sig-name descname"><span class="pre">light_scenes_mgmt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenes_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/indexer.html#Indexer.light_scenes_mgmt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#indexer.Indexer.light_scenes_mgmt" title="Permalink to this definition"></a></dt>
+<dd><p>Return an ordered list of geometric scenes following <code class="docutils literal notranslate"><span class="pre">global_order</span></code> list from an unordered dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scenes_dict</strong> (<em>dict</em>) – each entry is <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">fspm</span> <span class="pre">instance</span> <span class="pre">name</span> <span class="pre">:</span> <span class="pre">geometric</span> <span class="pre">scene</span> <span class="pre">}</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>ordered list of geomtric scenes following <code class="docutils literal notranslate"><span class="pre">global_order</span></code> list</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexer.Indexer.soil_inputs">
+<span class="sig-name descname"><span class="pre">soil_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/indexer.html#Indexer.soil_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#indexer.Indexer.soil_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Return ordered lists of soil list following <code class="docutils literal notranslate"><span class="pre">global_order</span></code> list from an unordered dict</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>soil_dict</strong> (<em>dict</em>) – each entry is <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">fspm</span> <span class="pre">instance</span> <span class="pre">name</span> <span class="pre">:</span> <span class="pre">soil</span> <span class="pre">scenes</span> <span class="pre">}</span></code> where soil scenes is a 4-tuple of each soil input list of the fspm instance</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>each element of the tuple is an ordered list of soil inputs following <code class="docutils literal notranslate"><span class="pre">global_order</span></code></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>4-tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="indexer.Indexer.update_legume_several_species">
+<span class="sig-name descname"><span class="pre">update_legume_several_species</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_of_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/indexer.html#Indexer.update_legume_several_species"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#indexer.Indexer.update_legume_several_species" title="Permalink to this definition"></a></dt>
+<dd><p>Updates all ordered list of FSPM wrappers if one instance of l-egume wrapper has several species involved</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) – instance name</p></li>
+<li><p><strong>number_of_species</strong> (<em>int</em><em>, </em><em>optional</em>) – number of plant species in the l-egume instance, by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-l_egume_wrapper">
+<span id="l-egume-wrapper-module"></span><h2><a class="toc-backref" href="#id3" role="doc-backlink"><a class="reference internal" href="#module-l_egume_wrapper" title="l_egume_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">l_egume_wrapper</span></code></a> module</a><a class="headerlink" href="#module-l_egume_wrapper" title="Permalink to this heading"></a></h2>
+<p>contains L_egume_wrapper class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">l_egume_wrapper.</span></span><span class="sig-name descname"><span class="pre">L_egume_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='legume'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexer=&lt;plantfusion.indexer.Indexer</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_folder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_folder=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nameconfigfile='liste_usms_exemple.xls'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ongletconfigfile='exemple'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IDusm=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caribu_scene=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for l-egume model</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only one lsystem per wrapper instance</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – name of the fspm instance, by default “legume”</p></li>
+<li><p><strong>indexer</strong> (<a class="reference internal" href="#indexer.Indexer" title="indexer.Indexer"><em>Indexer</em></a><em>, </em><em>optional</em>) – indexer for listing FSPM in the simulation, by default Indexer()</p></li>
+<li><p><strong>in_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – input folder path, by default “”</p></li>
+<li><p><strong>out_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – output folder path if writing outputs is activated, by default None</p></li>
+<li><p><strong>nameconfigfile</strong> (<em>str</em><em>, </em><em>optional</em>) – excel file name which contains the usm to run, by default “liste_usms_exemple.xls”</p></li>
+<li><p><strong>ongletconfigfile</strong> (<em>str</em><em>, </em><em>optional</em>) – sheet containing the usm to run in <code class="docutils literal notranslate"><span class="pre">nameconfigfile</span></code> file, by default “exemple”</p></li>
+<li><p><strong>IDusm</strong> (<em>int</em><em>, </em><em>optional</em>) – ID of the usm to run. Needed if you want to bypass the “torun” column in the usms config file, by default None</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a><em>, </em><em>optional</em>) – Object containing plant positions and/or number of plants and/or soil domain, by default None</p></li>
+<li><p><strong>caribu_scene</strong> (<em>bool</em><em>, </em><em>optional</em>) – if you want to force the rendered interpretation scene to leaves only, by default False</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.compute_plants_interception">
+<span class="sig-name descname"><span class="pre">compute_plants_interception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">organs_results</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pari_soil_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.compute_plants_interception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.compute_plants_interception" title="Permalink to this definition"></a></dt>
+<dd><p>Compute light interception capacity per plant</p>
+<p>Lighting must have be done before this step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>organs_results</strong> (<em>pandas.Dataframe</em><em>, </em><em>optional</em>) – lighting results per organs from the light wrapper, by default None</p></li>
+<li><p><strong>energy</strong> (<em>float</em><em>, </em><em>optional</em>) – meteo ray input in W/m², by default 1</p></li>
+<li><p><strong>pari_soil_in</strong> (<em>float</em><em>, </em><em>optional</em>) – forced input of intercepted light on soil, if it’s &lt; 0, this value is computed, by default -1</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.compute_potential_plant_growth">
+<span class="sig-name descname"><span class="pre">compute_potential_plant_growth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.compute_potential_plant_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.compute_potential_plant_growth" title="Permalink to this definition"></a></dt>
+<dd><p>Compute potential plant growth</p>
+<p>Lighting must have be done before this step</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.derive">
+<span class="sig-name descname"><span class="pre">derive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.derive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.derive" title="Permalink to this definition"></a></dt>
+<dd><p>Derive the lsystem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – timestep</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.doy">
+<span class="sig-name descname"><span class="pre">doy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.doy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.doy" title="Permalink to this definition"></a></dt>
+<dd><p>Day of the year in the current lsystem timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>day of the year</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.end" title="Permalink to this definition"></a></dt>
+<dd><p>Writes outputs and close the instance in the simulation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.energy">
+<span class="sig-name descname"><span class="pre">energy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.energy" title="Permalink to this definition"></a></dt>
+<dd><p>Radiation input from meteo data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>radiation in W/m²/s-1</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.light_inputs">
+<span class="sig-name descname"><span class="pre">light_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'triangles'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.light_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.light_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Return a geometric scene of plant leaves</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>elements</strong> (<em>str</em><em>, </em><em>optional</em>) – “triangles” or “voxels”, precise the returned scene type , by default “triangles”</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>if elements == “triangles”, it returns a plantgl.Scene of leaves
+if elements == “voxels”, it returns a dict with a leaf area entry and distribution of leaf angles entry</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plantgl.Scene or dict,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.light_results">
+<span class="sig-name descname"><span class="pre">light_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lighting</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Light_wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_global_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.light_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.light_results" title="Permalink to this definition"></a></dt>
+<dd><p>Interpret the lighting results</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>Steps :</dt><dd><ol class="arabic simple">
+<li><p>transfer absorbed lighing to plant data</p></li>
+<li><p>create local transmitted lighting following l-egume internal grid of voxels</p></li>
+<li><p>compute relative intercepted lighting per plant (epsi variable)</p></li>
+<li><p>compute potential plant growth</p></li>
+</ol>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>float</em>) – meteo radiation input in W/m²</p></li>
+<li><p><strong>lighting</strong> (<a class="reference internal" href="#light_wrapper.Light_wrapper" title="light_wrapper.Light_wrapper"><em>Light_wrapper</em></a>) – lighting results and parameters</p></li>
+<li><p><strong>selective_global_index</strong> (<em>int</em><em>, </em><em>optional</em>) – if specy ID in lighting results is different from self.global_index, by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.number_of_voxels">
+<span class="sig-name descname"><span class="pre">number_of_voxels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.number_of_voxels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.number_of_voxels" title="Permalink to this definition"></a></dt>
+<dd><p>Number of voxels in l-egume internal grid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[number of plant species, nz, ny, nx]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.run" title="Permalink to this definition"></a></dt>
+<dd><p>Time step computing of l-egume. Independant from other fspm in the simulation</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.set_domain">
+<span class="sig-name descname"><span class="pre">set_domain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.set_domain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.set_domain" title="Permalink to this definition"></a></dt>
+<dd><p>Setters of self.domain</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>domain</strong> (<em>list</em>) – ((xmin, ymin), (xmax, ymax))</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.soil_inputs">
+<span class="sig-name descname"><span class="pre">soil_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.soil_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.soil_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a 4-tuple with soil inputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p>N content in roots per plant [0-1]</p></li>
+<li><p>roots length per plant per voxel in m</p></li>
+<li><p>plant parameters per plant (KMAX, VMAX, N content thresholds)</p></li>
+<li><p>light interception capability per plant [0-1]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>4-tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.soil_results">
+<span class="sig-name descname"><span class="pre">soil_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_soil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_global_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.soil_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.soil_results" title="Permalink to this definition"></a></dt>
+<dd><p>Interprets soil results for l-egume</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results_soil</strong> (<em>list</em>) – a list containing : <code class="docutils literal notranslate"><span class="pre">soil,</span> <span class="pre">stateEV,</span> <span class="pre">ls_ftsw,</span> <span class="pre">ls_transp,</span> <span class="pre">ls_Act_Nuptake_plt,</span> <span class="pre">temps_sol</span></code> from soil3ds results</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a><em>, </em><em>optional</em>) – _description_, by default None</p></li>
+<li><p><strong>selective_global_index</strong> (<em>int</em><em>, </em><em>optional</em>) – if specy ID in lighting results is different from self.global_index, by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.transfer_caribu_legume">
+<span class="sig-name descname"><span class="pre">transfer_caribu_legume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensors_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.transfer_caribu_legume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.transfer_caribu_legume" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers lighting results from CARIBU to l-egume
+We will update list_invar which stores the total intercepted energy for each plant, and return
+an array storing transmitted energy following the intern grid of voxels in l-egume. To do so, we
+used virtual sensors in CARIBU to get incoming radiations in selected locations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>float</em>) – input energy</p></li>
+<li><p><strong>nb0</strong> (<em>int</em>) – number of empty layers from top of the canopy and maximum z layers in m_lais</p></li>
+<li><p><strong>elements_outputs</strong> (<em>pandas.Dataframe</em>) – lighting results at triangle scale</p></li>
+<li><p><strong>sensors_outputs</strong> (<em>pandas.Dataframe</em>) – intercepted light by virtual sensors following l-egume internal grid of voxels</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em><em>, </em><em>optional</em>) – criteria of minimum intercepted portion of PAR in a non empty voxel, by default 1e-8</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>it updates <code class="docutils literal notranslate"><span class="pre">list_invar</span></code> and its key entries <code class="docutils literal notranslate"><span class="pre">&quot;parap&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;parip&quot;</span></code>, each element if the scipy.array is the sum of all intercepted energy for each plant. This process is a rewrite of <code class="docutils literal notranslate"><span class="pre">calc_paraF</span></code> in ShootMorpho.py module of l-egume, adapted to LightVegeManager numerotation of triangles</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">res_trans</span></code> an array of transmitted energy for each voxel in a grid of dimensions <code class="docutils literal notranslate"><span class="pre">sensors_dxyz</span> <span class="pre">*</span> <span class="pre">sensors_nxyz</span></code></p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.transfer_ratp_legume">
+<span class="sig-name descname"><span class="pre">transfer_ratp_legume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">voxels_outputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nb0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.transfer_ratp_legume"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.transfer_ratp_legume" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers lightig outputs from RATP to l-egume</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>float</em>) – input energy</p></li>
+<li><p><strong>voxels_outputs</strong> (<em>pandas.Dataframe</em>) – results at organ scale</p></li>
+<li><p><strong>nb0</strong> (<em>int</em>) – number of empty layers from top of the canopy and maximum z layers in m_lais</p></li>
+<li><p><strong>epsilon</strong> (<em>float</em><em>, </em><em>optional</em>) – criteria of minimum intercepted portion of PAR in a non empty voxel, by default 1e-8</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>two array with lighting informations</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">res_abs_i</span></code>: absorb PAR in each voxel for RATP grid of voxels. It has the same dimensions as <code class="docutils literal notranslate"><span class="pre">m_lais</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">res_trans</span></code>: transmitted PAR in each voxel, i.e. the energy leaving the voxels from input rays. This value is not dependent on specy</p></li>
+</ul>
+<p>dimensions are (number of z layers, number of y layers, number of x layers)</p>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array, numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="l_egume_wrapper.L_egume_wrapper.voxels_size">
+<span class="sig-name descname"><span class="pre">voxels_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#L_egume_wrapper.voxels_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.L_egume_wrapper.voxels_size" title="Permalink to this definition"></a></dt>
+<dd><p>Size of the voxels in l-egume internal grid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[dx, dy, dz] in cm</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="l_egume_wrapper.passive_lighting">
+<span class="sig-prename descclassname"><span class="pre">l_egume_wrapper.</span></span><span class="sig-name descname"><span class="pre">passive_lighting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DOY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legume_wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lighting_wrapper</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/l_egume_wrapper.html#passive_lighting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#l_egume_wrapper.passive_lighting" title="Permalink to this definition"></a></dt>
+<dd><p>Run the lighting computation step without saving</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – l-egume lighting step results saved</p></li>
+<li><p><strong>energy</strong> (<em>float</em>) – input meteo radiation</p></li>
+<li><p><strong>DOY</strong> (<em>int</em>) – day of the year</p></li>
+<li><p><strong>scene</strong> (<em>plantgl.Scene</em><em> or </em><em>dict</em>) – geometric scene of the plants</p></li>
+<li><p><strong>legume_wrapper</strong> (<em>Legume_wrapper</em>) – l-egume instance which will compute the lighting step</p></li>
+<li><p><strong>lighting_wrapper</strong> (<a class="reference internal" href="#light_wrapper.Light_wrapper" title="light_wrapper.Light_wrapper"><em>Light_wrapper</em></a>) – lighting management</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-light_wrapper">
+<span id="light-wrapper-module"></span><h2><a class="toc-backref" href="#id4" role="doc-backlink"><a class="reference internal" href="#module-light_wrapper" title="light_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">light_wrapper</span></code></a> module</a><a class="headerlink" href="#module-light_wrapper" title="Permalink to this heading"></a></h2>
+<p>contains Light_wrapper class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">light_wrapper.</span></span><span class="sig-name descname"><span class="pre">Light_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">planter=&lt;plantfusion.planter.Planter</span> <span class="pre">object&gt;,</span> <span class="pre">indexer=&lt;plantfusion.indexer.Indexer</span> <span class="pre">object&gt;,</span> <span class="pre">lightmodel='',</span> <span class="pre">sky='turtle46',</span> <span class="pre">direct=False,</span> <span class="pre">diffuse=True,</span> <span class="pre">reflected=False,</span> <span class="pre">coordinates=[46.4,</span> <span class="pre">0.0,</span> <span class="pre">1.0],</span> <span class="pre">infinite=True,</span> <span class="pre">legume_wrapper=None,</span> <span class="pre">caribu_opt={'par':</span> <span class="pre">(0.1,</span> <span class="pre">0.07)},</span> <span class="pre">voxels_size=[1.0,</span> <span class="pre">1.0,</span> <span class="pre">1.0],</span> <span class="pre">angle_distrib_algo='compute</span> <span class="pre">global',</span> <span class="pre">nb_angle_class=9,</span> <span class="pre">mu=1.0,</span> <span class="pre">writegeo=False,</span> <span class="pre">out_folder=''</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for LightVegeManager</p>
+<p>Sets pre-configured parameters following the inputs</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a><em>, </em><em>optional</em>) – Object containing plant positions and/or number of plants and/or soil domain, by default Planter()</p></li>
+<li><p><strong>indexer</strong> (<a class="reference internal" href="#indexer.Indexer" title="indexer.Indexer"><em>Indexer</em></a><em>, </em><em>optional</em>) – indexer for listing FSPM in the simulation, by default Indexer()</p></li>
+<li><p><strong>lightmodel</strong> (<em>str</em><em>, </em><em>optional</em>) – select the light model, choose between “caribu”, “ratp” or “riri5”, by default “”</p></li>
+<li><p><strong>sky</strong> (<em>str</em><em>, </em><em>optional</em>) – sky type, see sky in LightVegeManager for more info, by default “turtle46”</p></li>
+<li><p><strong>direct</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate direct radiation (sun), by default False</p></li>
+<li><p><strong>diffuse</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate diffuse radiation (sky), by default True</p></li>
+<li><p><strong>reflected</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate reflected radiation between plants, by default False</p></li>
+<li><p><strong>coordinates</strong> (<em>list</em><em>, </em><em>optional</em>) – [latitude, longitude, timezone], by default [46.4, 0.0, 1.0]</p></li>
+<li><p><strong>infinite</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate infinite scene replication, by default True</p></li>
+<li><p><strong>legume_wrapper</strong> (<a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper" title="l_egume_wrapper.L_egume_wrapper"><em>L_egume_wrapper</em></a><em> or </em><em>list</em><em> of </em><a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper" title="l_egume_wrapper.L_egume_wrapper"><em>L_egume_wrapper</em></a><em>, </em><em>optional</em>) – instance(s) of L_egume_wrapper in the simulation, by default None</p></li>
+<li><p><strong>caribu_opt</strong> (<em>dict</em><em>, </em><em>optional</em>) – optical parameters for CARIBU, by default {“par”: (0.10, 0.07)}</p></li>
+<li><p><strong>voxels_size</strong> (<em>list</em><em>, </em><em>optional</em>) – input voxels size in m for each direction [dx, dy, dz], by default [1.0, 1.0, 1.0]</p></li>
+<li><p><strong>angle_distrib_algo</strong> (<em>str</em><em>, </em><em>optional</em>) – computation type for leaf angle distribution, by default “compute global”</p></li>
+<li><p><strong>nb_angle_class</strong> (<em>int</em><em>, </em><em>optional</em>) – number of leaf angle classes between 0 and 90°, by default 9</p></li>
+<li><p><strong>mu</strong> (<em>float</em><em>, </em><em>optional</em>) – dispersion coefficient in voxels, by default 1.0</p></li>
+<li><p><strong>writegeo</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate write the scene in VTK and bgeom files, by default False</p></li>
+<li><p><strong>out_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – outputs folder path where to write geometric files if writegeo == True, by default “”</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.nb_empty_z_layers">
+<span class="sig-name descname"><span class="pre">nb_empty_z_layers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.nb_empty_z_layers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.nb_empty_z_layers" title="Permalink to this definition"></a></dt>
+<dd><p>Number of empty z layers in voxel grid</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of empty z layers in voxel grid</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.plantgl">
+<span class="sig-name descname"><span class="pre">plantgl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printtriangles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">printvoxels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.plantgl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.plantgl" title="Permalink to this definition"></a></dt>
+<dd><p>Return plantGL scene of LightVegeManager mesh</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lighting</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate lighting results or only geometry, by default False</p></li>
+<li><p><strong>printtriangles</strong> (<em>bool</em><em>, </em><em>optional</em>) – print triangles in returned scene, by default True</p></li>
+<li><p><strong>printvoxels</strong> (<em>bool</em><em>, </em><em>optional</em>) – print voxels in returned scene, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>plantgl scene of the current timestep</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plantgl.Scene</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.res_abs_i">
+<span class="sig-name descname"><span class="pre">res_abs_i</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.res_abs_i"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.res_abs_i" title="Permalink to this definition"></a></dt>
+<dd><p>Return absorbed energy per voxel per specy</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>absorbed energy per voxel dimensions [specy id, iz, iy, ix]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.res_trans">
+<span class="sig-name descname"><span class="pre">res_trans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.res_trans"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.res_trans" title="Permalink to this definition"></a></dt>
+<dd><p>Return transmitted energy per voxel</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>transmitted energy per voxel dimensions [iz, iy, ix]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.results_organs">
+<span class="sig-name descname"><span class="pre">results_organs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.results_organs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.results_organs" title="Permalink to this definition"></a></dt>
+<dd><p>Return lighting results at organ scale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>lighting results at organ scale</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.results_sensors">
+<span class="sig-name descname"><span class="pre">results_sensors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.results_sensors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.results_sensors" title="Permalink to this definition"></a></dt>
+<dd><p>Return lighting results of virtual sensors</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>lighting results of virtual sensors</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.results_triangles">
+<span class="sig-name descname"><span class="pre">results_triangles</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.results_triangles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.results_triangles" title="Permalink to this definition"></a></dt>
+<dd><p>Return lighting results at triangles scale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>lighting results at triangles scale</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.results_voxels">
+<span class="sig-name descname"><span class="pre">results_voxels</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.results_voxels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.results_voxels" title="Permalink to this definition"></a></dt>
+<dd><p>Return lighting results at voxels scale</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>lighting results at voxels scale</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>pandas.Dataframe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scenes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hour</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parunit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'RG'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stems</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run the lighting computation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>float</em><em>, </em><em>optional</em>) – radiation input from meteo in W/m², by default 1.0</p></li>
+<li><p><strong>scenes</strong> (<em>list</em><em>, </em><em>optional</em>) – lits of geometric scenes available with LightVegeManager, by default []</p></li>
+<li><p><strong>day</strong> (<em>int</em><em>, </em><em>optional</em>) – day of the year, by default 1</p></li>
+<li><p><strong>hour</strong> (<em>int</em><em>, </em><em>optional</em>) – timestep hour, by default 12</p></li>
+<li><p><strong>parunit</strong> (<em>str</em><em>, </em><em>optional</em>) – possibility to precise the radiation unit, by default “RG”</p></li>
+<li><p><strong>stems</strong> (<em>list</em><em> of </em><em>tuple</em><em>, </em><em>optional</em>) – precise if stems are among the input scenes. An element of the list is (specy ID, organ ID), by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.soil_energy">
+<span class="sig-name descname"><span class="pre">soil_energy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.soil_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.soil_energy" title="Permalink to this definition"></a></dt>
+<dd><p>Relative energy intercepted by soil</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Relative energy intercepted by soil [0-1]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="light_wrapper.Light_wrapper.xydomain_lightvegemanager">
+<span class="sig-name descname"><span class="pre">xydomain_lightvegemanager</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/light_wrapper.html#Light_wrapper.xydomain_lightvegemanager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#light_wrapper.Light_wrapper.xydomain_lightvegemanager" title="Permalink to this definition"></a></dt>
+<dd><p>Return soil domain computed by lightvegemanager</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>((xmin, ymin), (xmax, ymax))</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-planter">
+<span id="planter-module"></span><h2><a class="toc-backref" href="#id5" role="doc-backlink"><a class="reference internal" href="#module-planter" title="planter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">planter</span></code></a> module</a><a class="headerlink" href="#module-planter" title="Permalink to this heading"></a></h2>
+<p>contains Planter class</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="planter.Planter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">planter.</span></span><span class="sig-name descname"><span class="pre">Planter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generation_type='default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexer=&lt;plantfusion.indexer.Indexer</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legume_cote={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legume_number_of_plants={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inter_rows=0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plant_density={1:</span> <span class="pre">250}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_plane=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xy_square_length=0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translate=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise_plant_positions=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_wheat_positions=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planter.html#Planter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planter.Planter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Tool for handling the following in the simulation:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>plant positions</p></li>
+<li><p>number of plants</p></li>
+<li><p>soil domain</p></li>
+</ul>
+</div></blockquote>
+<p>You can choose between 3 generation types:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>“default”: each instance of fspm wrapper manages its plant positions, manages only soil domain</p></li>
+<li><p>“random”: generates each plant in random positions in a squared soil</p></li>
+<li><p>“row”: generates two rows for each plant specy in a squared soil</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>generation_type</strong> (<em>str</em><em>, </em><em>optional</em>) – choose between “default”, “random” or “row”, by default “default”</p></li>
+<li><p><strong>indexer</strong> (<a class="reference internal" href="#indexer.Indexer" title="indexer.Indexer"><em>Indexer</em></a><em>, </em><em>optional</em>) – indexer for listing FSPM in the simulation, by default Indexer()</p></li>
+<li><p><strong>legume_cote</strong> (<em>dict</em><em>, </em><em>optional</em>) – precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}</p></li>
+<li><p><strong>legume_number_of_plants</strong> (<em>dict</em><em>, </em><em>optional</em>) – number of plants for each l-egume instances. An entry is {wrapper.name : number of plants}, by default {}</p></li>
+<li><p><strong>inter_rows</strong> (<em>float</em><em>, </em><em>optional</em>) – length between two rows in m, by default 0.15</p></li>
+<li><p><strong>plant_density</strong> (<em>dict</em><em>, </em><em>optional</em>) – number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}</p></li>
+<li><p><strong>xy_plane</strong> (<em>tuple</em><em> of </em><em>tuple</em><em>, </em><em>optional</em>) – Forced input dimensions of soil domain, ((xmin, ymin), (xmax, ymax)), by default None</p></li>
+<li><p><strong>xy_square_length</strong> (<em>float</em><em>, </em><em>optional</em>) – Side length of the soil domain for “random” generation type, by default 0.5</p></li>
+<li><p><strong>translate</strong> (<em>dict</em><em>, </em><em>optional</em>) – Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None</p></li>
+<li><p><strong>noise_plant_positions</strong> (<em>float</em><em>, </em><em>optional</em>) – noise around generated positions in m, by default 0.0</p></li>
+<li><p><strong>save_wheat_positions</strong> (<em>bool</em><em>, </em><em>optional</em>) – avoid to regenerate wheat positions at each timestep, by default False</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – seed for random and numpy, by default None</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="planter.Planter.create_heterogeneous_canopy">
+<span class="sig-name descname"><span class="pre">create_heterogeneous_canopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometrical_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mtg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_leaf_inclination</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.157</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_leaf_azimut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.57</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_stem_azimut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.157</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stem_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leaf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indice_wheat_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planter.html#Planter.create_heterogeneous_canopy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planter.Planter.create_heterogeneous_canopy" title="Permalink to this definition"></a></dt>
+<dd><p>Generate wheat positions in default mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geometrical_model</strong> (<em>AdelWheat</em>) – adel wheat object the wheat</p></li>
+<li><p><strong>mtg</strong> (<em>openalea.MTG</em><em>, </em><em>optional</em>) – MTG containing plantgl.Scene of one wheat, by default None</p></li>
+<li><p><strong>var_leaf_inclination</strong> (<em>float</em><em>, </em><em>optional</em>) – variability for leaf inclination (rad), by default 0.157</p></li>
+<li><p><strong>var_leaf_azimut</strong> (<em>float</em><em>, </em><em>optional</em>) – variability for leaf azimut (rad), by default 1.57</p></li>
+<li><p><strong>var_stem_azimut</strong> (<em>float</em><em>, </em><em>optional</em>) – variability for stem azimut (rad), by default 0.157</p></li>
+<li><p><strong>stem_name</strong> (<em>str</em><em>, </em><em>optional</em>) – stem tag in the plantgl.Scene, by default “stem”</p></li>
+<li><p><strong>leaf_name</strong> (<em>str</em><em>, </em><em>optional</em>) – leaf tag in the plantgl.Scene, by default “leaf”</p></li>
+<li><p><strong>indice_wheat_instance</strong> (<em>int</em><em>, </em><em>optional</em>) – wheat specy ID in simulation, by default 0</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random seed, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of plant positions (x, y, z)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="planter.Planter.generate_random_other">
+<span class="sig-name descname"><span class="pre">generate_random_other</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indice_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planter.html#Planter.generate_random_other"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planter.Planter.generate_random_other" title="Permalink to this definition"></a></dt>
+<dd><p>Compute random plant positions for fspm other than l-egume and wheat</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indice_instance</strong> (<em>int</em><em>, </em><em>optional</em>) – specy ID corresponding to plants to generate, by default 0</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random seed, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of plant positions (x, y, z)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="planter.Planter.generate_random_wheat">
+<span class="sig-name descname"><span class="pre">generate_random_wheat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adel_wheat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mtg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indice_wheat_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stem_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leaf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planter.html#Planter.generate_random_wheat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planter.Planter.generate_random_wheat" title="Permalink to this definition"></a></dt>
+<dd><p>Compute random plant positions for wheat fspm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adel_wheat</strong> (<em>AdelWheat</em>) – adel wheat object containing one wheat geometry</p></li>
+<li><p><strong>mtg</strong> (<em>openalea.MTG</em>) – MTG of one wheat</p></li>
+<li><p><strong>indice_wheat_instance</strong> (<em>int</em><em>, </em><em>optional</em>) – wheat ID in simulation (indexer.global_index), by default 0</p></li>
+<li><p><strong>stem_name</strong> (<em>str</em><em>, </em><em>optional</em>) – stem tag in the plantgl.Scene, by default “stem”</p></li>
+<li><p><strong>leaf_name</strong> (<em>str</em><em>, </em><em>optional</em>) – leaf tag in the plantgl.Scene, by default “leaf”</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random seed, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of plant positions (x, y, z)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="planter.Planter.generate_row_other">
+<span class="sig-name descname"><span class="pre">generate_row_other</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indice_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planter.html#Planter.generate_row_other"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planter.Planter.generate_row_other" title="Permalink to this definition"></a></dt>
+<dd><p>Compute row plant positions for fspm other than l-egume and wheat</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indice_instance</strong> (<em>int</em><em>, </em><em>optional</em>) – specy ID corresponding to plants to generate, by default 0</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random seed, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of plant positions (x, y, z)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="planter.Planter.generate_row_wheat">
+<span class="sig-name descname"><span class="pre">generate_row_wheat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adel_wheat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mtg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indice_wheat_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stem_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'stem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'leaf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/planter.html#Planter.generate_row_wheat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#planter.Planter.generate_row_wheat" title="Permalink to this definition"></a></dt>
+<dd><p>Compute row plant positions for wheat fspm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adel_wheat</strong> (<em>AdelWheat</em>) – adel wheat object containing one wheat geometry</p></li>
+<li><p><strong>mtg</strong> (<em>openalea.MTG</em>) – MTG of one wheat</p></li>
+<li><p><strong>indice_wheat_instance</strong> (<em>int</em><em>, </em><em>optional</em>) – wheat ID in simulation (indexer.global_index), by default 0</p></li>
+<li><p><strong>stem_name</strong> (<em>str</em><em>, </em><em>optional</em>) – stem tag in the plantgl.Scene, by default “stem”</p></li>
+<li><p><strong>leaf_name</strong> (<em>str</em><em>, </em><em>optional</em>) – leaf tag in the plantgl.Scene, by default “leaf”</p></li>
+<li><p><strong>seed</strong> (<em>int</em><em>, </em><em>optional</em>) – random seed, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of plant positions (x, y, z)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-soil_wrapper">
+<span id="soil-wrapper-module"></span><h2><a class="toc-backref" href="#id6" role="doc-backlink"><a class="reference internal" href="#module-soil_wrapper" title="soil_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">soil_wrapper</span></code></a> module</a><a class="headerlink" href="#module-soil_wrapper" title="Permalink to this heading"></a></h2>
+<p>contains Soil_wrapper</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="soil_wrapper.Soil_wrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">soil_wrapper.</span></span><span class="sig-name descname"><span class="pre">Soil_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_folder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_folder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">IDusm=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nameconfigfile='liste_usms_exemple.xls'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ongletconfigfile='exemple'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_residu=0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">opt_Nuptake=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter=&lt;plantfusion.planter.Planter</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legume_pattern=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legume_wrapper=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_water_balance=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_results=False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/soil_wrapper.html#Soil_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soil_wrapper.Soil_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper of soil3ds model</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>two ways for getting a soil3ds instance:</dt><dd><ul class="simple">
+<li><p>creates an soil3ds instance from an usm config file</p></li>
+<li><p>copy soil3ds instance from l-egume</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – folder containing input files, by default “”</p></li>
+<li><p><strong>out_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – outputs folder path. Writes a table with soil values during the simulation, by default “”</p></li>
+<li><p><strong>IDusm</strong> (<em>int</em><em>, </em><em>optional</em>) – usm ID with soil file info, by default 1</p></li>
+<li><p><strong>nameconfigfile</strong> (<em>str</em><em>, </em><em>optional</em>) – usm config file in excel format, by default “liste_usms_exemple.xls”</p></li>
+<li><p><strong>ongletconfigfile</strong> (<em>str</em><em>, </em><em>optional</em>) – sheet in nameconfigfile where to find the usm, by default “exemple”</p></li>
+<li><p><strong>opt_residu</strong> (<em>int</em><em>, </em><em>optional</em>) – activate residu computing, by default 0</p></li>
+<li><p><strong>opt_Nuptake</strong> (<em>int</em><em>, </em><em>optional</em>) – activate N uptake computing, by default 1</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a><em>, </em><em>optional</em>) – Object containing plant positions and/or number of plants and/or soil domain, by default Planter()</p></li>
+<li><p><strong>legume_pattern</strong> (<em>bool</em><em>, </em><em>optional</em>) – if you want to copy soil instance from l-egume, by default False</p></li>
+<li><p><strong>legume_wrapper</strong> (<a class="reference internal" href="#l_egume_wrapper.L_egume_wrapper" title="l_egume_wrapper.L_egume_wrapper"><em>L_egume_wrapper</em></a><em>, </em><em>optional</em>) – instance of legume wrapper, by default None</p></li>
+<li><p><strong>only_water_balance</strong> (<em>bool</em><em>, </em><em>optional</em>) – compute only water balance instead of all water and N, by default False</p></li>
+<li><p><strong>save_results</strong> (<em>bool</em><em>, </em><em>optional</em>) – saves soil values during simulation, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AttributeError</strong> – l-egume needs N soil results</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="soil_wrapper.Soil_wrapper.append_results">
+<span class="sig-name descname"><span class="pre">append_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/soil_wrapper.html#Soil_wrapper.append_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soil_wrapper.Soil_wrapper.append_results" title="Permalink to this definition"></a></dt>
+<dd><p>Append soil values at iteration day</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>day</strong> (<em>int</em>) – day of the year</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soil_wrapper.Soil_wrapper.bare_soil_inputs">
+<span class="sig-name descname"><span class="pre">bare_soil_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/soil_wrapper.html#Soil_wrapper.bare_soil_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soil_wrapper.Soil_wrapper.bare_soil_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Input lists for a bare soil iteration</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>epsilon</strong> (<em>float</em><em>, </em><em>optional</em>) – FTSW needs a strict positive value, by default 1e-10</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>soil inputs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>4 lists</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soil_wrapper.Soil_wrapper.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/soil_wrapper.html#Soil_wrapper.end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soil_wrapper.Soil_wrapper.end" title="Permalink to this definition"></a></dt>
+<dd><p>Writes the self.data in a csv file in self.out_folder</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soil_wrapper.Soil_wrapper.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_content_roots_per_plant</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roots_length_per_plant_per_soil_layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil_plants_parameters</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plants_light_interception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/soil_wrapper.html#Soil_wrapper.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soil_wrapper.Soil_wrapper.run" title="Permalink to this definition"></a></dt>
+<dd><p>Compute soil iteration</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each input lists correspond to the concatenated plants of all fspm instances</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>day</strong> (<em>int</em><em>, </em><em>optional</em>) – day of the year (according to meteo file input), by default 1</p></li>
+<li><p><strong>N_content_roots_per_plant</strong> (<em>list</em><em>, </em><em>optional</em>) – one value per plant, by default []</p></li>
+<li><p><strong>roots_length_per_plant_per_soil_layer</strong> (<em>list</em><em>, </em><em>optional</em>) – 4 dimensions array [plant, iz, ix, iy], by default []</p></li>
+<li><p><strong>soil_plants_parameters</strong> (<em>list</em><em>, </em><em>optional</em>) – one value per plant, by default []</p></li>
+<li><p><strong>plants_light_interception</strong> (<em>list</em><em>, </em><em>optional</em>) – plant interception capacity, one value per plant, by default []</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="soil_wrapper.Soil_wrapper.whichvoxel_xy">
+<span class="sig-name descname"><span class="pre">whichvoxel_xy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/soil_wrapper.html#Soil_wrapper.whichvoxel_xy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#soil_wrapper.Soil_wrapper.whichvoxel_xy" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the voxel id where p is located</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>soil.dxyz : [dx, dy, dz]</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>p</strong> (<em>list</em><em> or </em><em>tuple</em>) – point (x, y, z)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>voxel x id and voxel y id</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, int</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-utils">
+<span id="utils-module"></span><h2><a class="toc-backref" href="#id7" role="doc-backlink"><a class="reference internal" href="#module-utils" title="utils"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code></a> module</a><a class="headerlink" href="#module-utils" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.create_child_folder">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_child_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parentfolderpath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">childfolderpath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#create_child_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.create_child_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Create a child folder from parent folder path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parentfolderpath</strong> (<em>string</em>) – parent folder path</p></li>
+<li><p><strong>childfolderpath</strong> (<em>string</em>) – name of the child folder</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.save_df_to_csv">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">save_df_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outputs_filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utils.html#save_df_to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utils.save_df_to_csv" title="Permalink to this definition"></a></dt>
+<dd><p>Save pandas dataframes to csv</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – a pandas dataframe to be saved</p></li>
+<li><p><strong>outputs_filepath</strong> (<em>str</em>) – the name of the CSV file to be saved</p></li>
+<li><p><strong>precision</strong> (<em>int</em>) – number of decimals in CSV file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-wheat_wrapper">
+<span id="wheat-wrapper-module"></span><h2><a class="toc-backref" href="#id8" role="doc-backlink"><a class="reference internal" href="#module-wheat_wrapper" title="wheat_wrapper"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wheat_wrapper</span></code></a> module</a><a class="headerlink" href="#module-wheat_wrapper" title="Permalink to this heading"></a></h2>
+<p>contains Wheat_wrapper</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wheat_wrapper.</span></span><span class="sig-name descname"><span class="pre">Wheat_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name='wheat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_folder=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_folder=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N_fertilizations={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tillers_replications={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter=&lt;plantfusion.planter.Planter</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexer=&lt;plantfusion.indexer.Indexer</span> <span class="pre">object&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_from_outputs=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_soil_model=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nitrates_uptake_forced=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initialize_nitrates_uptake=0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_parameters_all_models=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stored_times=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option_static=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LIGHT_TIMESTEP=4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SENESCWHEAT_TIMESTEP=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">FARQUHARWHEAT_TIMESTEP=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ELONGWHEAT_TIMESTEP=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">GROWTHWHEAT_TIMESTEP=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CNWHEAT_TIMESTEP=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AXES_INITIAL_STATE_FILENAME='axes_initial_state.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ORGANS_INITIAL_STATE_FILENAME='organs_initial_state.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HIDDENZONES_INITIAL_STATE_FILENAME='hiddenzones_initial_state.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ELEMENTS_INITIAL_STATE_FILENAME='elements_initial_state.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOILS_INITIAL_STATE_FILENAME='soils_initial_state.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">METEO_FILENAME='meteo_Ljutovac2002.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NITRATES_UPTAKE_FORCINGS_FILENAME='nitrates_uptake_forcings.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOIL_PARAMETERS_FILENAME=''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOIL_PARAMETERS_SHEETNAME='cnwheat'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AXES_OUTPUTS_FILENAME='axes_outputs.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ORGANS_OUTPUTS_FILENAME='organs_outputs.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HIDDENZONES_OUTPUTS_FILENAME='hiddenzones_outputs.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ELEMENTS_OUTPUTS_FILENAME='elements_outputs.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOILS_OUTPUTS_FILENAME='soils_outputs.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">AXES_POSTPROCESSING_FILENAME='axes_postprocessing.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ORGANS_POSTPROCESSING_FILENAME='organs_postprocessing.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">HIDDENZONES_POSTPROCESSING_FILENAME='hiddenzones_postprocessing.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ELEMENTS_POSTPROCESSING_FILENAME='elements_postprocessing.csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">SOILS_POSTPROCESSING_FILENAME='soils_postprocessing.csv'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for WheatFspm model</p>
+<p>This FSPM is composed with many submodels.</p>
+<p>It creates and stores an instance of
+* AdelDyn
+* openalea.MTG
+* fspmwheat_facade
+* caribu_facade
+* cnwheat_facade
+* elongwheat_facade
+* farquharwheat_facade
+* growthwheat_facade
+* senescwheat_facade</p>
+<p>It also stores all file path names. There is the possibility to restart simulation from previous data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – name of the fspm instance, by default “wheat”</p></li>
+<li><p><strong>in_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – input folder path, by default “”</p></li>
+<li><p><strong>out_folder</strong> (<em>str</em><em>, </em><em>optional</em>) – output folder path if writing outputs is activated, by default None</p></li>
+<li><p><strong>N_fertilizations</strong> (<em>dict</em><em>, </em><em>optional</em>) – when to fertilize and how many quantity, {timestep : mol N}, by default {}</p></li>
+<li><p><strong>tillers_replications</strong> (<em>dict</em><em>, </em><em>optional</em>) – triggers tillers replication {tiller tag : length}, by default {}</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a><em>, </em><em>optional</em>) – Object containing plant positions and/or number of plants and/or soil domain, by default None</p></li>
+<li><p><strong>indexer</strong> (<a class="reference internal" href="#indexer.Indexer" title="indexer.Indexer"><em>Indexer</em></a><em>, </em><em>optional</em>) – indexer for listing FSPM in the simulation, by default Indexer()</p></li>
+<li><p><strong>run_from_outputs</strong> (<em>bool</em><em>, </em><em>optional</em>) – if you want to start simulation from previous results, by default False</p></li>
+<li><p><strong>external_soil_model</strong> (<em>bool</em><em>, </em><em>optional</em>) – deactivate internal soil process in cn-wheat, by default False</p></li>
+<li><p><strong>nitrates_uptake_forced</strong> (<em>bool</em><em>, </em><em>optional</em>) – forced nitrates uptake data, only external_soil_model is True, by default False</p></li>
+<li><p><strong>initialize_nitrates_uptake</strong> (<em>float</em><em>, </em><em>optional</em>) – N uptake before the simulation start, by default 0.25</p></li>
+<li><p><strong>update_parameters_all_models</strong> (<em>dict</em><em>, </em><em>optional</em>) – forced model parameters, by default None</p></li>
+<li><p><strong>stored_times</strong> (<em>str</em><em> or </em><em>list</em><em> or </em><em>None</em><em>, </em><em>optional</em>) – stored all or specific simulation timestep, by default None</p></li>
+<li><p><strong>option_static</strong> (<em>bool</em><em>, </em><em>optional</em>) – _description_, by default False</p></li>
+<li><p><strong>LIGHT_TIMESTEP</strong> (<em>int</em><em>, </em><em>optional</em>) – number of iteration between two lighting step, by default 4</p></li>
+<li><p><strong>SENESCWHEAT_TIMESTEP</strong> (<em>int</em><em>, </em><em>optional</em>) – number of iteration between two senescence step, by default 1</p></li>
+<li><p><strong>FARQUHARWHEAT_TIMESTEP</strong> (<em>int</em><em>, </em><em>optional</em>) – number of iteration between two farquhar step, by default 1</p></li>
+<li><p><strong>ELONGWHEAT_TIMESTEP</strong> (<em>int</em><em>, </em><em>optional</em>) – number of iteration between two elongwheat step, by default 1</p></li>
+<li><p><strong>GROWTHWHEAT_TIMESTEP</strong> (<em>int</em><em>, </em><em>optional</em>) – number of iteration between two growthwheat step, by default 1</p></li>
+<li><p><strong>CNWHEAT_TIMESTEP</strong> (<em>int</em><em>, </em><em>optional</em>) – number of iteration between two cnwheat step, by default 1</p></li>
+<li><p><strong>AXES_INITIAL_STATE_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – initialization file name for axes, by default “axes_initial_state.csv”</p></li>
+<li><p><strong>ORGANS_INITIAL_STATE_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – initialization file name for organs, by default “organs_initial_state.csv”</p></li>
+<li><p><strong>HIDDENZONES_INITIAL_STATE_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – initialization file name for hiddenzones, by default “hiddenzones_initial_state.csv”</p></li>
+<li><p><strong>ELEMENTS_INITIAL_STATE_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – initialization file name for elements, by default “elements_initial_state.csv”</p></li>
+<li><p><strong>SOILS_INITIAL_STATE_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – initialization file name for soil, by default “soils_initial_state.csv”</p></li>
+<li><p><strong>METEO_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – meteo file name, by default “meteo_Ljutovac2002.csv”</p></li>
+<li><p><strong>NITRATES_UPTAKE_FORCINGS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – forced nitrates uptake file name, by default “nitrates_uptake_forcings.csv”</p></li>
+<li><p><strong>SOIL_PARAMETERS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – WheatFspm soil parameters for soil3ds, by default “”</p></li>
+<li><p><strong>SOIL_PARAMETERS_SHEETNAME</strong> (<em>str</em><em>, </em><em>optional</em>) – sheet in SOIL_PARAMETERS_FILENAME corresponding current plant specy parameters, by default “cnwheat”</p></li>
+<li><p><strong>AXES_OUTPUTS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – brut outputs file name for axes, by default “axes_outputs.csv”</p></li>
+<li><p><strong>ORGANS_OUTPUTS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – brut outputs file name for organs, by default “organs_outputs.csv”</p></li>
+<li><p><strong>HIDDENZONES_OUTPUTS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – brut outputs file name for hiddenzones, by default “hiddenzones_outputs.csv”</p></li>
+<li><p><strong>ELEMENTS_OUTPUTS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – brut outputs file name for elements, by default “elements_outputs.csv”</p></li>
+<li><p><strong>SOILS_OUTPUTS_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – brut outputs file name for soil, by default “soils_outputs.csv”</p></li>
+<li><p><strong>AXES_POSTPROCESSING_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – postprocessing outputs file name for axes, by default “axes_postprocessing.csv”</p></li>
+<li><p><strong>ORGANS_POSTPROCESSING_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – postprocessing outputs file name for organs, by default “organs_postprocessing.csv”</p></li>
+<li><p><strong>HIDDENZONES_POSTPROCESSING_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – postprocessing outputs file name for hiddenzones, by default “hiddenzones_postprocessing.csv”</p></li>
+<li><p><strong>ELEMENTS_POSTPROCESSING_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – postprocessing outputs file name for elements, by default “elements_postprocessing.csv”</p></li>
+<li><p><strong>SOILS_POSTPROCESSING_FILENAME</strong> (<em>str</em><em>, </em><em>optional</em>) – postprocessing outputs file name for soil, by default “soils_postprocessing.csv”</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.AXES_INDEX_COLUMNS">
+<span class="sig-name descname"><span class="pre">AXES_INDEX_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['t',</span> <span class="pre">'plant',</span> <span class="pre">'axis']</span></em><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.AXES_INDEX_COLUMNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.ELEMENTS_INDEX_COLUMNS">
+<span class="sig-name descname"><span class="pre">ELEMENTS_INDEX_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['t',</span> <span class="pre">'plant',</span> <span class="pre">'axis',</span> <span class="pre">'metamer',</span> <span class="pre">'organ',</span> <span class="pre">'element']</span></em><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.ELEMENTS_INDEX_COLUMNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.HIDDENZONES_INDEX_COLUMNS">
+<span class="sig-name descname"><span class="pre">HIDDENZONES_INDEX_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['t',</span> <span class="pre">'plant',</span> <span class="pre">'axis',</span> <span class="pre">'metamer']</span></em><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.HIDDENZONES_INDEX_COLUMNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.HOUR_TO_SECOND_CONVERSION_FACTOR">
+<span class="sig-name descname"><span class="pre">HOUR_TO_SECOND_CONVERSION_FACTOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3600</span></em><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.HOUR_TO_SECOND_CONVERSION_FACTOR" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.ORGANS_INDEX_COLUMNS">
+<span class="sig-name descname"><span class="pre">ORGANS_INDEX_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['t',</span> <span class="pre">'plant',</span> <span class="pre">'axis',</span> <span class="pre">'organ']</span></em><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.ORGANS_INDEX_COLUMNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.PARi_next_hours">
+<span class="sig-name descname"><span class="pre">PARi_next_hours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.PARi_next_hours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.PARi_next_hours" title="Permalink to this definition"></a></dt>
+<dd><p>Meteo PARi at t+1</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – timestep</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>meteo PAR at t+1</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.SOILS_INDEX_COLUMNS">
+<span class="sig-name descname"><span class="pre">SOILS_INDEX_COLUMNS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['t',</span> <span class="pre">'plant',</span> <span class="pre">'axis']</span></em><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.SOILS_INDEX_COLUMNS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.compute_N_content_roots">
+<span class="sig-name descname"><span class="pre">compute_N_content_roots</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.compute_N_content_roots"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.compute_N_content_roots" title="Permalink to this definition"></a></dt>
+<dd><p>Get and compute N content roots at current timestep</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N content in roots [0-1]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.compute_SRL_wheat">
+<span class="sig-name descname"><span class="pre">compute_SRL_wheat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mass_roots</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.compute_SRL_wheat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.compute_SRL_wheat" title="Permalink to this definition"></a></dt>
+<dd><p>Dynamic specific root length according to roots mass</p>
+<p>Here, SRL is linear following roots mass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mass_roots</strong> (<em>float</em>) – roots mass in g</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.compute_plants_light_interception">
+<span class="sig-name descname"><span class="pre">compute_plants_light_interception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">plant_leaf_area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil_energy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.compute_plants_light_interception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.compute_plants_light_interception" title="Permalink to this definition"></a></dt>
+<dd><p>Computes light capacity interception for each plant</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>plant_leaf_area</strong> (<em>float</em>) – leaf area of one plant (each plant has the same leaf area as they come from the same mean geometric plant)</p></li>
+<li><p><strong>soil_energy</strong> (<em>float</em>) – soil light interception [0-1]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>light capacity interception for each plant</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.compute_roots_length">
+<span class="sig-name descname"><span class="pre">compute_roots_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Planter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.compute_roots_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.compute_roots_length" title="Permalink to this definition"></a></dt>
+<dd><p>Compute roots length from roots mass</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>soil_dimensions : [z, x, y]</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soil_wrapper</strong> (<a class="reference internal" href="#soil_wrapper.Soil_wrapper" title="soil_wrapper.Soil_wrapper"><em>Soil_wrapper</em></a>) – for soil3ds dimensions and get plant positions in soil voxels grid</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a>) – for plant positions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>4-dimensions array of roots length per plant per soil voxel</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.convert_uptake_nitrate">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_uptake_nitrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uptake_nitrate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.convert_uptake_nitrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.convert_uptake_nitrate" title="Permalink to this definition"></a></dt>
+<dd><p>Unit conversion of N uptake from kg to µmol N</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>uptake_nitrate</strong> (<em>float</em>) – N uptake in kg per day</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>N uptake in µmol N per hour</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.doy">
+<span class="sig-name descname"><span class="pre">doy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil3ds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.doy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.doy" title="Permalink to this definition"></a></dt>
+<dd><p>Day of the year</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>soil3ds</strong> (<em>bool</em><em>, </em><em>optional</em>) – doy in soil3ds meteo file don’t reset at each year, it keeps increasing, by default False</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>day of the year</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.end">
+<span class="sig-name descname"><span class="pre">end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_postprocessing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.end" title="Permalink to this definition"></a></dt>
+<dd><p>Write output files and close submodel instances</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>run_postprocessing</strong> (<em>bool</em><em>, </em><em>optional</em>) – activate postprocessing files writting, by default False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.energy">
+<span class="sig-name descname"><span class="pre">energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.energy" title="Permalink to this definition"></a></dt>
+<dd><p>Returns meteo radiation at timestep t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – timestep</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>meteo radiation in micromol.m-2.s-1</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.force_nitrates_uptake">
+<span class="sig-name descname"><span class="pre">force_nitrates_uptake</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.force_nitrates_uptake"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.force_nitrates_uptake" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers forced input N uptake to wheat MTG at timestep t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – timestep</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.hour">
+<span class="sig-name descname"><span class="pre">hour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.hour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.hour" title="Permalink to this definition"></a></dt>
+<dd><p>Hour at timestep t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – timestep</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>hour</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.light_inputs">
+<span class="sig-name descname"><span class="pre">light_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">planter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.light_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.light_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Wheats geometric scene for lighting</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It creates a canopy from one wheat geometry with variabilities on each plant</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a>) – provides plant positions and methods for creating the canopy</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>wheat canopy from one wheat</p></li>
+<li><p>list of tuple precising stems id the plantgl scene. Elements are (specy id, organ id)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plantgl.Scene, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.light_results">
+<span class="sig-name descname"><span class="pre">light_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lighting</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_global_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.light_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.light_results" title="Permalink to this definition"></a></dt>
+<dd><p>Interprets lighting results</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>energy</strong> (<em>float</em>) – meteo radiation in micromol.m-2.s-1</p></li>
+<li><p><strong>lighting</strong> (<a class="reference internal" href="#light_wrapper.Light_wrapper" title="light_wrapper.Light_wrapper"><em>Light_wrapper</em></a>) – Contains lighting results in a pandas.Dataframe</p></li>
+<li><p><strong>selective_global_index</strong> (<em>int</em><em>, </em><em>optional</em>) – if specy ID in lighting results is different from self.global_index, by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.next_day_next_hour">
+<span class="sig-name descname"><span class="pre">next_day_next_hour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.next_day_next_hour"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.next_day_next_hour" title="Permalink to this definition"></a></dt>
+<dd><p>Day of the year at t+1. Used to check if we are at last iteration of the day</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t</strong> (<em>int</em>) – timestep</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>day of the year</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.rootsdistribution">
+<span class="sig-name descname"><span class="pre">rootsdistribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">roots_mass</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil_wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distribtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'homogeneous'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.rootsdistribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.rootsdistribution" title="Permalink to this definition"></a></dt>
+<dd><p>Distributes roots length in soil voxels.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently only homogeneous repartition from ground to deep layers</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>roots_mass</strong> (<em>float</em>) – roots mass in g</p></li>
+<li><p><strong>ix</strong> (<em>int</em>) – voxel index on x axis</p></li>
+<li><p><strong>iy</strong> (<em>int</em>) – voxel index on y axis</p></li>
+<li><p><strong>soil_wrapper</strong> (<a class="reference internal" href="#soil_wrapper.Soil_wrapper" title="soil_wrapper.Soil_wrapper"><em>Soil_wrapper</em></a>) – for soil voxels dimensions</p></li>
+<li><p><strong>distribtype</strong> (<em>str</em><em>, </em><em>optional</em>) – for futur improvments and other distribution types, by default “homogeneous”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>3-dimensions array of roots length in each soil voxel</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>numpy.array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t_light</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.run" title="Permalink to this definition"></a></dt>
+<dd><p>Time step computing of WheatFspm. Independant from other fspm in the simulation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>t_light</strong> (<em>int</em>) – meteo timestep</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.soil_inputs">
+<span class="sig-name descname"><span class="pre">soil_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lighting</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.soil_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.soil_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Compute soil inputs for soil3ds</p>
+<p>Roots length is computed from their mass (g) and a specific root length (m/g).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soil</strong> (<a class="reference internal" href="#soil_wrapper.Soil_wrapper" title="soil_wrapper.Soil_wrapper"><em>Soil_wrapper</em></a>) – for soil3ds dimensions and get plant positions in soil voxels grid</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a>) – for plant positions</p></li>
+<li><p><strong>lighting</strong> (<a class="reference internal" href="#light_wrapper.Light_wrapper" title="light_wrapper.Light_wrapper"><em>Light_wrapper</em></a>) – for computing light interception capacity per plant</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>(list of float) roots N content per plant [0-1]</p></li>
+<li><p>(numpy.array of 4 dimensions) roots length per plant and soil voxel in m</p></li>
+<li><p>(list of dict) soil parameters per plant (KMAX, VMAX, N content thresholds, …)</p></li>
+<li><p>(list of float) light capacity interception per plant [0-1]</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>4-tuple with soil input lists</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.soil_results">
+<span class="sig-name descname"><span class="pre">soil_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uptakeN_per_plant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selective_global_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.soil_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.soil_results" title="Permalink to this definition"></a></dt>
+<dd><p>Interprets soil results</p>
+<p>Compute a mean results among all plants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>uptakeN_per_plant</strong> (<em>list</em>) – numpy array of 4 dimensions [plant id, nz, nx, ny], N uptake for each plant in each soil voxel</p></li>
+<li><p><strong>planter</strong> (<a class="reference internal" href="#planter.Planter" title="planter.Planter"><em>Planter</em></a><em>, </em><em>optional</em>) – gives index of wheat plants among the result lists, by default None</p></li>
+<li><p><strong>selective_global_index</strong> (<em>int</em><em>, </em><em>optional</em>) – if specy ID in lighting results is different from self.global_index, by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wheat_wrapper.Wheat_wrapper.update_Nitrates_cnwheat_mtg">
+<span class="sig-name descname"><span class="pre">update_Nitrates_cnwheat_mtg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#Wheat_wrapper.update_Nitrates_cnwheat_mtg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.Wheat_wrapper.update_Nitrates_cnwheat_mtg" title="Permalink to this definition"></a></dt>
+<dd><p>Transfers N uptake result in model MTG</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wheat_wrapper.passive_lighting">
+<span class="sig-prename descclassname"><span class="pre">wheat_wrapper.</span></span><span class="sig-name descname"><span class="pre">passive_lighting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">DOY</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scene</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lighting_wrapper</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stems</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wheat_wrapper.html#passive_lighting"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wheat_wrapper.passive_lighting" title="Permalink to this definition"></a></dt>
+<dd><p>Run the lighting computation step without saving</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict</em>) – WheatFspm lighting step results saved</p></li>
+<li><p><strong>t</strong> (<em>int</em>) – timestep</p></li>
+<li><p><strong>DOY</strong> (<em>int</em>) – day of the year</p></li>
+<li><p><strong>scene</strong> (<em>plantgl.Scene</em>) – canopy plantgl scene</p></li>
+<li><p><strong>lighting_wrapper</strong> (<a class="reference internal" href="#light_wrapper.Light_wrapper" title="light_wrapper.Light_wrapper"><em>Light_wrapper</em></a>) – which light model to run</p></li>
+<li><p><strong>stems</strong> (<em>list</em><em>, </em><em>optional</em>) – lits of stems, (specy id, organ id), by default None</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="planter_example.html" class="btn btn-neutral float-left" title="1. Exploration Planter" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

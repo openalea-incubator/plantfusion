@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Exploration Planter &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reference Guide" href="reference.html" />
+    <link rel="prev" title="Tutorials with jupyter notebooks" href="tutorials.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="tutorials.html">Tutorials with jupyter notebooks</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">1. Exploration Planter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Tirage-aléatoire">1.1. Tirage aléatoire</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Tirage-en-rangs">1.2. Tirage en rangs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#wheat-+-l-egume">1.2.1. wheat + l-egume</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Autres-combinaisons">1.2.2. Autres combinaisons</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="tutorials.html">Tutorials with jupyter notebooks</a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Exploration Planter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/planter_example.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Exploration-Planter">
+<h1><span class="section-number">1. </span>Exploration Planter<a class="headerlink" href="#Exploration-Planter" title="Permalink to this heading"></a></h1>
+<p>3 générations différentes - random : tirage aléoire pour chaque plante - row : une ligne de plantes par espèce - default : définition par défaut de l-egume et fspmwheat</p>
+<p>Note : activer <code class="docutils literal notranslate"><span class="pre">visu_roots</span></code> dans <code class="docutils literal notranslate"><span class="pre">inputs_soil_legume/mod_sums.xls</span></code> pour afficher les positions de l-egume</p>
+<section id="Tirage-aléatoire">
+<h2><span class="section-number">1.1. </span>Tirage aléatoire<a class="headerlink" href="#Tirage-aléatoire" title="Permalink to this heading"></a></h2>
+<p>Inputs - densité de plantes en plante/m-2 - longueur du côté du carré sol (aka domaine de définition du sol est nécessairement un carré de longueur l) en m</p>
+<p>Pour l-egume, on rajuste la taille du sol pour avoir 64 plantes en fonction de la densité de plantes</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">plantfusion.l_egume_wrapper</span> <span class="kn">import</span> <span class="n">L_egume_wrapper</span>
+<span class="kn">from</span> <span class="nn">plantfusion.wheat_wrapper</span> <span class="kn">import</span> <span class="n">Wheat_wrapper</span>
+<span class="kn">from</span> <span class="nn">plantfusion.planter</span> <span class="kn">import</span> <span class="n">Planter</span>
+<span class="kn">from</span> <span class="nn">plantfusion.indexer</span> <span class="kn">import</span> <span class="n">Indexer</span>
+<span class="kn">import</span> <span class="nn">openalea.plantgl.all</span> <span class="k">as</span> <span class="nn">pgl</span>
+<span class="kn">from</span> <span class="nn">pgljupyter</span> <span class="kn">import</span> <span class="n">SceneWidget</span>
+<span class="kn">import</span> <span class="nn">random</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">scene_cm_tp_m</span><span class="p">(</span><span class="n">scenes_cm</span><span class="p">):</span>
+    <span class="n">scene_m</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">pgl</span><span class="o">.</span><span class="n">Material</span><span class="p">((</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">scenes_cm</span><span class="p">:</span>
+        <span class="n">scene_m</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pgl</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="n">pgl</span><span class="o">.</span><span class="n">Scaled</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">geometry</span><span class="p">),</span> <span class="n">mat</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pgl</span><span class="o">.</span><span class="n">Scene</span><span class="p">(</span><span class="n">scene_m</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legume_name</span> <span class="o">=</span> <span class="s2">&quot;legume&quot;</span>
+<span class="n">wheat_name</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span>
+<span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="n">legume_name</span><span class="p">,</span> <span class="n">wheat_name</span><span class="p">]</span>
+<span class="n">indexer</span> <span class="o">=</span> <span class="n">Indexer</span><span class="p">(</span><span class="n">global_order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">legume_names</span><span class="o">=</span><span class="p">[</span><span class="n">legume_name</span><span class="p">],</span> <span class="n">wheat_names</span><span class="o">=</span><span class="p">[</span><span class="n">wheat_name</span><span class="p">])</span>
+
+<span class="n">generation_type</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>
+<span class="n">plant_density</span> <span class="o">=</span> <span class="p">{</span><span class="n">legume_name</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span> <span class="n">wheat_name</span> <span class="p">:</span> <span class="mi">1000</span><span class="p">}</span>
+<span class="n">xy_square_length</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="n">planter</span> <span class="o">=</span> <span class="n">Planter</span><span class="p">(</span>
+    <span class="n">generation_type</span><span class="o">=</span><span class="n">generation_type</span><span class="p">,</span>
+    <span class="n">plant_density</span><span class="o">=</span><span class="n">plant_density</span><span class="p">,</span>
+    <span class="n">xy_square_length</span><span class="o">=</span><span class="n">xy_square_length</span><span class="p">,</span>
+    <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span>
+<span class="p">)</span>
+
+<span class="n">wheat</span> <span class="o">=</span> <span class="n">Wheat_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">wheat_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_fspmwheat&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume</span> <span class="o">=</span> <span class="n">L_egume_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">legume_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_soil_legume&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">scene</span> <span class="o">=</span> <span class="n">wheat</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">planter</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">scene_cm_tp_m</span><span class="p">(</span><span class="n">legume</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">elements</span><span class="o">=</span><span class="s2">&quot;triangles&quot;</span><span class="p">))</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+&lt;string&gt;:906: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:923: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1213: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1271: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1293: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1743: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1821: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1962: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1976: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1977: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2022: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2024: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+c:\users\mwoussen\cdd\codes\lib\l-egume\legume\run_legume_usm.py:61: Warning: Interpretation rules should be context free. Contexts not supported for multiple iterations.
+  testsim[name] = lpy.Lsystem(path_lsys)  # objet l-system
+&lt;string&gt;:2142: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2233: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+carto 64 [array([45.18706651,  6.7352176 ,  0.        ]), array([28.15068788, 28.43525167,  0.        ]), array([31.98414407, 45.81920989,  0.        ]), array([42.66407713, 23.41491511,  0.        ]), array([ 9.27557493, 50.13841802,  0.        ]), array([45.34872382,  6.46036323,  0.        ]), array([38.4820946 ,  6.88174918,  0.        ]), array([10.38665456,  0.89927057,  0.        ]), array([48.4447082 , 50.05810195,  0.        ]), array([49.57928533, 17.22710444,  0.        ]), array([14.35112681, 33.11564322,  0.        ]), array([31.81233574, 22.63101218,  0.        ]), array([21.63022586, 27.18246829,  0.        ]), array([48.71305385, 43.89415521,  0.        ]), array([1.25336240e-02, 3.74787318e+01, 0.00000000e+00]), array([32.01326149,  4.2796029 ,  0.        ]), array([41.37215217, 42.24182317,  0.        ]), array([15.00529902, 40.08536072,  0.        ]), array([11.1381922 , 19.96149264,  0.        ]), array([30.22408424, 28.64976012,  0.        ]), array([43.61632598, 48.80311008,  0.        ]), array([20.38971419, 15.73760459,  0.        ]), array([ 4.30236926, 25.03873559,  0.        ]), array([41.04492772,  1.38019918,  0.        ]), array([ 4.2490913 , 12.42249826,  0.        ]), array([23.51042806, 45.67769065,  0.        ]), array([12.08615432, 40.93592006,  0.        ]), array([19.7871297 , 45.31964494,  0.        ]), array([46.7388631 , 21.95069813,  0.        ]), array([42.75119211, 19.40388244,  0.        ]), array([42.8250978 , 43.26893071,  0.        ]), array([ 7.71553575, 24.31313578,  0.        ]), array([25.66637885, 25.81502024,  0.        ]), array([50.48941262, 47.89723802,  0.        ]), array([42.52168957, 22.78452857,  0.        ]), array([14.1046173 , 13.83619692,  0.        ]), array([10.69219429,  3.93724816,  0.        ]), array([43.28389827,  5.6719116 ,  0.        ]), array([33.14432953, 10.8038618 ,  0.        ]), array([0.27938803, 6.75896204, 0.        ]), array([ 8.85411712, 42.71357344,  0.        ]), array([36.01117121, 30.81792598,  0.        ]), array([39.82827423, 21.97286784,  0.        ]), array([ 7.67015043, 28.13297267,  0.        ]), array([12.00528833, 21.48374928,  0.        ]), array([23.33572144,  7.85634736,  0.        ]), array([11.21104153, 37.81213681,  0.        ]), array([27.02102134, 29.36155422,  0.        ]), array([ 8.09811854, 41.43183684,  0.        ]), array([23.29157233, 24.09916078,  0.        ]), array([28.32948815,  2.16894546,  0.        ]), array([33.80185257, 22.76287074,  0.        ]), array([39.05268681, 38.68303019,  0.        ]), array([4.0065713, 0.8418209, 0.       ]), array([17.66875536, 46.21194385,  0.        ]), array([10.22789193, 35.99192722,  0.        ]), array([30.88559014, 42.26689107,  0.        ]), array([25.5171769 , 19.27309906,  0.        ]), array([16.25661124, 40.30922951,  0.        ]), array([29.99718917, 39.16049021,  0.        ]), array([38.18360339, 43.98132859,  0.        ]), array([45.0510193 , 23.19761642,  0.        ]), array([6.76174316, 5.07886369, 0.        ]), array([ 4.88344656, 18.57748697,  0.        ])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+c:\users\mwoussen\cdd\codes\lib\soil3ds\soil3ds\soil_moduleN.py:315: RuntimeWarning: invalid value encountered in true_divide
+  ls_concN = list(map(np.divide, list(map(np.sum, ls_masked_moleN)), list(map(np.sum, ls_vol_eau))))
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+carto 64 [array([45.18706651,  6.7352176 ,  0.        ]), array([28.15068788, 28.43525167,  0.        ]), array([31.98414407, 45.81920989,  0.        ]), array([42.66407713, 23.41491511,  0.        ]), array([ 9.27557493, 50.13841802,  0.        ]), array([45.34872382,  6.46036323,  0.        ]), array([38.4820946 ,  6.88174918,  0.        ]), array([10.38665456,  0.89927057,  0.        ]), array([48.4447082 , 50.05810195,  0.        ]), array([49.57928533, 17.22710444,  0.        ]), array([14.35112681, 33.11564322,  0.        ]), array([31.81233574, 22.63101218,  0.        ]), array([21.63022586, 27.18246829,  0.        ]), array([48.71305385, 43.89415521,  0.        ]), array([1.25336240e-02, 3.74787318e+01, 0.00000000e+00]), array([32.01326149,  4.2796029 ,  0.        ]), array([41.37215217, 42.24182317,  0.        ]), array([15.00529902, 40.08536072,  0.        ]), array([11.1381922 , 19.96149264,  0.        ]), array([30.22408424, 28.64976012,  0.        ]), array([43.61632598, 48.80311008,  0.        ]), array([20.38971419, 15.73760459,  0.        ]), array([ 4.30236926, 25.03873559,  0.        ]), array([41.04492772,  1.38019918,  0.        ]), array([ 4.2490913 , 12.42249826,  0.        ]), array([23.51042806, 45.67769065,  0.        ]), array([12.08615432, 40.93592006,  0.        ]), array([19.7871297 , 45.31964494,  0.        ]), array([46.7388631 , 21.95069813,  0.        ]), array([42.75119211, 19.40388244,  0.        ]), array([42.8250978 , 43.26893071,  0.        ]), array([ 7.71553575, 24.31313578,  0.        ]), array([25.66637885, 25.81502024,  0.        ]), array([50.48941262, 47.89723802,  0.        ]), array([42.52168957, 22.78452857,  0.        ]), array([14.1046173 , 13.83619692,  0.        ]), array([10.69219429,  3.93724816,  0.        ]), array([43.28389827,  5.6719116 ,  0.        ]), array([33.14432953, 10.8038618 ,  0.        ]), array([0.27938803, 6.75896204, 0.        ]), array([ 8.85411712, 42.71357344,  0.        ]), array([36.01117121, 30.81792598,  0.        ]), array([39.82827423, 21.97286784,  0.        ]), array([ 7.67015043, 28.13297267,  0.        ]), array([12.00528833, 21.48374928,  0.        ]), array([23.33572144,  7.85634736,  0.        ]), array([11.21104153, 37.81213681,  0.        ]), array([27.02102134, 29.36155422,  0.        ]), array([ 8.09811854, 41.43183684,  0.        ]), array([23.29157233, 24.09916078,  0.        ]), array([28.32948815,  2.16894546,  0.        ]), array([33.80185257, 22.76287074,  0.        ]), array([39.05268681, 38.68303019,  0.        ]), array([4.0065713, 0.8418209, 0.       ]), array([17.66875536, 46.21194385,  0.        ]), array([10.22789193, 35.99192722,  0.        ]), array([30.88559014, 42.26689107,  0.        ]), array([25.5171769 , 19.27309906,  0.        ]), array([16.25661124, 40.30922951,  0.        ]), array([29.99718917, 39.16049021,  0.        ]), array([38.18360339, 43.98132859,  0.        ]), array([45.0510193 , 23.19761642,  0.        ]), array([6.76174316, 5.07886369, 0.        ]), array([ 4.88344656, 18.57748697,  0.        ])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SceneWidget</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">size_display</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">plane</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size_world</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">axes_helper</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "eaef1770f3e24cb099576b170086dd63", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+</section>
+<section id="Tirage-en-rangs">
+<h2><span class="section-number">1.2. </span>Tirage en rangs<a class="headerlink" href="#Tirage-en-rangs" title="Permalink to this heading"></a></h2>
+<section id="wheat-+-l-egume">
+<h3><span class="section-number">1.2.1. </span>wheat + l-egume<a class="headerlink" href="#wheat-+-l-egume" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">legume_name</span> <span class="o">=</span> <span class="s2">&quot;legume&quot;</span>
+<span class="n">wheat_name</span> <span class="o">=</span> <span class="s2">&quot;wheat&quot;</span>
+<span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="n">legume_name</span><span class="p">,</span> <span class="n">wheat_name</span><span class="p">]</span>
+<span class="n">indexer</span> <span class="o">=</span> <span class="n">Indexer</span><span class="p">(</span><span class="n">global_order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">legume_names</span><span class="o">=</span><span class="p">[</span><span class="n">legume_name</span><span class="p">],</span> <span class="n">wheat_names</span><span class="o">=</span><span class="p">[</span><span class="n">wheat_name</span><span class="p">])</span>
+
+<span class="n">generation_type</span> <span class="o">=</span> <span class="s2">&quot;row&quot;</span>
+<span class="n">plant_density</span> <span class="o">=</span> <span class="p">{</span><span class="n">legume_name</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span> <span class="n">wheat_name</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span>
+<span class="n">inter_rows</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="c1"># m</span>
+
+<span class="n">planter</span> <span class="o">=</span> <span class="n">Planter</span><span class="p">(</span>
+    <span class="n">generation_type</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
+    <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">,</span>
+    <span class="n">plant_density</span><span class="o">=</span><span class="n">plant_density</span><span class="p">,</span>
+    <span class="n">inter_rows</span><span class="o">=</span><span class="n">inter_rows</span><span class="p">,</span>
+    <span class="n">save_wheat_positions</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">wheat</span> <span class="o">=</span> <span class="n">Wheat_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">wheat_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_fspmwheat&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume</span> <span class="o">=</span> <span class="n">L_egume_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">legume_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_soil_legume&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">legume_scene_cm</span> <span class="o">=</span> <span class="n">legume</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">lightmodel</span><span class="o">=</span><span class="s2">&quot;caribu&quot;</span><span class="p">)</span>
+
+<span class="n">scene</span> <span class="o">=</span> <span class="n">wheat</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">planter</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">scene_cm_tp_m</span><span class="p">(</span><span class="n">legume_scene_cm</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+&lt;string&gt;:906: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:923: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1213: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1271: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1293: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1743: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1821: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1962: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1976: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1977: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2022: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2024: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+c:\users\mwoussen\cdd\codes\lib\l-egume\legume\run_legume_usm.py:61: Warning: Interpretation rules should be context free. Contexts not supported for multiple iterations.
+  testsim[name] = lpy.Lsystem(path_lsys)  # objet l-system
+&lt;string&gt;:2142: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2233: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+carto 40 [array([1., 5., 0.]), array([ 1., 25.,  0.]), array([3., 5., 0.]), array([ 3., 25.,  0.]), array([5., 5., 0.]), array([ 5., 25.,  0.]), array([7., 5., 0.]), array([ 7., 25.,  0.]), array([9., 5., 0.]), array([ 9., 25.,  0.]), array([11.,  5.,  0.]), array([11., 25.,  0.]), array([13.,  5.,  0.]), array([13., 25.,  0.]), array([15.,  5.,  0.]), array([15., 25.,  0.]), array([17.,  5.,  0.]), array([17., 25.,  0.]), array([19.,  5.,  0.]), array([19., 25.,  0.]), array([21.,  5.,  0.]), array([21., 25.,  0.]), array([23.,  5.,  0.]), array([23., 25.,  0.]), array([25.,  5.,  0.]), array([25., 25.,  0.]), array([27.,  5.,  0.]), array([27., 25.,  0.]), array([29.,  5.,  0.]), array([29., 25.,  0.]), array([31.,  5.,  0.]), array([31., 25.,  0.]), array([33.,  5.,  0.]), array([33., 25.,  0.]), array([35.,  5.,  0.]), array([35., 25.,  0.]), array([37.,  5.,  0.]), array([37., 25.,  0.]), array([39.,  5.,  0.]), array([39., 25.,  0.])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+c:\users\mwoussen\cdd\codes\lib\soil3ds\soil3ds\soil_moduleN.py:315: RuntimeWarning: invalid value encountered in true_divide
+  ls_concN = list(map(np.divide, list(map(np.sum, ls_masked_moleN)), list(map(np.sum, ls_vol_eau))))
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+carto 40 [array([1., 5., 0.]), array([ 1., 25.,  0.]), array([3., 5., 0.]), array([ 3., 25.,  0.]), array([5., 5., 0.]), array([ 5., 25.,  0.]), array([7., 5., 0.]), array([ 7., 25.,  0.]), array([9., 5., 0.]), array([ 9., 25.,  0.]), array([11.,  5.,  0.]), array([11., 25.,  0.]), array([13.,  5.,  0.]), array([13., 25.,  0.]), array([15.,  5.,  0.]), array([15., 25.,  0.]), array([17.,  5.,  0.]), array([17., 25.,  0.]), array([19.,  5.,  0.]), array([19., 25.,  0.]), array([21.,  5.,  0.]), array([21., 25.,  0.]), array([23.,  5.,  0.]), array([23., 25.,  0.]), array([25.,  5.,  0.]), array([25., 25.,  0.]), array([27.,  5.,  0.]), array([27., 25.,  0.]), array([29.,  5.,  0.]), array([29., 25.,  0.]), array([31.,  5.,  0.]), array([31., 25.,  0.]), array([33.,  5.,  0.]), array([33., 25.,  0.]), array([35.,  5.,  0.]), array([35., 25.,  0.]), array([37.,  5.,  0.]), array([37., 25.,  0.]), array([39.,  5.,  0.]), array([39., 25.,  0.])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SceneWidget</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">size_display</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">plane</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size_world</span> <span class="o">=</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">axes_helper</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "79ce13f52d4d4f70a7e376e7693fdf48", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+</section>
+<section id="Autres-combinaisons">
+<h3><span class="section-number">1.2.2. </span>Autres combinaisons<a class="headerlink" href="#Autres-combinaisons" title="Permalink to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">translate_scenes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">indice</span><span class="p">,</span> <span class="n">transformations</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">indice</span> <span class="ow">in</span> <span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]</span> <span class="p">:</span>
+        <span class="n">new_scene</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">mat</span> <span class="o">=</span> <span class="n">pgl</span><span class="o">.</span><span class="n">Material</span><span class="p">((</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">255</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">scene</span><span class="p">:</span>
+            <span class="n">new_scene</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pgl</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="n">pgl</span><span class="o">.</span><span class="n">Translated</span><span class="p">(</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">indice</span><span class="p">],</span> <span class="n">shape</span><span class="o">.</span><span class="n">geometry</span><span class="p">),</span> <span class="n">mat</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pgl</span><span class="o">.</span><span class="n">Scene</span><span class="p">(</span><span class="n">new_scene</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">scene</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wheat1_name</span> <span class="o">=</span> <span class="s2">&quot;wheat1&quot;</span>
+<span class="n">wheat2_name</span> <span class="o">=</span> <span class="s2">&quot;wheat2&quot;</span>
+<span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="n">wheat1_name</span><span class="p">,</span> <span class="n">wheat2_name</span><span class="p">]</span>
+<span class="n">indexer</span> <span class="o">=</span> <span class="n">Indexer</span><span class="p">(</span><span class="n">global_order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">wheat_names</span><span class="o">=</span><span class="p">[</span><span class="n">wheat1_name</span><span class="p">,</span> <span class="n">wheat2_name</span><span class="p">])</span>
+
+<span class="n">generation_type</span> <span class="o">=</span> <span class="s2">&quot;row&quot;</span>
+<span class="n">plant_density</span> <span class="o">=</span> <span class="p">{</span><span class="n">wheat1_name</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span> <span class="n">wheat2_name</span> <span class="p">:</span> <span class="mi">100</span><span class="p">}</span>
+<span class="n">inter_rows</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="c1"># m</span>
+
+<span class="n">planter</span> <span class="o">=</span> <span class="n">Planter</span><span class="p">(</span>
+    <span class="n">generation_type</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
+    <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">,</span>
+    <span class="n">plant_density</span><span class="o">=</span><span class="n">plant_density</span><span class="p">,</span>
+    <span class="n">inter_rows</span><span class="o">=</span><span class="n">inter_rows</span><span class="p">,</span>
+    <span class="n">save_wheat_positions</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">wheat1</span> <span class="o">=</span> <span class="n">Wheat_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">wheat1_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_fspmwheat&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">wheat2</span> <span class="o">=</span> <span class="n">Wheat_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">wheat2_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_fspmwheat&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+
+<span class="n">scenes</span> <span class="o">=</span> <span class="p">[</span><span class="n">wheat1</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">planter</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="p">,</span> <span class="n">wheat2</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">planter</span><span class="p">)[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="n">final_scene</span> <span class="o">=</span> <span class="n">pgl</span><span class="o">.</span><span class="n">Scene</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">scene</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scenes</span><span class="p">):</span>
+    <span class="n">final_scene</span> <span class="o">=</span> <span class="n">final_scene</span> <span class="o">+</span> <span class="n">translate_scenes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">)</span>
+
+<span class="n">SceneWidget</span><span class="p">(</span><span class="n">final_scene</span><span class="p">,</span> <span class="n">size_display</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">plane</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size_world</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">axes_helper</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f661d89614624b5c956db620bb710ba2", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">wheat1_name</span> <span class="o">=</span> <span class="s2">&quot;wheat1&quot;</span>
+<span class="n">wheat2_name</span> <span class="o">=</span> <span class="s2">&quot;wheat2&quot;</span>
+<span class="n">legume1_name</span> <span class="o">=</span> <span class="s2">&quot;legume1&quot;</span>
+<span class="n">legume2_name</span> <span class="o">=</span> <span class="s2">&quot;legume2&quot;</span>
+<span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="n">wheat1_name</span><span class="p">,</span> <span class="n">legume1_name</span><span class="p">,</span> <span class="n">wheat2_name</span><span class="p">,</span> <span class="n">legume2_name</span><span class="p">]</span>
+<span class="n">indexer</span> <span class="o">=</span> <span class="n">Indexer</span><span class="p">(</span><span class="n">global_order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">legume_names</span><span class="o">=</span><span class="p">[</span><span class="n">legume1_name</span><span class="p">,</span> <span class="n">legume2_name</span><span class="p">],</span> <span class="n">wheat_names</span><span class="o">=</span><span class="p">[</span><span class="n">wheat1_name</span><span class="p">,</span> <span class="n">wheat2_name</span><span class="p">])</span>
+
+<span class="n">generation_type</span> <span class="o">=</span> <span class="s2">&quot;row&quot;</span>
+<span class="n">plant_density</span> <span class="o">=</span> <span class="p">{</span><span class="n">wheat1_name</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="n">wheat2_name</span> <span class="p">:</span> <span class="mi">450</span><span class="p">,</span> <span class="n">legume1_name</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="n">legume2_name</span> <span class="p">:</span> <span class="mi">700</span><span class="p">}</span> <span class="c1"># plantes.m-2</span>
+<span class="n">inter_rows</span> <span class="o">=</span> <span class="mf">0.10</span> <span class="c1"># m</span>
+
+<span class="n">planter</span> <span class="o">=</span> <span class="n">Planter</span><span class="p">(</span>
+    <span class="n">generation_type</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span>
+    <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">,</span>
+    <span class="n">plant_density</span><span class="o">=</span><span class="n">plant_density</span><span class="p">,</span>
+    <span class="n">inter_rows</span><span class="o">=</span><span class="n">inter_rows</span><span class="p">,</span>
+    <span class="n">save_wheat_positions</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">wheat1</span> <span class="o">=</span> <span class="n">Wheat_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">wheat1_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_fspmwheat&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">wheat2</span> <span class="o">=</span> <span class="n">Wheat_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">wheat2_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_fspmwheat&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume1</span> <span class="o">=</span> <span class="n">L_egume_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">legume1_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_soil_legume&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume2</span> <span class="o">=</span> <span class="n">L_egume_wrapper</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">legume1_name</span><span class="p">,</span> <span class="n">in_folder</span><span class="o">=</span><span class="s2">&quot;../inputs_soil_legume&quot;</span><span class="p">,</span> <span class="n">planter</span><span class="o">=</span><span class="n">planter</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+<span class="n">legume1</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">legume2</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">legume1_scene_cm</span> <span class="o">=</span> <span class="n">legume1</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">lightmodel</span><span class="o">=</span><span class="s2">&quot;caribu&quot;</span><span class="p">)</span>
+<span class="n">legume1_scene</span> <span class="o">=</span> <span class="n">scene_cm_tp_m</span><span class="p">(</span><span class="n">legume1_scene_cm</span><span class="p">)</span>
+<span class="n">legume2_scene_cm</span> <span class="o">=</span> <span class="n">legume2</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">lightmodel</span><span class="o">=</span><span class="s2">&quot;caribu&quot;</span><span class="p">)</span>
+<span class="n">legume2_scene</span> <span class="o">=</span> <span class="n">scene_cm_tp_m</span><span class="p">(</span><span class="n">legume2_scene_cm</span><span class="p">)</span>
+
+<span class="n">scenes</span> <span class="o">=</span> <span class="p">[</span><span class="n">wheat1</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">planter</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">legume1_scene</span><span class="p">,</span>
+          <span class="n">wheat2</span><span class="o">.</span><span class="n">light_inputs</span><span class="p">(</span><span class="n">planter</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+          <span class="n">legume2_scene</span><span class="p">]</span>
+<span class="n">final_scene</span> <span class="o">=</span> <span class="n">pgl</span><span class="o">.</span><span class="n">Scene</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">scene</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">scenes</span><span class="p">):</span>
+    <span class="n">final_scene</span> <span class="o">=</span> <span class="n">final_scene</span> <span class="o">+</span> <span class="n">translate_scenes</span><span class="p">(</span><span class="n">scene</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">planter</span><span class="o">.</span><span class="n">transformations</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+&lt;string&gt;:906: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:923: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1213: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1271: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1293: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1743: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1821: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1962: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1976: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1977: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2022: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2024: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+c:\users\mwoussen\cdd\codes\lib\l-egume\legume\run_legume_usm.py:61: Warning: Interpretation rules should be context free. Contexts not supported for multiple iterations.
+  testsim[name] = lpy.Lsystem(path_lsys)  # objet l-system
+&lt;string&gt;:2142: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2233: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+carto 64 [array([ 1.25, 10.  ,  0.  ]), array([ 1.25, 50.  ,  0.  ]), array([ 3.75, 10.  ,  0.  ]), array([ 3.75, 50.  ,  0.  ]), array([ 6.25, 10.  ,  0.  ]), array([ 6.25, 50.  ,  0.  ]), array([ 8.75, 10.  ,  0.  ]), array([ 8.75, 50.  ,  0.  ]), array([11.25, 10.  ,  0.  ]), array([11.25, 50.  ,  0.  ]), array([13.75, 10.  ,  0.  ]), array([13.75, 50.  ,  0.  ]), array([16.25, 10.  ,  0.  ]), array([16.25, 50.  ,  0.  ]), array([18.75, 10.  ,  0.  ]), array([18.75, 50.  ,  0.  ]), array([21.25, 10.  ,  0.  ]), array([21.25, 50.  ,  0.  ]), array([23.75, 10.  ,  0.  ]), array([23.75, 50.  ,  0.  ]), array([26.25, 10.  ,  0.  ]), array([26.25, 50.  ,  0.  ]), array([28.75, 10.  ,  0.  ]), array([28.75, 50.  ,  0.  ]), array([31.25, 10.  ,  0.  ]), array([31.25, 50.  ,  0.  ]), array([33.75, 10.  ,  0.  ]), array([33.75, 50.  ,  0.  ]), array([36.25, 10.  ,  0.  ]), array([36.25, 50.  ,  0.  ]), array([38.75, 10.  ,  0.  ]), array([38.75, 50.  ,  0.  ]), array([41.25, 10.  ,  0.  ]), array([41.25, 50.  ,  0.  ]), array([43.75, 10.  ,  0.  ]), array([43.75, 50.  ,  0.  ]), array([46.25, 10.  ,  0.  ]), array([46.25, 50.  ,  0.  ]), array([48.75, 10.  ,  0.  ]), array([48.75, 50.  ,  0.  ]), array([51.25, 10.  ,  0.  ]), array([51.25, 50.  ,  0.  ]), array([53.75, 10.  ,  0.  ]), array([53.75, 50.  ,  0.  ]), array([56.25, 10.  ,  0.  ]), array([56.25, 50.  ,  0.  ]), array([58.75, 10.  ,  0.  ]), array([58.75, 50.  ,  0.  ]), array([61.25, 10.  ,  0.  ]), array([61.25, 50.  ,  0.  ]), array([63.75, 10.  ,  0.  ]), array([63.75, 50.  ,  0.  ]), array([66.25, 10.  ,  0.  ]), array([66.25, 50.  ,  0.  ]), array([68.75, 10.  ,  0.  ]), array([68.75, 50.  ,  0.  ]), array([71.25, 10.  ,  0.  ]), array([71.25, 50.  ,  0.  ]), array([73.75, 10.  ,  0.  ]), array([73.75, 50.  ,  0.  ]), array([76.25, 10.  ,  0.  ]), array([76.25, 50.  ,  0.  ]), array([78.75, 10.  ,  0.  ]), array([78.75, 50.  ,  0.  ])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+c:\users\mwoussen\cdd\codes\lib\soil3ds\soil3ds\soil_moduleN.py:315: RuntimeWarning: invalid value encountered in true_divide
+  ls_concN = list(map(np.divide, list(map(np.sum, ls_masked_moleN)), list(map(np.sum, ls_vol_eau))))
+&lt;string&gt;:906: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:923: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1213: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1271: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1293: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1743: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1821: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1962: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1976: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:1977: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2022: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2024: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+c:\users\mwoussen\cdd\codes\lib\l-egume\legume\run_legume_usm.py:61: Warning: Interpretation rules should be context free. Contexts not supported for multiple iterations.
+  testsim[name] = lpy.Lsystem(path_lsys)  # objet l-system
+&lt;string&gt;:2142: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+&lt;string&gt;:2233: Warning: Found symbol &#39;#&#39; after Lstring. Considered as begining of comments
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+carto 64 [array([ 1.25, 10.  ,  0.  ]), array([ 1.25, 50.  ,  0.  ]), array([ 3.75, 10.  ,  0.  ]), array([ 3.75, 50.  ,  0.  ]), array([ 6.25, 10.  ,  0.  ]), array([ 6.25, 50.  ,  0.  ]), array([ 8.75, 10.  ,  0.  ]), array([ 8.75, 50.  ,  0.  ]), array([11.25, 10.  ,  0.  ]), array([11.25, 50.  ,  0.  ]), array([13.75, 10.  ,  0.  ]), array([13.75, 50.  ,  0.  ]), array([16.25, 10.  ,  0.  ]), array([16.25, 50.  ,  0.  ]), array([18.75, 10.  ,  0.  ]), array([18.75, 50.  ,  0.  ]), array([21.25, 10.  ,  0.  ]), array([21.25, 50.  ,  0.  ]), array([23.75, 10.  ,  0.  ]), array([23.75, 50.  ,  0.  ]), array([26.25, 10.  ,  0.  ]), array([26.25, 50.  ,  0.  ]), array([28.75, 10.  ,  0.  ]), array([28.75, 50.  ,  0.  ]), array([31.25, 10.  ,  0.  ]), array([31.25, 50.  ,  0.  ]), array([33.75, 10.  ,  0.  ]), array([33.75, 50.  ,  0.  ]), array([36.25, 10.  ,  0.  ]), array([36.25, 50.  ,  0.  ]), array([38.75, 10.  ,  0.  ]), array([38.75, 50.  ,  0.  ]), array([41.25, 10.  ,  0.  ]), array([41.25, 50.  ,  0.  ]), array([43.75, 10.  ,  0.  ]), array([43.75, 50.  ,  0.  ]), array([46.25, 10.  ,  0.  ]), array([46.25, 50.  ,  0.  ]), array([48.75, 10.  ,  0.  ]), array([48.75, 50.  ,  0.  ]), array([51.25, 10.  ,  0.  ]), array([51.25, 50.  ,  0.  ]), array([53.75, 10.  ,  0.  ]), array([53.75, 50.  ,  0.  ]), array([56.25, 10.  ,  0.  ]), array([56.25, 50.  ,  0.  ]), array([58.75, 10.  ,  0.  ]), array([58.75, 50.  ,  0.  ]), array([61.25, 10.  ,  0.  ]), array([61.25, 50.  ,  0.  ]), array([63.75, 10.  ,  0.  ]), array([63.75, 50.  ,  0.  ]), array([66.25, 10.  ,  0.  ]), array([66.25, 50.  ,  0.  ]), array([68.75, 10.  ,  0.  ]), array([68.75, 50.  ,  0.  ]), array([71.25, 10.  ,  0.  ]), array([71.25, 50.  ,  0.  ]), array([73.75, 10.  ,  0.  ]), array([73.75, 50.  ,  0.  ]), array([76.25, 10.  ,  0.  ]), array([76.25, 50.  ,  0.  ]), array([78.75, 10.  ,  0.  ]), array([78.75, 50.  ,  0.  ])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+c:\users\mwoussen\cdd\codes\lib\soil3ds\soil3ds\soil_moduleN.py:315: RuntimeWarning: invalid value encountered in true_divide
+  ls_concN = list(map(np.divide, list(map(np.sum, ls_masked_moleN)), list(map(np.sum, ls_vol_eau))))
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+carto 64 [array([ 1.25, 10.  ,  0.  ]), array([ 1.25, 50.  ,  0.  ]), array([ 3.75, 10.  ,  0.  ]), array([ 3.75, 50.  ,  0.  ]), array([ 6.25, 10.  ,  0.  ]), array([ 6.25, 50.  ,  0.  ]), array([ 8.75, 10.  ,  0.  ]), array([ 8.75, 50.  ,  0.  ]), array([11.25, 10.  ,  0.  ]), array([11.25, 50.  ,  0.  ]), array([13.75, 10.  ,  0.  ]), array([13.75, 50.  ,  0.  ]), array([16.25, 10.  ,  0.  ]), array([16.25, 50.  ,  0.  ]), array([18.75, 10.  ,  0.  ]), array([18.75, 50.  ,  0.  ]), array([21.25, 10.  ,  0.  ]), array([21.25, 50.  ,  0.  ]), array([23.75, 10.  ,  0.  ]), array([23.75, 50.  ,  0.  ]), array([26.25, 10.  ,  0.  ]), array([26.25, 50.  ,  0.  ]), array([28.75, 10.  ,  0.  ]), array([28.75, 50.  ,  0.  ]), array([31.25, 10.  ,  0.  ]), array([31.25, 50.  ,  0.  ]), array([33.75, 10.  ,  0.  ]), array([33.75, 50.  ,  0.  ]), array([36.25, 10.  ,  0.  ]), array([36.25, 50.  ,  0.  ]), array([38.75, 10.  ,  0.  ]), array([38.75, 50.  ,  0.  ]), array([41.25, 10.  ,  0.  ]), array([41.25, 50.  ,  0.  ]), array([43.75, 10.  ,  0.  ]), array([43.75, 50.  ,  0.  ]), array([46.25, 10.  ,  0.  ]), array([46.25, 50.  ,  0.  ]), array([48.75, 10.  ,  0.  ]), array([48.75, 50.  ,  0.  ]), array([51.25, 10.  ,  0.  ]), array([51.25, 50.  ,  0.  ]), array([53.75, 10.  ,  0.  ]), array([53.75, 50.  ,  0.  ]), array([56.25, 10.  ,  0.  ]), array([56.25, 50.  ,  0.  ]), array([58.75, 10.  ,  0.  ]), array([58.75, 50.  ,  0.  ]), array([61.25, 10.  ,  0.  ]), array([61.25, 50.  ,  0.  ]), array([63.75, 10.  ,  0.  ]), array([63.75, 50.  ,  0.  ]), array([66.25, 10.  ,  0.  ]), array([66.25, 50.  ,  0.  ]), array([68.75, 10.  ,  0.  ]), array([68.75, 50.  ,  0.  ]), array([71.25, 10.  ,  0.  ]), array([71.25, 50.  ,  0.  ]), array([73.75, 10.  ,  0.  ]), array([73.75, 50.  ,  0.  ]), array([76.25, 10.  ,  0.  ]), array([76.25, 50.  ,  0.  ]), array([78.75, 10.  ,  0.  ]), array([78.75, 50.  ,  0.  ])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+lspe [&#39;Fix2&#39;, &#39;nonFixSimTest&#39;]
+carto 64 [array([ 1.25, 10.  ,  0.  ]), array([ 1.25, 50.  ,  0.  ]), array([ 3.75, 10.  ,  0.  ]), array([ 3.75, 50.  ,  0.  ]), array([ 6.25, 10.  ,  0.  ]), array([ 6.25, 50.  ,  0.  ]), array([ 8.75, 10.  ,  0.  ]), array([ 8.75, 50.  ,  0.  ]), array([11.25, 10.  ,  0.  ]), array([11.25, 50.  ,  0.  ]), array([13.75, 10.  ,  0.  ]), array([13.75, 50.  ,  0.  ]), array([16.25, 10.  ,  0.  ]), array([16.25, 50.  ,  0.  ]), array([18.75, 10.  ,  0.  ]), array([18.75, 50.  ,  0.  ]), array([21.25, 10.  ,  0.  ]), array([21.25, 50.  ,  0.  ]), array([23.75, 10.  ,  0.  ]), array([23.75, 50.  ,  0.  ]), array([26.25, 10.  ,  0.  ]), array([26.25, 50.  ,  0.  ]), array([28.75, 10.  ,  0.  ]), array([28.75, 50.  ,  0.  ]), array([31.25, 10.  ,  0.  ]), array([31.25, 50.  ,  0.  ]), array([33.75, 10.  ,  0.  ]), array([33.75, 50.  ,  0.  ]), array([36.25, 10.  ,  0.  ]), array([36.25, 50.  ,  0.  ]), array([38.75, 10.  ,  0.  ]), array([38.75, 50.  ,  0.  ]), array([41.25, 10.  ,  0.  ]), array([41.25, 50.  ,  0.  ]), array([43.75, 10.  ,  0.  ]), array([43.75, 50.  ,  0.  ]), array([46.25, 10.  ,  0.  ]), array([46.25, 50.  ,  0.  ]), array([48.75, 10.  ,  0.  ]), array([48.75, 50.  ,  0.  ]), array([51.25, 10.  ,  0.  ]), array([51.25, 50.  ,  0.  ]), array([53.75, 10.  ,  0.  ]), array([53.75, 50.  ,  0.  ]), array([56.25, 10.  ,  0.  ]), array([56.25, 50.  ,  0.  ]), array([58.75, 10.  ,  0.  ]), array([58.75, 50.  ,  0.  ]), array([61.25, 10.  ,  0.  ]), array([61.25, 50.  ,  0.  ]), array([63.75, 10.  ,  0.  ]), array([63.75, 50.  ,  0.  ]), array([66.25, 10.  ,  0.  ]), array([66.25, 50.  ,  0.  ]), array([68.75, 10.  ,  0.  ]), array([68.75, 50.  ,  0.  ]), array([71.25, 10.  ,  0.  ]), array([71.25, 50.  ,  0.  ]), array([73.75, 10.  ,  0.  ]), array([73.75, 50.  ,  0.  ]), array([76.25, 10.  ,  0.  ]), array([76.25, 50.  ,  0.  ]), array([78.75, 10.  ,  0.  ]), array([78.75, 50.  ,  0.  ])]
+soil init [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0] [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1] [[0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]] [0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] [0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42, 0.42]
+ls_CRES (8, 30, 5, 5)
+ls_CBio (8, 30, 5, 5)
+parResi {&#39;CNRESt&#39;: [16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0, 16.0], &#39;CNBio&#39;: [8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001, 8.412500000000001], &#39;KRES&#39;: [0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125, 0.19125], &#39;YRES&#39;: [0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62, 0.62], &#39;KBio&#39;: [0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011, 0.011], &#39;HRES&#39;: [0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235, 0.5941176470588235], &#39;TRefg&#39;: 15.0, &#39;FTEMHAg&#39;: 12.0, &#39;FTEMHg&#39;: 0.103, &#39;FTEMHB&#39;: 52.0}
+61
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">planter</span><span class="o">.</span><span class="n">transformations</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;scenes unit&#39;: {0: &#39;m&#39;, 1: &#39;cm&#39;, 2: &#39;m&#39;, 3: &#39;cm&#39;},
+ &#39;translate&#39;: {1: (0.0, 0.1, 0.0),
+  3: (0.0, 0.30000000000000004, 0.0),
+  0: (0.0, -0.05, 0.0),
+  2: (0.0, 0.15000000000000002, 0.0)}}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SceneWidget</span><span class="p">(</span><span class="n">final_scene</span><span class="p">,</span> <span class="n">size_display</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">400</span><span class="p">),</span> <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">plane</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">size_world</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span> <span class="n">axes_helper</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "9bfbd77afab64bff9e36a8650680511e", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials.html" class="btn btn-neutral float-left" title="Tutorials with jupyter notebooks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reference.html" class="btn btn-neutral float-right" title="Reference Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

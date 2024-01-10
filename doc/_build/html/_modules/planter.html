@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>planter &mdash; PlantFusion 0.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            PlantFusion
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials with jupyter notebooks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PlantFusion</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">planter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for planter</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    contains Planter class</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">import</span> <span class="nn">openalea.plantgl.all</span> <span class="k">as</span> <span class="nn">plantgl</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">plantfusion.indexer</span> <span class="kn">import</span> <span class="n">Indexer</span>
+
+
+<div class="viewcode-block" id="Planter"><a class="viewcode-back" href="../reference.html#planter.Planter">[docs]</a><span class="k">class</span> <span class="nc">Planter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool for handling the following in the simulation:</span>
+<span class="sd">        </span>
+<span class="sd">        * plant positions</span>
+<span class="sd">        </span>
+<span class="sd">        * number of plants </span>
+<span class="sd">        </span>
+<span class="sd">        * soil domain</span>
+
+<span class="sd">    You can choose between 3 generation types:</span>
+
+<span class="sd">        * &quot;default&quot;: each instance of fspm wrapper manages its plant positions, manages only soil domain</span>
+
+<span class="sd">        * &quot;random&quot;: generates each plant in random positions in a squared soil</span>
+
+<span class="sd">        * &quot;row&quot;: generates two rows for each plant specy in a squared soil</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    generation_type : str, optional</span>
+<span class="sd">        choose between &quot;default&quot;, &quot;random&quot; or &quot;row&quot;, by default &quot;default&quot;</span>
+<span class="sd">    indexer : Indexer, optional</span>
+<span class="sd">        indexer for listing FSPM in the simulation, by default Indexer()</span>
+<span class="sd">    legume_cote : dict, optional</span>
+<span class="sd">        precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}</span>
+<span class="sd">    legume_number_of_plants : dict, optional</span>
+<span class="sd">        number of plants for each l-egume instances. An entry is {wrapper.name : number of plants}, by default {}</span>
+<span class="sd">    inter_rows : float, optional</span>
+<span class="sd">        length between two rows in m, by default 0.15</span>
+<span class="sd">    plant_density : dict, optional</span>
+<span class="sd">        number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}</span>
+<span class="sd">    xy_plane : tuple of tuple, optional</span>
+<span class="sd">        Forced input dimensions of soil domain, ((xmin, ymin), (xmax, ymax)), by default None</span>
+<span class="sd">    xy_square_length : float, optional</span>
+<span class="sd">        Side length of the soil domain for &quot;random&quot; generation type, by default 0.5</span>
+<span class="sd">    translate : dict, optional</span>
+<span class="sd">        Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None</span>
+<span class="sd">    noise_plant_positions : float, optional</span>
+<span class="sd">        noise around generated positions in m, by default 0.0</span>
+<span class="sd">    save_wheat_positions : bool, optional</span>
+<span class="sd">        avoid to regenerate wheat positions at each timestep, by default False</span>
+<span class="sd">    seed : int, optional</span>
+<span class="sd">        seed for random and numpy, by default None</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">generation_type</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">indexer</span><span class="o">=</span><span class="n">Indexer</span><span class="p">(),</span>
+        <span class="n">legume_cote</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">legume_number_of_plants</span><span class="o">=</span><span class="p">{},</span>
+        <span class="n">inter_rows</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+        <span class="n">plant_density</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">250</span><span class="p">},</span>
+        <span class="n">xy_plane</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">xy_square_length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">translate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">noise_plant_positions</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">save_wheat_positions</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor, computes a global soil domain for the simulation</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">generation_type</span> <span class="o">=</span> <span class="n">generation_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plant_density</span> <span class="o">=</span> <span class="n">plant_density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_wheat_positions</span> <span class="o">=</span> <span class="n">save_wheat_positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span> <span class="o">=</span> <span class="n">noise_plant_positions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span> <span class="o">=</span> <span class="n">indexer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">]</span>
+
+        <span class="c1"># les lsystem l-egume sont par défaut en cm et le reste en m</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;scenes unit&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;scenes unit&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;m&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;scenes unit&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cm&quot;</span>
+
+        <span class="k">if</span> <span class="n">generation_type</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__default_preconfigured</span><span class="p">(</span><span class="n">legume_cote</span><span class="p">,</span> <span class="n">inter_rows</span><span class="p">,</span> <span class="n">plant_density</span><span class="p">,</span> <span class="n">xy_plane</span><span class="p">,</span> <span class="n">translate</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">nb_plt</span> <span class="ow">in</span> <span class="n">legume_number_of_plants</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">nb_plt</span>
+
+        <span class="k">elif</span> <span class="n">generation_type</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__random</span><span class="p">(</span><span class="n">plant_density</span><span class="p">,</span> <span class="n">xy_square_length</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;mix&quot;</span>
+
+        <span class="k">elif</span> <span class="n">generation_type</span> <span class="o">==</span> <span class="s2">&quot;row&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__row</span><span class="p">(</span><span class="n">plant_density</span><span class="p">,</span> <span class="n">inter_rows</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;mix&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plant_density</span><span class="p">,</span> <span class="n">xy_square_length</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parameters for random generation type</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        - l-egume: must have 64 plants so it rescale the soil size according to its plant density. Rewrite the cote, nbcote, typearrangement and optdamier options</span>
+<span class="sd">        - other fspm: compute number of plants according to its plant density</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plant_density : dict</span>
+<span class="sd">            each entry is { wrapper.name : number of plants/m²}</span>
+<span class="sd">        xy_square_length : float</span>
+<span class="sd">            soil side length in m</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">legume_nbcote</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_names</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">other_names</span><span class="p">))]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="n">xy_square_length</span><span class="p">,</span> <span class="n">xy_square_length</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">density</span> <span class="ow">in</span> <span class="n">plant_density</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span><span class="p">:</span>
+                <span class="c1"># on réajuste le domaine pour avoir 64 plantes</span>
+                <span class="n">xy_square_length</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">64</span> <span class="o">/</span> <span class="n">density</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_nbcote</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="n">xy_square_length</span><span class="p">,</span> <span class="n">xy_square_length</span><span class="p">))</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_typearrangement</span> <span class="o">=</span> <span class="s2">&quot;random8&quot;</span>
+                <span class="c1"># conversion m en cm</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_cote</span> <span class="o">=</span> <span class="n">xy_square_length</span> <span class="o">*</span> <span class="mi">100</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_optdamier</span> <span class="o">=</span> <span class="mi">8</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">64</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">density</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plant_density</span><span class="p">,</span> <span class="n">inter_rows</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parameters for row generation type</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        - l-egume: use &quot;row4_sp1&quot; arrangement. Rewrite the cote, nbcote, typearrangement and optdamier options</span>
+<span class="sd">        - other fspm: compute number of plants according to its plant density</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        plant_density : dict</span>
+<span class="sd">            each entry is { wrapper.name : number of plants/m²}</span>
+<span class="sd">        inter_rows : float</span>
+<span class="sd">            length between two rows in m</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">)</span>
+
+        <span class="n">xy_square_length</span> <span class="o">=</span> <span class="n">inter_rows</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="p">((</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="n">xy_square_length</span><span class="p">,</span> <span class="n">xy_square_length</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span> <span class="o">=</span> <span class="n">inter_rows</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legume_nbcote</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_names</span><span class="p">))]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">other_names</span><span class="p">))]</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">density</span> <span class="ow">in</span> <span class="n">plant_density</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_number_of_species</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">legume_typearrangement</span> <span class="o">=</span> <span class="s2">&quot;row4_sp1&quot;</span>
+                <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_number_of_species</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">legume_typearrangement</span> <span class="o">=</span> <span class="s2">&quot;row4&quot;</span>
+
+                <span class="c1"># conversion m en cm</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_cote</span> <span class="o">=</span> <span class="n">inter_rows</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span> <span class="o">*</span> <span class="mi">100</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_nbcote</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">density</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">legume_optdamier</span> <span class="o">=</span> <span class="mi">2</span>
+
+                <span class="c1"># if self.indexer.legume_number_of_species[self.indexer.legume_names.index(name)] &gt; 1:</span>
+                <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">index</span> <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span> <span class="o">==</span> <span class="n">name</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">indices</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">density</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+                    <span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">xy_square_length</span> <span class="o">*</span> <span class="n">density</span>
+                <span class="p">)</span>
+
+        <span class="c1"># each rows are generated on the same positions, we translate each plant specy scenes to create the final scene</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">*</span> <span class="n">inter_rows</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">inter_rows</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">other_index</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">inter_rows</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="c1"># only two species</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 2 wheats ou combinaison avec 1 ou 2 autres FSPM</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>  <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">other_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="n">inter_rows</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+            <span class="c1"># 2 legume</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_names</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">inter_rows</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__default_preconfigured</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">legume_cote</span><span class="o">=</span><span class="p">{},</span> <span class="n">inter_rows</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">plant_density</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">250</span><span class="p">},</span> <span class="n">xy_plane</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">translate</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Parameters for default generation type</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">        An attribute self.type_domain is created which can be:</span>
+<span class="sd">            - &quot;create_heterogeneous_canopy&quot;: only WheatFspm instance(s) in the simulation, the domain is from AgronomicStand</span>
+<span class="sd">            - &quot;l-egume&quot;: only l-egume instance(s) in the simulation, the domain is from usm configurations</span>
+<span class="sd">            - &quot;mix&quot;: mix of different fspm, we compute global soil domain</span>
+<span class="sd">            - &quot;input&quot;: soil domain == xy_plane</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        legume_cote : dict, optional</span>
+<span class="sd">            precise the length of a soil side in l-egume instances. An entry is {wrapper.name : length in cm}, by default {}</span>
+<span class="sd">        inter_rows : float</span>
+<span class="sd">            length between two rows in m, by default 0.15</span>
+<span class="sd">        plant_density : dict, optional</span>
+<span class="sd">            _description_, by default {1: 250}</span>
+<span class="sd">        plant_density : dict, optional</span>
+<span class="sd">            number plants in 1 m^2. An entry is {wrapper.name : nb of plants/m² }, by default {1: 250}</span>
+<span class="sd">        translate : dict, optional</span>
+<span class="sd">            Possibility to translate some of the fspm geometric scenes by a 3d vector. An entry is { wrapper.name : (tx, ty, tz) }, by default None</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            seed for random and numpy, by default None</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">plant_density</span> <span class="o">=</span> <span class="n">plant_density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span> <span class="o">=</span> <span class="n">inter_rows</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">50</span>
+        
+        <span class="c1"># runs an iteration of Agronomic stand to get its soil domain</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_active</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">alinea.adel.Stand</span> <span class="kn">import</span> <span class="n">AgronomicStand</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;create_heterogeneous_canopy&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span> <span class="o">=</span> <span class="p">[[]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_names</span><span class="p">))]</span>
+
+            <span class="c1"># on vient récupérer le domain de AgronomicStand</span>
+            <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+            <span class="n">stand</span> <span class="o">=</span> <span class="n">AgronomicStand</span><span class="p">(</span>
+                <span class="n">sowing_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plant_density</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">plant_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plant_density</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">inter_row</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span><span class="p">,</span>
+                <span class="n">noise</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">stand</span><span class="o">.</span><span class="n">smart_stand</span><span class="p">(</span><span class="n">nplants</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">at</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span><span class="p">,</span> <span class="n">convunit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+
+        <span class="c1"># translate each specy scenes if precised</span>
+        <span class="k">if</span> <span class="n">translate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">translate</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">global_order</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">transformations</span><span class="p">[</span><span class="s2">&quot;translate&quot;</span><span class="p">][</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector</span>
+
+        <span class="c1"># soil domain management</span>
+        <span class="k">if</span> <span class="n">xy_plane</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># si recalcul le domain via create_heterogeneous_canopy</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_active</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;create_heterogeneous_canopy&quot;</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_active</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;l-egume&quot;</span>
+                <span class="c1"># convertit domain cm en m</span>
+                <span class="n">domains</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cote</span> <span class="ow">in</span> <span class="n">legume_cote</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">vector</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">translate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">translate</span> <span class="p">:</span>
+                        <span class="n">vector</span> <span class="o">=</span> <span class="n">translate</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                    <span class="n">domains</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                        <span class="p">(</span><span class="mf">0.0</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span>  <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="p">(</span><span class="n">cote</span> <span class="o">*</span> <span class="mf">0.01</span>  <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cote</span> <span class="o">*</span> <span class="mf">0.01</span>  <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                    <span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="p">((</span><span class="nb">min</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]),</span> <span class="nb">min</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">])),</span> 
+                            <span class="p">((</span><span class="nb">max</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]),</span> <span class="nb">max</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]))))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;mix&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">legume_active</span><span class="p">:</span>
+                    <span class="n">domains</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cote</span> <span class="ow">in</span> <span class="n">legume_cote</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">vector</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">translate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">translate</span> <span class="p">:</span>
+                            <span class="n">vector</span> <span class="o">=</span> <span class="n">translate</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                        <span class="n">domains</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                            <span class="p">(</span><span class="mf">0.0</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.0</span>  <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                            <span class="p">(</span><span class="n">cote</span> <span class="o">*</span> <span class="mf">0.01</span>  <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cote</span> <span class="o">*</span> <span class="mf">0.01</span>  <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="p">])</span>
+                    <span class="n">legume_domain</span> <span class="o">=</span> <span class="p">((</span><span class="nb">min</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]),</span> <span class="nb">min</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">])),</span> 
+                                <span class="p">((</span><span class="nb">max</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]),</span> <span class="nb">max</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">domains</span><span class="p">]))))</span>
+
+                <span class="c1"># a été calculé au-dessus à  l&#39;appel de create_heterogeneous_canopy</span>
+                <span class="n">wheat_domain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span>
+                <span class="k">if</span> <span class="n">translate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">translate</span> <span class="p">:</span>
+                        <span class="n">vector</span> <span class="o">=</span> <span class="n">translate</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+                        <span class="n">wheat_domain</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="p">(</span><span class="n">wheat_domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wheat_domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                            <span class="p">(</span><span class="n">wheat_domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">wheat_domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">legume_domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">wheat_domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">min</span><span class="p">(</span><span class="n">legume_domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">wheat_domain</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])),</span>
+                    <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">legume_domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">wheat_domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">legume_domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">wheat_domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])),</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">=</span> <span class="s2">&quot;input&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">xy_plane</span>
+
+
+<div class="viewcode-block" id="Planter.generate_random_other"><a class="viewcode-back" href="../reference.html#planter.Planter.generate_random_other">[docs]</a>    <span class="k">def</span> <span class="nf">generate_random_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indice_instance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute random plant positions for fspm other than l-egume and wheat</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indice_instance : int, optional</span>
+<span class="sd">            specy ID corresponding to plants to generate, by default 0</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            random seed, by default None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of tuple</span>
+<span class="sd">            list of plant positions (x, y, z)</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="mi">1234</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="c1"># tirage des positions</span>
+        <span class="c1"># list de 3-tuple des positions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]</span> <span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">other_index</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]]):</span>
+                <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
+
+        <span class="k">return</span> <span class="n">positions</span></div>
+    
+<div class="viewcode-block" id="Planter.generate_random_wheat"><a class="viewcode-back" href="../reference.html#planter.Planter.generate_random_wheat">[docs]</a>    <span class="k">def</span> <span class="nf">generate_random_wheat</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">adel_wheat</span><span class="p">,</span> <span class="n">mtg</span><span class="p">,</span> <span class="n">indice_wheat_instance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stem_name</span><span class="o">=</span><span class="s2">&quot;stem&quot;</span><span class="p">,</span> <span class="n">leaf_name</span><span class="o">=</span><span class="s2">&quot;leaf&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute random plant positions for wheat fspm</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        adel_wheat : AdelWheat</span>
+<span class="sd">            adel wheat object containing one wheat geometry</span>
+<span class="sd">        mtg : openalea.MTG</span>
+<span class="sd">            MTG of one wheat</span>
+<span class="sd">        indice_wheat_instance : int, optional</span>
+<span class="sd">            wheat ID in simulation (indexer.global_index), by default 0</span>
+<span class="sd">        stem_name : str, optional</span>
+<span class="sd">            stem tag in the plantgl.Scene, by default &quot;stem&quot;</span>
+<span class="sd">        leaf_name : str, optional</span>
+<span class="sd">            leaf tag in the plantgl.Scene, by default &quot;leaf&quot;</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            random seed, by default None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of tuple</span>
+<span class="sd">            list of plant positions (x, y, z)</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">var_leaf_inclination</span> <span class="o">=</span> <span class="mf">0.157</span>
+        <span class="n">var_leaf_azimut</span> <span class="o">=</span> <span class="mf">1.57</span>
+        <span class="n">var_stem_azimut</span> <span class="o">=</span> <span class="mf">0.157</span>
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="mi">1234</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">initial_scene</span> <span class="o">=</span> <span class="n">adel_wheat</span><span class="o">.</span><span class="n">scene</span><span class="p">(</span><span class="n">mtg</span><span class="p">)</span>
+
+        <span class="c1"># tirage des positions</span>
+        <span class="c1"># list de 3-tuple des positions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_wheat_positions</span><span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]]):</span>
+                <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
+
+        <span class="n">generated_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__generate_wheat_from_positions</span><span class="p">(</span>
+            <span class="n">initial_scene</span><span class="p">,</span> <span class="n">mtg</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">var_leaf_inclination</span><span class="p">,</span> <span class="n">var_leaf_azimut</span><span class="p">,</span> <span class="n">var_stem_azimut</span><span class="p">,</span> <span class="n">stem_name</span><span class="p">,</span> <span class="n">leaf_name</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">generated_scene</span></div>
+
+<div class="viewcode-block" id="Planter.generate_row_other"><a class="viewcode-back" href="../reference.html#planter.Planter.generate_row_other">[docs]</a>    <span class="k">def</span> <span class="nf">generate_row_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indice_instance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute row plant positions for fspm other than l-egume and wheat</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indice_instance : int, optional</span>
+<span class="sd">            specy ID corresponding to plants to generate, by default 0</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            random seed, by default None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of tuple</span>
+<span class="sd">            list of plant positions (x, y, z)</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="mi">1234</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">inter_plants</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]]</span>
+            <span class="p">)</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span>
+
+            <span class="c1"># first row on left 1/2 interrow, then 1 out of 2 row is wheat</span>
+            <span class="n">rows_y</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">rows_y</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]]</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">)):</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">inter_plants</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">ix</span><span class="p">)</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">),</span>
+                        <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">),</span>
+                        <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">other_positions</span><span class="p">[</span><span class="n">indice_instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
+
+        <span class="k">return</span> <span class="n">positions</span></div>
+
+<div class="viewcode-block" id="Planter.generate_row_wheat"><a class="viewcode-back" href="../reference.html#planter.Planter.generate_row_wheat">[docs]</a>    <span class="k">def</span> <span class="nf">generate_row_wheat</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">adel_wheat</span><span class="p">,</span> <span class="n">mtg</span><span class="p">,</span> <span class="n">indice_wheat_instance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stem_name</span><span class="o">=</span><span class="s2">&quot;stem&quot;</span><span class="p">,</span> <span class="n">leaf_name</span><span class="o">=</span><span class="s2">&quot;leaf&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute row plant positions for wheat fspm</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        adel_wheat : AdelWheat</span>
+<span class="sd">            adel wheat object containing one wheat geometry</span>
+<span class="sd">        mtg : openalea.MTG</span>
+<span class="sd">            MTG of one wheat</span>
+<span class="sd">        indice_wheat_instance : int, optional</span>
+<span class="sd">            wheat ID in simulation (indexer.global_index), by default 0</span>
+<span class="sd">        stem_name : str, optional</span>
+<span class="sd">            stem tag in the plantgl.Scene, by default &quot;stem&quot;</span>
+<span class="sd">        leaf_name : str, optional</span>
+<span class="sd">            leaf tag in the plantgl.Scene, by default &quot;leaf&quot;</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            random seed, by default None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of tuple</span>
+<span class="sd">            list of plant positions (x, y, z)</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="n">var_leaf_inclination</span> <span class="o">=</span> <span class="mf">0.157</span>
+        <span class="n">var_leaf_azimut</span> <span class="o">=</span> <span class="mf">1.57</span>
+        <span class="n">var_stem_azimut</span> <span class="o">=</span> <span class="mf">0.157</span>
+
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="mi">1234</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+        <span class="n">initial_scene</span> <span class="o">=</span> <span class="n">adel_wheat</span><span class="o">.</span><span class="n">scene</span><span class="p">(</span><span class="n">mtg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_wheat_positions</span><span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">inter_plants</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]]</span>
+            <span class="p">)</span>
+            <span class="n">nrows</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span>
+
+            <span class="c1"># first row on left 1/2 interrow, then 1 out of 2 row is wheat</span>
+            <span class="n">rows_y</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">,</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">total_n_rows</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">rows_y</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]]</span> <span class="o">/</span> <span class="n">nrows</span><span class="p">)):</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">inter_plants</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">+</span> <span class="n">ix</span><span class="p">)</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">),</span>
+                        <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">),</span>
+                        <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
+
+        <span class="n">generated_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__generate_wheat_from_positions</span><span class="p">(</span>
+            <span class="n">initial_scene</span><span class="p">,</span>
+            <span class="n">mtg</span><span class="p">,</span>
+            <span class="n">positions</span><span class="p">,</span>
+            <span class="n">var_leaf_inclination</span><span class="p">,</span>
+            <span class="n">var_leaf_azimut</span><span class="p">,</span>
+            <span class="n">var_stem_azimut</span><span class="p">,</span>
+            <span class="n">stem_name</span><span class="o">=</span><span class="n">stem_name</span><span class="p">,</span>
+            <span class="n">leaf_name</span><span class="o">=</span><span class="n">leaf_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">generated_scene</span></div>
+
+<div class="viewcode-block" id="Planter.create_heterogeneous_canopy"><a class="viewcode-back" href="../reference.html#planter.Planter.create_heterogeneous_canopy">[docs]</a>    <span class="k">def</span> <span class="nf">create_heterogeneous_canopy</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">geometrical_model</span><span class="p">,</span>
+        <span class="n">mtg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">var_leaf_inclination</span><span class="o">=</span><span class="mf">0.157</span><span class="p">,</span>
+        <span class="n">var_leaf_azimut</span><span class="o">=</span><span class="mf">1.57</span><span class="p">,</span>
+        <span class="n">var_stem_azimut</span><span class="o">=</span><span class="mf">0.157</span><span class="p">,</span>
+        <span class="n">stem_name</span><span class="o">=</span><span class="s2">&quot;stem&quot;</span><span class="p">,</span>
+        <span class="n">leaf_name</span><span class="o">=</span><span class="s2">&quot;leaf&quot;</span><span class="p">,</span>
+        <span class="n">indice_wheat_instance</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate wheat positions in default mode</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geometrical_model : AdelWheat</span>
+<span class="sd">            adel wheat object the wheat</span>
+<span class="sd">        mtg : openalea.MTG, optional</span>
+<span class="sd">            MTG containing plantgl.Scene of one wheat, by default None</span>
+<span class="sd">        var_leaf_inclination : float, optional</span>
+<span class="sd">            variability for leaf inclination (rad), by default 0.157</span>
+<span class="sd">        var_leaf_azimut : float, optional</span>
+<span class="sd">            variability for leaf azimut (rad), by default 1.57</span>
+<span class="sd">        var_stem_azimut : float, optional</span>
+<span class="sd">            variability for stem azimut (rad), by default 0.157</span>
+<span class="sd">        stem_name : str, optional</span>
+<span class="sd">            stem tag in the plantgl.Scene, by default &quot;stem&quot;</span>
+<span class="sd">        leaf_name : str, optional</span>
+<span class="sd">            leaf tag in the plantgl.Scene, by default &quot;leaf&quot;</span>
+<span class="sd">        indice_wheat_instance : int, optional</span>
+<span class="sd">            wheat specy ID in simulation, by default 0</span>
+<span class="sd">        seed : int, optional</span>
+<span class="sd">            random seed, by default None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of tuple</span>
+<span class="sd">            list of plant positions (x, y, z)</span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+
+        <span class="kn">from</span> <span class="nn">alinea.adel.Stand</span> <span class="kn">import</span> <span class="n">AgronomicStand</span>
+        
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="c1"># Planter</span>
+        <span class="n">stand</span> <span class="o">=</span> <span class="n">AgronomicStand</span><span class="p">(</span>
+            <span class="n">sowing_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plant_density</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">plant_density</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">plant_density</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">inter_row</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span><span class="p">,</span>
+            <span class="n">noise</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">noise_plant_positions</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">stand</span><span class="o">.</span><span class="n">smart_stand</span><span class="p">(</span>
+            <span class="n">nplants</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">number_of_plants</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indexer</span><span class="o">.</span><span class="n">wheat_index</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]],</span>
+            <span class="n">at</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inter_rows</span><span class="p">,</span>
+            <span class="n">convunit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wheat_positions</span><span class="p">[</span><span class="n">indice_wheat_instance</span><span class="p">]</span> <span class="o">=</span> <span class="n">positions</span>
+
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+
+        <span class="n">generated_scene</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__generate_wheat_from_positions</span><span class="p">(</span>
+            <span class="n">geometrical_model</span><span class="p">,</span>
+            <span class="n">mtg</span><span class="p">,</span>
+            <span class="n">positions</span><span class="p">,</span>
+            <span class="n">var_leaf_inclination</span><span class="p">,</span>
+            <span class="n">var_leaf_azimut</span><span class="p">,</span>
+            <span class="n">var_stem_azimut</span><span class="p">,</span>
+            <span class="n">stem_name</span><span class="o">=</span><span class="n">stem_name</span><span class="p">,</span>
+            <span class="n">leaf_name</span><span class="o">=</span><span class="n">leaf_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_domain</span> <span class="o">==</span> <span class="s2">&quot;create_heterogeneous_canopy&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+
+        <span class="k">return</span> <span class="n">generated_scene</span></div>
+
+    <span class="k">def</span> <span class="nf">__generate_wheat_from_positions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">geometrical_model</span><span class="p">,</span>
+        <span class="n">mtg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">positions</span><span class="o">=</span><span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)],</span>
+        <span class="n">var_leaf_inclination</span><span class="o">=</span><span class="mf">0.157</span><span class="p">,</span>
+        <span class="n">var_leaf_azimut</span><span class="o">=</span><span class="mf">1.57</span><span class="p">,</span>
+        <span class="n">var_stem_azimut</span><span class="o">=</span><span class="mf">0.157</span><span class="p">,</span>
+        <span class="n">stem_name</span><span class="o">=</span><span class="s2">&quot;stem&quot;</span><span class="p">,</span>
+        <span class="n">leaf_name</span><span class="o">=</span><span class="s2">&quot;leaf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate complete wheats from their plant positions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geometrical_model : AdelWheat</span>
+<span class="sd">            adel wheat object the wheat</span>
+<span class="sd">        mtg : openalea.MTG, optional</span>
+<span class="sd">            MTG containing plantgl.Scene of one wheat, by default None</span>
+<span class="sd">        positions : list, optional</span>
+<span class="sd">            list of plant positions as (x, y, z) in m, by default [(0.0, 0.0, 0.0)]</span>
+<span class="sd">        var_leaf_inclination : float, optional</span>
+<span class="sd">            variability for leaf inclination (rad), by default 0.157</span>
+<span class="sd">        var_leaf_azimut : float, optional</span>
+<span class="sd">            variability for leaf azimut (rad), by default 1.57</span>
+<span class="sd">        var_stem_azimut : float, optional</span>
+<span class="sd">            variability for stem azimut (rad), by default 0.157</span>
+<span class="sd">        stem_name : str, optional</span>
+<span class="sd">            stem tag in the plantgl.Scene, by default &quot;stem&quot;</span>
+<span class="sd">        leaf_name : str, optional</span>
+<span class="sd">            leaf tag in the plantgl.Scene, by default &quot;leaf&quot;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        plantgl.Scene</span>
+<span class="sd">            final scene of the generated wheats </span>
+<span class="sd">        &quot;&quot;&quot;</span>        
+        <span class="c1"># Load scene</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometrical_model</span><span class="p">,</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Scene</span><span class="p">):</span>
+            <span class="n">initial_scene</span> <span class="o">=</span> <span class="n">geometrical_model</span><span class="o">.</span><span class="n">scene</span><span class="p">(</span><span class="n">mtg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">initial_scene</span> <span class="o">=</span> <span class="n">geometrical_model</span>
+
+        <span class="n">alea_canopy</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="c1"># Built alea table if does not exist yet</span>
+        <span class="k">if</span> <span class="n">alea_canopy</span><span class="o">.</span><span class="n">empty</span> <span class="ow">and</span> <span class="n">mtg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">elements_vid_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">mtg_plant_vid</span> <span class="ow">in</span> <span class="n">mtg</span><span class="o">.</span><span class="n">components_iter</span><span class="p">(</span><span class="n">mtg</span><span class="o">.</span><span class="n">root</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">mtg_axis_vid</span> <span class="ow">in</span> <span class="n">mtg</span><span class="o">.</span><span class="n">components_iter</span><span class="p">(</span><span class="n">mtg_plant_vid</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">mtg_metamer_vid</span> <span class="ow">in</span> <span class="n">mtg</span><span class="o">.</span><span class="n">components_iter</span><span class="p">(</span><span class="n">mtg_axis_vid</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">mtg_organ_vid</span> <span class="ow">in</span> <span class="n">mtg</span><span class="o">.</span><span class="n">components_iter</span><span class="p">(</span><span class="n">mtg_metamer_vid</span><span class="p">):</span>
+                            <span class="k">for</span> <span class="n">mtg_element_vid</span> <span class="ow">in</span> <span class="n">mtg</span><span class="o">.</span><span class="n">components_iter</span><span class="p">(</span><span class="n">mtg_organ_vid</span><span class="p">):</span>
+                                <span class="k">if</span> <span class="n">mtg</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">mtg_element_vid</span><span class="p">)</span> <span class="o">==</span> <span class="n">leaf_name</span><span class="p">:</span>
+                                    <span class="n">elements_vid_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mtg_element_vid</span><span class="p">)</span>
+
+            <span class="n">elements_vid_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;vid&quot;</span><span class="p">:</span> <span class="n">elements_vid_list</span><span class="p">,</span> <span class="s2">&quot;tmp&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+            <span class="n">positions_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;pos&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)),</span> <span class="s2">&quot;tmp&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;azimut_leaf&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;inclination_leaf&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+            <span class="p">)</span>
+            <span class="n">alea</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">elements_vid_df</span><span class="p">,</span> <span class="n">positions_df</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tmp&quot;</span><span class="p">])</span>
+            <span class="n">alea</span> <span class="o">=</span> <span class="n">alea</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;tmp&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">vid</span> <span class="ow">in</span> <span class="n">elements_vid_list</span><span class="p">:</span>
+                <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">vid</span><span class="p">)</span>
+                <span class="n">alea</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">alea</span><span class="p">[</span><span class="s2">&quot;vid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">vid</span><span class="p">,</span> <span class="s2">&quot;azimut_leaf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                    <span class="o">-</span><span class="n">var_leaf_azimut</span><span class="p">,</span> <span class="n">var_leaf_azimut</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">alea</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">alea</span><span class="p">[</span><span class="s2">&quot;vid&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">vid</span><span class="p">,</span> <span class="s2">&quot;inclination_leaf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                    <span class="o">-</span><span class="n">var_leaf_inclination</span><span class="p">,</span> <span class="n">var_leaf_inclination</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">alea_canopy</span> <span class="o">=</span> <span class="n">alea</span>
+
+        <span class="c1"># Duplication and heterogeneity</span>
+        <span class="n">duplicated_scene</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Scene</span><span class="p">()</span>
+        <span class="n">position_number</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span><span class="p">:</span>
+            <span class="n">azimut_stem</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="n">var_stem_azimut</span><span class="p">,</span> <span class="n">var_stem_azimut</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">shp</span> <span class="ow">in</span> <span class="n">initial_scene</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">mtg</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">==</span> <span class="n">stem_name</span><span class="p">:</span>
+                    <span class="n">rotated_geometry</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">EulerRotated</span><span class="p">(</span><span class="n">azimut_stem</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">shp</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+                    <span class="n">translated_geometry</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Translated</span><span class="p">(</span><span class="n">plantgl</span><span class="o">.</span><span class="n">Vector3</span><span class="p">(</span><span class="n">pos</span><span class="p">),</span> <span class="n">rotated_geometry</span><span class="p">)</span>
+                    <span class="n">new_shape</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="n">translated_geometry</span><span class="p">,</span> <span class="n">appearance</span><span class="o">=</span><span class="n">shp</span><span class="o">.</span><span class="n">appearance</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="n">duplicated_scene</span> <span class="o">+=</span> <span class="n">new_shape</span>
+                <span class="k">elif</span> <span class="n">mtg</span><span class="o">.</span><span class="n">label</span><span class="p">(</span><span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="o">==</span> <span class="n">leaf_name</span><span class="p">:</span>
+                    <span class="c1"># Add shp.id in alea_canopy if not in yet:</span>
+                    <span class="k">if</span> <span class="n">shp</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">alea_canopy</span><span class="p">[</span><span class="s2">&quot;vid&quot;</span><span class="p">]):</span>
+                        <span class="n">new_vid_df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;vid&quot;</span><span class="p">:</span> <span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;pos&quot;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">))})</span>
+                        <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                        <span class="n">new_vid_df</span><span class="p">[</span><span class="s2">&quot;azimut_leaf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                            <span class="o">-</span><span class="n">var_leaf_azimut</span><span class="p">,</span> <span class="n">var_leaf_azimut</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="n">new_vid_df</span><span class="p">[</span><span class="s2">&quot;inclination_leaf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span>
+                            <span class="o">-</span><span class="n">var_leaf_inclination</span><span class="p">,</span> <span class="n">var_leaf_inclination</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="n">alea_canopy</span> <span class="o">=</span> <span class="n">alea_canopy</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_vid_df</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                    <span class="c1"># Translation to origin</span>
+                    <span class="n">anchor_point</span> <span class="o">=</span> <span class="n">mtg</span><span class="o">.</span><span class="n">get_vertex_property</span><span class="p">(</span><span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">)[</span><span class="s2">&quot;anchor_point&quot;</span><span class="p">]</span>
+                    <span class="n">trans_to_origin</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Translated</span><span class="p">(</span><span class="o">-</span><span class="n">anchor_point</span><span class="p">,</span> <span class="n">shp</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span>
+                    <span class="c1"># Rotation variability</span>
+                    <span class="n">azimut</span> <span class="o">=</span> <span class="n">alea_canopy</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="p">(</span><span class="n">alea_canopy</span><span class="o">.</span><span class="n">pos</span> <span class="o">==</span> <span class="n">position_number</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">alea_canopy</span><span class="o">.</span><span class="n">vid</span> <span class="o">==</span> <span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s2">&quot;azimut_leaf&quot;</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">inclination</span> <span class="o">=</span> <span class="n">alea_canopy</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+                        <span class="p">(</span><span class="n">alea_canopy</span><span class="o">.</span><span class="n">pos</span> <span class="o">==</span> <span class="n">position_number</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">alea_canopy</span><span class="o">.</span><span class="n">vid</span> <span class="o">==</span> <span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s2">&quot;inclination_leaf&quot;</span>
+                    <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">rotated_geometry</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">EulerRotated</span><span class="p">(</span><span class="n">azimut</span><span class="p">,</span> <span class="n">inclination</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">trans_to_origin</span><span class="p">)</span>
+                    <span class="c1"># Restore leaf base at initial anchor point</span>
+                    <span class="n">translated_geometry</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Translated</span><span class="p">(</span><span class="n">anchor_point</span><span class="p">,</span> <span class="n">rotated_geometry</span><span class="p">)</span>
+                    <span class="c1"># Translate leaf to new plant position</span>
+                    <span class="n">translated_geometry</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Translated</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">translated_geometry</span><span class="p">)</span>
+                    <span class="n">new_shape</span> <span class="o">=</span> <span class="n">plantgl</span><span class="o">.</span><span class="n">Shape</span><span class="p">(</span><span class="n">translated_geometry</span><span class="p">,</span> <span class="n">appearance</span><span class="o">=</span><span class="n">shp</span><span class="o">.</span><span class="n">appearance</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">shp</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="n">duplicated_scene</span> <span class="o">+=</span> <span class="n">new_shape</span>
+
+            <span class="n">position_number</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">duplicated_scene</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Maurane Woussen.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

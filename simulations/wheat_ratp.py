@@ -1,6 +1,6 @@
-from plantfusion.wheat_facade import Wheat_facade, passive_lighting
-from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
+from plantfusion.wheat_wrapper import Wheat_wrapper, passive_lighting
+from plantfusion.light_wrapper import Light_wrapper
+from plantfusion.indexer import Indexer
 from plantfusion.planter import Planter
 from plantfusion.utils import create_child_folder
 
@@ -10,10 +10,19 @@ import os
 
 
 def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_postprocessing=False):
+    try:
+        # Create target Directory
+        os.mkdir(os.path.normpath(out_folder))
+        print("Directory ", os.path.normpath(out_folder), " Created ")
+    except FileExistsError:
+        print("Directory ", os.path.normpath(out_folder), " already exists")
+
     create_child_folder(out_folder, "passive")
     create_child_folder(out_folder, "active")
 
-    # general parameters
+    plants_name = "wheat"
+    index_log = Indexer(global_order=[plants_name], wheat_names=[plants_name])
+
     N_fertilizations = {2016: 357143, 2520: 1000000}
     tillers_replications = {"T1": 0.5, "T2": 0.5, "T3": 0.5, "T4": 0.5}
     plant_density = {1: 250}
@@ -25,95 +34,93 @@ def simulation(in_folder, out_folder, simulation_length, write_geo=False, run_po
     }
     senescwheat_timestep = 1
     light_timestep = 4
+    planter = Planter(generation_type="default", indexer=index_log, inter_rows=0.15, plant_density=plant_density)
 
-    environment = Environment(
-        sky=sky, N_fertilizations=N_fertilizations, tillers_replications=tillers_replications, external_soil=False
-    )
-
-    wheat_default = Wheat_facade(
+    # default
+    wheat_default = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=os.path.join(out_folder, "passive"),
-        environment=environment,
-        plant_density=plant_density,
+        planter=planter,
+        indexer=index_log,
         external_soil_model=False,
         nitrates_uptake_forced=False,
+        N_fertilizations=N_fertilizations,
+        tillers_replications=tillers_replications,
         update_parameters_all_models=RERmax_vegetative_stages_example,
         SENESCWHEAT_TIMESTEP=senescwheat_timestep,
         LIGHT_TIMESTEP=light_timestep,
     )
 
-    plants_positions_default = Planter(plantmodels=[wheat_default], inter_rows=0.15, plant_density=plant_density)
-
-    lighting_default = Light(
-        lightmodel="caribu",
-        wheat_facade=wheat_default,
-        position=plants_positions_default,
-        environment=environment,
-        writegeo=False,
+    lighting_default = Light_wrapper(
+        lightmodel="caribu", 
+        out_folder=out_folder, 
+        sky=sky,
+        planter=planter, 
+        indexer=index_log,
+        writegeo=write_geo
     )
 
     # RATP parameters
     dv = 0.05
     voxels_size = [dv, dv, dv]
 
-    wheat_ratp = Wheat_facade(
+    wheat_ratp = Wheat_wrapper(
         in_folder=in_folder,
         out_folder=os.path.join(out_folder, "active"),
-        environment=environment,
-        plant_density=plant_density,
+        planter=planter,
+        indexer=index_log,
         external_soil_model=False,
         nitrates_uptake_forced=False,
+        N_fertilizations=N_fertilizations,
+        tillers_replications=tillers_replications,
         update_parameters_all_models=RERmax_vegetative_stages_example,
         SENESCWHEAT_TIMESTEP=senescwheat_timestep,
         LIGHT_TIMESTEP=light_timestep,
     )
 
-    plants_positions_ratp = Planter(plantmodels=[wheat_ratp], inter_rows=0.15, plant_density=plant_density)
-
-    lighting_ratp = Light(
-        lightmodel="ratp",
-        out_folder=out_folder,
-        wheat_facade=wheat_ratp,
-        position=plants_positions_ratp,
-        environment=environment,
+    lighting_ratp = Light_wrapper(
+        lightmodel="ratp", 
+        out_folder=out_folder, 
+        sky=sky,
+        planter=planter, 
+        indexer=index_log,
         voxels_size=voxels_size,
         angle_distrib_algo="compute global",
-        writegeo=write_geo,
+        writegeo=write_geo
     )
 
     light_data = {"PARa": [], "t": []}
 
-    try:
-        current_time_of_the_system = time.time()
-        for t in range(wheat_default.start_time, simulation_length, wheat_default.SENESCWHEAT_TIMESTEP):
-            if (t % light_timestep == 0) and (wheat_default.PARi_next_hours(t) > 0):
-                wheat_input = wheat_default.light_inputs(plants_positions_default)
-                passive_lighting(light_data, t, wheat_default.doy(t), wheat_input, lighting_ratp)
-                
-                start = time.time()
-                lighting_default.run(scenes_wheat=[wheat_input], day=wheat_default.doy(t), hour=wheat_default.hour(t), parunit="micromol.m-2.s-1")
-                caribu_time = time.time() - start
 
-                wheat_default.light_results(energy=wheat_default.energy(t), lighting=lighting_default)
+    current_time_of_the_system = time.time()
+    for t in range(wheat_default.start_time, simulation_length, wheat_default.SENESCWHEAT_TIMESTEP):
+        if (t % light_timestep == 0) and (wheat_default.PARi_next_hours(t) > 0):
+            wheat_input, stems = wheat_default.light_inputs(planter)
+            passive_lighting(light_data, t, wheat_default.doy(t), wheat_input, lighting_ratp, stems)
+            
+            start = time.time()
+            lighting_default.run(scenes=[wheat_input], day=wheat_default.doy(t), hour=wheat_default.hour(t), parunit="micromol.m-2.s-1", stems=stems)
+            caribu_time = time.time() - start
 
-                wheat_input = wheat_ratp.light_inputs(plants_positions_ratp)
-                start = time.time()
-                lighting_ratp.run(scenes_wheat=wheat_input, day=wheat_ratp.doy(t), hour=wheat_ratp.hour(t), parunit="micromol.m-2.s-1")
-                ratp_time = time.time() - start
-                
-                wheat_ratp.light_results(energy=wheat_ratp.energy (t), lighting=lighting_ratp)
+            wheat_default.light_results(energy=wheat_default.energy(t), lighting=lighting_default)
 
-                print("Lighting running time | CARIBU: ",caribu_time,"RATP: ",ratp_time)
+            wheat_input, stems = wheat_ratp.light_inputs(planter)
+            start = time.time()
+            lighting_ratp.run(scenes=[wheat_input], day=wheat_ratp.doy(t), hour=wheat_ratp.hour(t), parunit="micromol.m-2.s-1", stems=stems)
+            ratp_time = time.time() - start
+            
+            wheat_ratp.light_results(energy=wheat_ratp.energy (t), lighting=lighting_ratp)
 
-            wheat_default.run(t)
-            wheat_ratp.run(t)
+            print("Lighting running time | CARIBU: ",caribu_time,"RATP: ",ratp_time)
 
-        execution_time = int(time.time() - current_time_of_the_system)
-        print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
+        wheat_default.run(t)
+        wheat_ratp.run(t)
 
-    finally:
-        wheat_default.end(run_postprocessing=run_postprocessing)
-        wheat_ratp.end(run_postprocessing=run_postprocessing)
+    execution_time = int(time.time() - current_time_of_the_system)
+    print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
+
+    wheat_default.end(run_postprocessing=run_postprocessing)
+    wheat_ratp.end(run_postprocessing=run_postprocessing)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ if sys.version_info < (3, 0):
 
 setup(
     name="PlantFusion",
-    version="1.0.0",
+    version="0.0.0",
     description="API for mixed crop modelling",
     url="https://github.com/mwoussen/plantfusion",
 
