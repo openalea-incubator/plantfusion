@@ -8,6 +8,10 @@ build
 dist
 .vscode
 Run-tmp
+soil
+wheat
+legume
+light
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -80,7 +84,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+# docs/_build/
 
 # PyBuilder
 target/

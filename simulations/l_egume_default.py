@@ -1,50 +1,71 @@
-from plantfusion.l_egume_facade import L_egume_facade
-from plantfusion.environment_tool import Environment
-from plantfusion.light_facade import Light
-from plantfusion.soil3ds_facade import Soil_facade
+from plantfusion.indexer import Indexer
+from plantfusion.l_egume_wrapper import L_egume_wrapper
+from plantfusion.light_wrapper import Light_wrapper
+from plantfusion.soil_wrapper import Soil_wrapper
 from plantfusion.planter import Planter
 
 import time
 import datetime
+import os
 
 
-def simulation(in_folder, out_folder):
-    environment = Environment(external_soil=False)
+def simulation(in_folder, out_folder, id_usm):
+    try:
+        # Create target Directory
+        os.mkdir(os.path.normpath(out_folder))
+        print("Directory ", os.path.normpath(out_folder), " Created ")
+    except FileExistsError:
+        print("Directory ", os.path.normpath(out_folder), " already exists")
 
-    legume = L_egume_facade(in_folder=in_folder, out_folder=out_folder)
+    plants_name = "legume"
+    indexer = Indexer(global_order=[plants_name], legume_names=[plants_name])
 
-    plants_positions = Planter(plantmodels=[legume])
+    planter = Planter(generation_type="default", indexer=indexer, legume_cote={plants_name : 40.}, legume_number_of_plants={plants_name : 64})
 
-    lighting = Light(lightmodel="riri5", position=plants_positions, environment=environment, legume_facade=legume)
+    legume = L_egume_wrapper(
+        name=plants_name, indexer=indexer, in_folder=in_folder, out_folder=out_folder, IDusm=id_usm, planter=planter
+    )
 
-    soil = Soil_facade(in_folder=in_folder, out_folder=out_folder, legume_facade=legume, position=plants_positions)
+    lighting = Light_wrapper(lightmodel="riri5", indexer=indexer, planter=planter, legume_wrapper=legume)
 
-    nb_steps = max([legume.lsystems[n].derivationLength for n in legume.idsimu])
+    soil = Soil_wrapper(out_folder=out_folder, legume_wrapper=legume, legume_pattern=True)
 
     try:
         current_time_of_the_system = time.time()
-        for t in range(nb_steps):
+        for t in range(legume.lsystem.derivationLength):
             legume.derive(t)
 
-            scene_legume = legume.light_inputs(lightmodel="riri5")
-            lighting.run(scenes_l_egume=scene_legume, energy=legume.energy(), day=legume.doy(), parunit="RG")
+            scene_legume = legume.light_inputs(elements="voxels")
+            lighting.run(scenes=[scene_legume], energy=legume.energy(), day=legume.doy(), parunit="RG")
             legume.light_results(legume.energy(), lighting)
 
-            soil_legume_inputs = legume.soil_inputs()
-            soil.run(legume.doy(), legume_inputs=soil_legume_inputs)
-            legume.soil_results(soil.inputs, soil.results)
+            (
+                N_content_roots_per_plant,
+                roots_length_per_plant_per_soil_layer,
+                plants_soil_parameters,
+                plants_light_interception,
+            ) = legume.soil_inputs()
+            soil.run(
+                legume.doy(),
+                [N_content_roots_per_plant],
+                [roots_length_per_plant_per_soil_layer],
+                [plants_soil_parameters],
+                [plants_light_interception],
+            )
+            legume.soil_results(soil.results, planter)
 
             legume.run()
-
+    
+    finally:
         execution_time = int(time.time() - current_time_of_the_system)
         print("\n" "Simulation run in {}".format(str(datetime.timedelta(seconds=execution_time))))
 
-    finally:
         legume.end()
 
 
 if __name__ == "__main__":
     in_folder = "inputs_soil_legume"
     out_folder = "outputs/legume_default"
+    id_usm = 1711
 
-    simulation(in_folder, out_folder)
+    simulation(in_folder, out_folder, id_usm)

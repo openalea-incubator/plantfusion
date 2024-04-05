@@ -1,6 +1,20 @@
 # Plant Fusion: API for mixed crop modelling
 
-## Introduction
+![](doc/img/row_planter.png)
+
+**Authors** : Maurane Woussen, Romain Barillot, Didier Combes, Gaëtan Louarn
+
+**Institutes** : INRAE
+
+**Status** : Python package 
+
+**License** : [Cecill-C](https://cecill.info/licences/Licence_CeCILL-C_V1-en.html)
+
+**URL** : https://github.com/openalea-incubator/plantfusion
+
+**Documentation** : https://plantfusion.readthedocs.io/en/latest/
+
+## Overview
 
 This package provides an API for modelling mixing crops involving several functional-structural plant models (FSPM). Its aim is to simplify the building of such simulations. 
 It takes place through the [MobiDiv](https://www6.inrae.fr/mobidiv/) research project, especially in the modelling of mixed crops with wheat and alfafa. 
